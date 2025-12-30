@@ -1,0 +1,193 @@
+Site ID,Group,Name,Pretty Name,Deployment Start,Deployment End,Breeding Type,Complex Types,Pulse Name,Outcome,mcstart,incstart,hatch,fledgestart,fledgedisp,abandon,partial abandon
+2059,Solano County,2017 Rush Ranch,2017 Rush Ranch,3/2/2017,7/24/2017,Complex,"Multiple, Retry",2017 Rush Ranch p1,Abandoned,3/7/2017,4/19/2017,5/1/2017,ND,ND,5/3/2017,ND
+2059,Solano County,2017 Rush Ranch,2017 Rush Ranch,3/2/2017,7/24/2017,Complex,"Multiple, Retry",2017 Rush Ranch p2,Successful,5/8/2017,5/18/2017,5/30/2017,6/12/2017,6/22/2017,ND,ND
+2059,Solano County,2017 Rush Ranch,2017 Rush Ranch,3/2/2017,7/24/2017,Complex,"Multiple, Retry",2017 Rush Ranch p3,Successful,6/2/2017,6/17/2017,6/29/2017,ND,ND,ND,ND
+2719,Solano County,2018 Rush Ranch,2018 Rush Ranch,2/9/2018,6/26/2018,Simple,,2018 Rush Ranch p1,Successful,5/4/2018,5/13/2018,5/25/2018,6/11/2018,6/23/2018,ND,ND
+2908,Solano County,2020 Creed Road,2020 Denverton Creek,2/12/2020,7/11/2020,No Colony,,2020 Denverton Creek p1,No Colony,ND,ND,ND,ND,ND,ND,ND
+2915,Solano County,2020 Rush Ranch,2020 Rush Ranch,2/12/2020,7/10/2020,No Colony,,2020 Rush Ranch p1,No Colony,ND,ND,ND,ND,ND,ND,ND
+3150,Iron Point,2018 Iron Point,2018 Iron Point,4/22/2018,5/19/2018,No Colony,,2018 Iron Point p1,No Colony,pre,ND,ND,ND,ND,ND,ND
+3281,Placer County,2018 Red Wing Ranch,2018 Red Wing Ranch,5/4/2018,6/4/2018,Unknown,,2018 Red Wing Ranch p1,Abandoned,pre,5/5/2018,5/17/2018,ND,ND,5/22/2018,ND
+3348,Markham Ravine,2018 Markham Ravine Main,2018 Markham Ravine,6/26/2018,7/23/2018,Unknown,,2018 Markham Ravine p1,Successful,pre,6/19/2018,7/1/2018,7/13/2018,7/17/2018,ND,ND
+3366,Markham Ravine,2018 Markham Ravine westside,2018 Markham Ravine - West,6/26/2018,7/13/2018,Unknown,,2018 Markham Ravine - West p1,Successful,pre,pre,pre,pre,post,ND,ND
+3682,San Jacinto Wildlife Area,2018 SJWA-rose-2,2018 San Jacinto Wildlife Area - Bridge St. Pond,4/10/2018,4/27/2018,Unknown,,2018 San Jacinto Wildlife Area - Bridge St. Pond p1,Abandoned,pre,ND,ND,ND,ND,4/22/2018,ND
+4455,Solano County,2019 Creed Road,2019 Denverton Creek,3/17/2019,7/7/2019,Multiple,,2019 Denverton Creek p1,Successful,3/26/2019,4/28/2019,5/10/2019,5/23/2019,5/30/2019,ND,ND
+4455,Solano County,2019 Creed Road,2019 Denverton Creek,3/17/2019,7/7/2019,Multiple,,2019 Denverton Creek p2,Abandoned,5/19/2019,#VALUE!,~5/31/2019,ND,ND,5/31/2019,ND
+4456,Solano County,2019 Hay Landfill,2019 Hay Landfill,4/8/2019,7/7/2019,Multiple,,2019 Hay Landfill p1,Successful,4/8/2019,4/15/2019,4/27/2019,5/11/2019,5/29/2019,ND,ND
+4456,Solano County,2019 Hay Landfill,2019 Hay Landfill,4/8/2019,7/7/2019,Multiple,,2019 Hay Landfill p2,Partially Abandoned,5/19/2019,5/28/2019,6/9/2019,6/22/2019,7/2/2019,ND,6/13/2019
+4639,Solano County,2019 Leisure Town,2019 Leisure Town Road,3/17/2019,7/7/2019,Multiple,,2019 Leisure Town Road p1,Successful,3/29/2019,ND,ND,5/17/2019,5/20/2019,ND,ND
+4639,Solano County,2019 Leisure Town,2019 Leisure Town Road,3/17/2019,7/7/2019,Multiple,,2019 Leisure Town Road p2,Successful,5/19/2019,5/23/2019,6/4/2019,6/17/2019,7/4/2019,ND,ND
+4979,Iron Point,2019 Iron Point,2019 Iron Point,4/24/2019,8/1/2019,Asynchronous,,2019 Iron Point p1,Successful,pre,4/21/2019,5/3/2019,5/14/2019,7/6/2019,ND,ND
+5637,Markham Ravine,2019 Markham Ravine,2019 Markham Ravine,5/10/2019,7/8/2019,Simple,,2019 Markham Ravine p1,Partially Abandoned,pre,5/16/2019,5/28/2019,6/16/2019,6/18/2019,ND,5/28/2019
+5638,Solano County,2019 Rush Ranch,2019 Rush Ranch,2/6/2019,7/6/2019,Unknown,,2019 Rush Ranch p1,Abandoned,5/1/2019,5/8/2019,~5/17/2019,ND,ND,5/22/2019,ND
+5640,Markham Ravine,2019 Markham Ravine 2,2019 Markham Ravine 2,5/10/2019,7/8/2019,Simple,,2019 Markham Ravine 2 p1,Partially Abandoned,pre,5/19/2019,5/31/2019,6/9/2019,6/20/2019,ND,5/24/2019
+5642,Colusa NWR,2019 Colusa NWR 27-1,2019 Colusa NWR T27.1,5/27/2019,8/12/2019,Simple,,2019 Colusa NWR T27.1 p1,Successful,pre,5/31/2019,6/12/2019,6/27/2019,7/21/2019,ND,ND
+5643,Colusa NWR,2019 Colusa NWR 27-2,2019 Colusa NWR T27.2,5/21/2019,6/18/2019,Simple,,2019 Colusa NWR T27.2 p1,Partially Abandoned,pre,5/16/2019,5/28/2019,6/14/2019,6/16/2019,ND,5/26/2019
+6199,Solano County,2020 Hay Landfill,2020 Hay Landfill,2/12/2020,7/10/2020,Complex,"Additions, Multiple",2020 Hay Landfill p1,Successful,4/3/2020,4/15/2020,4/27/2020,5/11/2020,6/12/2020,ND,ND
+6199,Solano County,2020 Hay Landfill,2020 Hay Landfill,2/12/2020,7/10/2020,Complex,"Additions, Multiple",2020 Hay Landfill p2,Successful,5/13/2020,5/22/2020,6/3/2020,6/21/2020,7/3/2020,ND,ND
+6404,Markham Ravine,2020 Markham Ravine,2020 Markham Ravine,4/28/2020,6/24/2020,Simple,,2020 Markham Ravine p1,Partially Abandoned,4/29/2020,5/7/2020,5/19/2020,5/30/2020,6/11/2020,ND,ND
+7650,Iron Point,2020 Iron Point,2020 Iron Point,4/19/2020,8/5/2020,No Colony,,2020 Iron Point p1,No Colony,ND,ND,ND,ND,ND,ND,ND
+7657,Bob's Sites,2020 Conaway Ranch,2020 Conaway Ranch,5/18/2020,7/10/2020,Asynchronous,,2020 Conaway Ranch p1,Successful,pre,5/25/2020,6/6/2020,6/18/2020,7/5/2020,ND,ND
+11100,Sedgwick,2021 Sedgwick,2021 Sedgwick,3/6/2021,5/6/2021,Unknown,,2021 Sedgwick p1,Unknown,4/5/2021,4/16/2021,4/28/2021,post,post,ND,ND
+11101,Solano County,2021 Hay Landfill,2021 Hay Landfill,2/2/2021,5/8/2021,Unknown,,2021 Hay Landfill p1,Unknown,3/31/2021,4/12/2021,4/24/2021,post,post,ND,ND
+18572,Monterey,2020 Ohlone - Santa Lucia Preserve,2020 Ohlone Pond - Santa Lucia Preserve,3/25/2020,7/18/2020,Simple,,2020 Ohlone Pond - Santa Lucia Preserve p1,Successful,ND,4/22/2020,5/4/2020,5/12/2020,6/14/2020,ND,ND
+21537,Bob's Sites,2021 Plumas Arboga,2021 Plumas Arboga,5/14/2021,6/4/2021,Unknown,,2021 Plumas Arboga p1,Unknown,pre,5/14/2021,5/26/2021,post,post,ND,ND
+21668,Bob's Sites,2021 Foley Ranch,2021 Foley Ranch,5/4/2021,6/14/2021,Multiple,,2021 Foley Ranch p1,Successful,pre,4/30/2021,5/12/2021,5/24/2021,6/12/2021,ND,ND
+21668,Bob's Sites,2021 Foley Ranch,2021 Foley Ranch,5/4/2021,6/14/2021,Multiple,,2021 Foley Ranch p2,Unknown,5/23/2021,5/31/2021,6/12/2021,post,post,ND,ND
+21681,Solano County,2021 Creed Road,2021 Denverton Creek,2/2/2021,5/12/2021,No Colony,,2021 Denverton Creek p1,No Colony,ND,ND,ND,ND,ND,ND,ND
+21688,Bob's Sites,2021 Hale Road 2,2021 Hale Road 2,5/4/2021,6/14/2021,Simple,,2021 Hale Road 2 p1,Successful,pre,5/2/2021,5/14/2021,5/28/2021,6/3/2021,ND,ND
+24119,Rancho Jamul,2021 Rancho Jamul,2021 Rancho Jamul,3/19/2021,6/5/2021,Simple,,2021 Rancho Jamul p1,Successful,pre,4/27/2021,5/9/2021,5/18/2021,5/27/2021,ND,ND
+24122,CNLM,2021 Dagnino Pond,2021 Dagnino Pond,4/29/2021,7/12/2021,No Colony,,2021 Dagnino Pond p1,No Colony,ND,ND,ND,ND,ND,ND,ND
+24130,Colusa NWR,2021 Colusa NWR 27-1,2021 Colusa NWR T27.1,4/21/2021,6/26/2021,Simple,,2021 Colusa NWR T27.1 p1,Successful,5/11/2021,5/23/2021,6/4/2021,ND,6/18/2021,ND,ND
+24221,Colusa NWR,2021 Colusa NWR 27-2,2021 Colusa NWR T27.2,4/21/2021,6/21/2021,Unknown,,2021 Colusa NWR T27.2 p1,Partially Abandoned,5/18/2021,6/3/2021,6/15/2021,post,post,ND,ND
+24231,Placer County,2021 Rodeo Grounds 1,2021 Rodeo Grounds,4/19/2021,6/13/2021,Simple,,2021 Rodeo Grounds p1,Successful,pre,4/20/2021,5/2/2021,5/12/2021,5/14/2021,ND,ND
+24232,CNLM,2021 Panoche Creek Preserve 2E,2021 Panoche Creek Preserve 2 East,4/1/2021,7/14/2021,Simple,,2021 Panoche Creek Preserve 2 East p1,Successful,4/7/2021,4/18/2021,4/30/2021,5/18/2021,5/22/2021,ND,ND
+24233,CNLM,2021 Panoche Creek Preserve 1W,2021 Panoche Creek Preserve 1 West,4/1/2021,7/14/2021,Simple,,2021 Panoche Creek Preserve 1 West p1,Partially Abandoned,4/7/2021,4/20/2021,5/2/2021,5/23/2021,5/24/2021,ND,4/30/2021
+24252,Placer County,2021 Orchard Creek,2021 Orchard Creek,4/19/2021,7/4/2021,Additions,,2021 Orchard Creek p1,Successful,pre,4/19/2021,5/1/2021,5/15/2021,5/24/2021,ND,ND
+24252,Placer County,2021 Orchard Creek,2021 Orchard Creek,4/19/2021,7/4/2021,Additions,,2021 Orchard Creek p2,Successful,5/4/2021,5/12/2021,5/24/2021,6/3/2021,6/17/2021,ND,ND
+24263,CNLM,2021 Willey Wetlands 3,2021 Willey Wetlands 3,6/10/2021,8/15/2021,Simple,,2021 Willey Wetlands 3 p1,Successful,pre,pre,pre,6/24/2021,7/8/2021,ND,ND
+24544,Southern Sierra Research Station,2021 Kern 2,2021 Kern 2,4/6/2021,7/30/2021,No Colony,,2021 Kern 2 p1,No Colony,ND,ND,ND,ND,ND,ND,ND
+24549,Solano County,2021 Rush Ranch,2021 Rush Ranch,2/2/2021,5/13/2021,No Colony,,2021 Rush Ranch p1,No Colony,ND,ND,ND,ND,ND,ND,ND
+24606,Southern Sierra Research Station,2021 Kern 1,2021 Kern 1,4/9/2021,8/5/2021,Simple,,2021 Kern 1 p1,Successful,4/29/2021,5/19/2021,5/31/2021,ND,6/23/2021,ND,ND
+24641,Southern Sierra Research Station,2021 Kern 3,2021 Kern 3,4/6/2021,8/5/2021,No Colony,,2021 Kern 3 p1,No Colony,ND,ND,ND,ND,ND,ND,ND
+24652,Bob's Sites,2021 Conaway South,2021 Conaway South,5/20/2021,7/5/2021,Simple,,2021 Conaway South p1,Successful,5/21/2021,5/29/2021,6/10/2021,6/23/2021,6/29/2021,ND,ND
+24653,Bob's Sites,2021 Reeds Creek South,2021 Reeds Creek South,5/4/2021,5/20/2021,Unknown,,2021 Reeds Creek South p1,Unknown,pre,5/6/2021,5/18/2021,post,post,ND,ND
+24655,Southern Sierra Research Station,2021 Kern 4,2021 Kern 4,4/19/2021,8/10/2021,Simple,,2021 Kern 4 p1,Partially Abandoned,4/27/2021,4/26/2021,5/8/2021,5/27/2021,6/11/2021,ND,5/7/2021
+24790,Wind Wolves Preserve,2021 Wind Wolves Preserve,2021 Wind Wolves Preserve,4/14/2021,7/20/2021,Simple,,2021 Wind Wolves Preserve p1,Successful,4/23/2021,5/2/2021,5/14/2021,5/28/2021,6/6/2021,ND,ND
+25171,San Jacinto Wildlife Area,2021 SJWA,2021 San Jacinto Wildlife Area - Bridge Street Pond,6/2/2021,6/30/2021,Unknown,,2021 San Jacinto Wildlife Area - Bridge Street Pond p1,Abandoned,pre,6/3/2021,6/15/2021,ND,ND,6/23/2021,ND
+26432,Markham Ravine,2021 Markham Ravine,2021 Markham Ravine,4/30/2021,6/23/2021,No Birds,,2021 Markham Ravine p1,No Birds,ND,ND,ND,ND,ND,ND,ND
+26534,Southern Sierra Research Station,2021 Kern 5,2021 Kern 5,4/27/2021,8/17/2021,Complex,"Asynchronous, Multiple",2021 Kern 5 p1,Successful,pre,4/18/2021,4/30/2021,5/18/2021,6/1/2021,ND,ND
+26534,Southern Sierra Research Station,2021 Kern 5,2021 Kern 5,4/27/2021,8/17/2021,Complex,"Asynchronous, Multiple",2021 Kern 5 p2,Successful,ND,5/16/2021,5/28/2021,6/9/2021,6/16/2021,ND,ND
+26535,Southern Sierra Research Station,2021 Kern 6,2021 Kern 6,5/1/2021,8/21/2021,No Birds,,2021 Kern 6 p1,No Birds,ND,ND,ND,ND,ND,ND,ND
+26536,Southern Sierra Research Station,2021 Kern 7,2021 Kern 7,5/17/2021,9/1/2021,Unknown,,2021 Kern 7 p1,Abandoned,pre,5/19/2021,5/31/2021,ND,ND,6/5/2021,ND
+33845,Washington,2022 WA1,2022 Washington State - McCain Wetands,5/27/2022,8/1/2022,Unknown,,2022 Washington State - McCain Wetands p1,Successful,pre,pre,pre,pre,5/30/2022,ND,ND
+33851,Oregon,2022 OR1,2022 Oregon State - Dizney Rd,4/18/2022,6/9/2022,No Colony,,2022 Oregon State - Dizney Rd p1,No Colony,ND,ND,ND,ND,ND,ND,ND
+33966,Solano County,2022 Hay Landfill,2022 Hay Landfill,2/13/2022,9/9/2022,Multiple,,2022 Hay Landfill p1,Partially Abandoned,2/17/2022,3/31/2022,4/12/2022,4/27/2022,5/18/2022,ND,ND
+33966,Solano County,2022 Hay Landfill,2022 Hay Landfill,2/13/2022,9/9/2022,Multiple,,2022 Hay Landfill p2,Successful,4/20/2022,5/5/2022,5/17/2022,5/31/2022,6/26/2022,ND,ND
+33984,Washington,2022 WA Harder Spring,2022 Washington State - Harder Spring,3/18/2022,7/13/2022,Additions,,2022 Washington State - Harder Spring p1,Successful,5/1/2022,5/5/2022,5/17/2022,5/30/2022,6/10/2022,ND,ND
+33984,Washington,2022 WA Harder Spring,2022 Washington State - Harder Spring,3/18/2022,7/13/2022,Additions,,2022 Washington State - Harder Spring p2,Successful,5/18/2022,5/26/2022,6/7/2022,6/16/2022,6/21/2022,ND,ND
+33985,Sedgwick,2022 Sedgwick,2022 Sedgwick,3/20/2022,7/12/2022,Multiple,,2022 Sedgwick p1,Successful,pre,4/2/2022,4/14/2022,4/26/2022,5/5/2022,ND,ND
+33985,Sedgwick,2022 Sedgwick,2022 Sedgwick,3/20/2022,7/12/2022,Multiple,,2022 Sedgwick p2,Successful,5/1/2022,5/10/2022,5/22/2022,6/3/2022,6/12/2022,ND,ND
+34012,Bob's Sites,2022 Plumas Arboga East,2022 Plumas Arboga East,5/4/2022,6/28/2022,Complex,"Asynchronous, Multiple",2022 Plumas Arboga East p1,Successful,pre,pre,pre,5/12/2022,6/21/2022,ND,ND
+34012,Bob's Sites,2022 Plumas Arboga East,2022 Plumas Arboga East,5/4/2022,6/28/2022,Complex,"Asynchronous, Multiple",2022 Plumas Arboga East p2,Successful,ND,5/10/2022,5/22/2022,6/62022,post,ND,ND
+34044,Colusa NWR,2022 Colusa NWR T27.1,2022 Colusa NWR T27.1,4/18/2022,8/4/2022,No Birds,,2022 Colusa NWR T27.1 p1,No Birds,ND,ND,ND,ND,ND,ND,ND
+34045,Rancho Jamul,2022 Rancho Jamul,2022 Rancho Jamul,3/2/2022,7/2/2022,Asynchronous,,2022 Rancho Jamul p1,Successful,3/20/2022,4/1/2022,4/13/2022,4/27/2022,6/29/2022,ND,ND
+34046,San Jacinto Wildlife Area,2022 SJWA,2022 San Jacinto Wildlife Area - Bridge Street Pond,5/10/2022,6/27/2022,Asynchronous,,2022 San Jacinto Wildlife Area - Bridge Street Pond p1,Successful,pre,5/14/2022,5/26/2022,6/11/2022,6/23/2022,ND,ND
+34071,CNLM,2022 Paicines Ranch - Teal Pond,2022 Paicines Ranch - Teal Pond,4/10/2022,8/6/2022,Simple,,2022 Paicines Ranch - Teal Pond p1,Successful,pre,4/10/2022,4/22/2022,5/8/2022,5/26/2022,ND,ND
+34073,Oregon,2022 OR2,2022 Oregon State - Prineville Woodward Rd,4/24/2022,6/3/2022,Simple,,2022 Oregon State - Prineville Woodward Rd p1,Successful,ND,5/4/2022,5/16/2022,5/30/2022,post,ND,ND
+34075,San Bernardino,2022 Newberry Springs - Lake Wainani,2022 Newberry Springs - Lake Wainani,5/12/2022,5/20/2022,Unknown,,2022 Newberry Springs - Lake Wainani p1,Successful,pre,pre,pre,ND,post,ND,ND
+34076,Los Vaqueros,2022 Marsh Creek Reservoir,2022 Marsh Creek Reservoir,4/15/2022,6/8/2022,No Birds,,2022 Marsh Creek Reservoir p1,No Birds,ND,ND,ND,ND,ND,ND,ND
+34077,Monterey,2022 Laguna Seca,2022 Laguna Seca,3/20/2022,7/11/2022,Multiple,,2022 Laguna Seca p1,Successful,3/31/2022,4/3/2022,4/15/2022,ND,ND,ND,ND
+34077,Monterey,2022 Laguna Seca,2022 Laguna Seca,3/20/2022,7/11/2022,Multiple,,2022 Laguna Seca p2,Successful,5/3/2022,5/13/2022,5/25/2022,ND,ND,ND,ND
+34078,Solano County,2022 Creed Road,2022 Denverton Creek,2/13/2022,8/20/2022,Simple,,2022 Denverton Creek p1,Successful,3/27/2022,4/3/2022,4/15/2022,4/29/2022,5/19/2022,ND,ND
+34079,Colusa NWR,2022 Colusa NWR T27.2,2022 Colusa NWR T27.2,4/18/2022,8/4/2022,Simple,,2022 Colusa NWR T27.2 p1,Successful,ND,5/19/2022,5/31/2022,6/13/2022,6/19/2022,ND,ND
+34087,Wind Wolves Preserve,2022 Wind Wolves Preserve Santiago Wetlands,2022 Wind Wolves Preserve - Santiago Wetlands,2/23/2022,8/17/2022,Asynchronous,,2022 Wind Wolves Preserve - Santiago Wetlands p1,Successful,3/7/2022,4/8/2022,4/20/2022,5/2/2022,6/2/2022,ND,ND
+34088,Wind Wolves Preserve,2022 Wind Wolves Preserve Pleitito Creek,2022 Wind Wolves Preserve - Pleitito Creek,3/11/2022,5/26/2022,No Colony,,2022 Wind Wolves Preserve - Pleitito Creek p1,No Colony,ND,ND,ND,ND,ND,ND,ND
+34090,Monterey,2022 Ohlone - Santa Lucia Preserve,2022 Ohlone Pond - Santa Lucia Preserve,3/21/2022,8/16/2022,Asynchronous,,2022 Ohlone Pond - Santa Lucia Preserve p1,Successful,4/13/2022,4/20/2022,5/2/2022,5/20/2022,6/17/2022,ND,ND
+34111,Bob's Sites,2022 Conaway New Easement Pond West,2022 Conaway New Easement Pond West,5/11/2022,6/13/2022,No Birds,,2022 Conaway New Easement Pond West p1,No Birds,ND,ND,ND,ND,ND,ND,ND
+34112,Bob's Sites,2022 Conaway North,2022 Conaway North,5/4/2022,6/28/2022,Simple,,2022 Conaway North p1,Successful,pre,5/9/2022,5/21/2022,6/1/2022,6/12/2022,ND,ND
+34115,Bob's Sites,2022 Conaway East,2022 Conaway East,5/9/2022,6/28/2022,Simple,,2022 Conaway East p1,Partially Abandoned,pre,5/11/2022,5/23/2022,6/7/2022,6/16/2022,ND,5/20/2022
+34117,Los Vaqueros,2022 Los Vaqueros Reservoir,2022 Los Vaqueros Reservoir,4/15/2022,6/8/2022,Unknown,,2022 Los Vaqueros Reservoir p1,Successful,pre,4/7/2022,4/19/2022,4/28/2022,5/20/2022,ND,ND
+34118,Bob's Sites,2022 Foley Ranch A,2022 Foley Ranch A,4/24/2022,6/6/2022,No Colony,,2022 Foley Ranch A p1,No Colony,ND,ND,ND,ND,ND,ND,ND
+34130,CNLM,2022 Panoche Creek Preserve Loc5,2022 Panoche Creek Preserve Location 5,4/14/2022,6/23/2022,Simple,,2022 Panoche Creek Preserve Location 5 p1,Successful,pre,4/8/2022,4/20/2022,5/1/2022,5/15/2022,ND,ND
+34131,Dairies,2022 Private Site 1 - not real lat lon,2022 Private Site 1 - approximate lat lon,4/19/2022,6/3/2022,Asynchronous,,2022 Private Site 1 - approximate lat lon p1,Successful,pre,4/18/2022,4/30/2022,5/8/2022,5/26/2022,ND,ND
+34132,Dairies,2022 Private Site 3 - not real lat lon,2022 Private Site 3 - approximate lat lon,4/19/2022,6/3/2022,Asynchronous,,2022 Private Site 3 - approximate lat lon p1,Successful,pre,pre,pre,5/9/2022,5/25/2022,ND,ND
+34133,Dairies,2022 Private Site 2 - not real lat lon,2022 Private Site 2 - approximate lat lon,4/19/2022,5/2/2022,Asynchronous,,2022 Private Site 2 - approximate lat lon p1,Successful,pre,pre,pre,4/25/2022,post,ND,ND
+34485,Baja,2022 Baja 1,2022 Baja Ciénega Redonda North,3/23/2022,7/12/2022,Simple,,2022 Baja Ciénega Redonda North p1,Successful,pre,4/2/2022,4/14/2022,4/30/2022,5/17/2022,ND,ND
+48392,Oregon,2023 OR Eureka Rd,2023 Oregon State - Eureka Lane,4/29/2023,7/24/2023,Asynchronous,,2023 Oregon State - Eureka Lane p1,Successful,ND,5/7/2023,5/19/2023,5/30/2023,6/2/2023,ND,ND
+48393,Washington,2023 WA McCain Wetlands,2023 Washington State - McCain Wetlands,4/10/2023,8/7/2023,Simple,,2023 Washington State - McCain Wetlands p1,Successful,ND,5/3/2023,5/15/2023,5/24/2023,5/27/2023,ND,ND
+48395,Baja,2023 Baja Rancho Cinega,2023 Baja Ciénega Redonda North,4/14/2023,8/22/2023,Multiple,,2023 Baja Ciénega Redonda North p1,Successful,pre,pre,pre,4/28/2023,5/6/2023,ND,ND
+48395,Baja,2023 Baja Rancho Cinega,2023 Baja Ciénega Redonda North,4/14/2023,8/22/2023,Multiple,,2023 Baja Ciénega Redonda North p2,Successful,4/26/2023,ND,ND,5/24/2023,6/5/2023,ND,ND
+48395,Baja,2023 Baja Rancho Cinega,2023 Baja Ciénega Redonda North,4/14/2023,8/22/2023,Multiple,,2023 Baja Ciénega Redonda North p3,Successful,5/22/2023,ND,ND,6/21/2023,6/24/2023,ND,ND
+48395,Baja,2023 Baja Rancho Cinega,2023 Baja Ciénega Redonda North,4/14/2023,8/22/2023,Multiple,,2023 Baja Ciénega Redonda North p4,Successful,6/19/2023,ND,ND,7/17/2023,7/27/2023,ND,ND
+48397,Oregon,2023 OR Dizney Rd,2023 Oregon State - Dizney Rd,4/29/2023,7/15/2023,Simple,,2023 Oregon State - Dizney Rd p1,Partially Abandoned,pre,5/7/2023,5/19/2023,6/3/2023,6/7/2023,ND,5/25/2023
+48398,Washington,2023 WA Harder Spring,2023 Washington State - Harder Spring,4/10/2023,8/9/2023,Multiple,,2023 Washington State - Harder Spring p1,Successful,ND,ND,ND,6/17/2023,6/25/2023,ND,ND
+48398,Washington,2023 WA Harder Spring,2023 Washington State - Harder Spring,4/10/2023,8/9/2023,Multiple,,2023 Washington State - Harder Spring p2,Successful,ND,ND,ND,7/27/2023,7/28/2023,ND,ND
+48428,Los Vaqueros,2023 Los Vaqueros - Walnut Trail Marsh,2023 Los Vaqueros - Walnut Trail Marsh,4/7/2023,7/7/2023,Simple,,2023 Los Vaqueros - Walnut Trail Marsh p1,Abandoned,pre,4/14/2023,4/26/2023,ND,ND,4/30/2023,ND
+48434,Bob's Sites,2023 Kentucky Lateral,2023 Kentucky Lateral,4/15/2023,5/22/2023,Asynchronous,,2023 Kentucky Lateral p1,Successful,pre,4/14/2023,4/26/2023,5/12/2023,5/19/2023,ND,ND
+48436,Markham Ravine,2023 Markham Ravine,2023 Markham Ravine,5/5/2023,7/17/2023,Simple,,2023 Markham Ravine p1,Successful,5/11/2023,5/19/2023,5/31/2023,6/13/2023,6/28/2023,ND,ND
+48437,Bob's Sites,2023 Plumas Arboga 8 - North Regional Pond,2023 Plumas Arboga 8 - North Regional Pond,4/21/2023,7/8/2023,Multiple,,2023 Plumas Arboga 8 - North Regional Pond p1,Successful,pre,4/24/2023,5/6/2023,5/15/2023,5/25/2023,ND,ND
+48437,Bob's Sites,2023 Plumas Arboga 8 - North Regional Pond,2023 Plumas Arboga 8 - North Regional Pond,4/21/2023,7/8/2023,Multiple,,2023 Plumas Arboga 8 - North Regional Pond p2,Successful,5/27/2023,6/3/2023,6/15/2023,6/22/2023,post,ND,ND
+48438,San Jacinto Wildlife Area,2023 Bridge St Pond,2023 San Jacinto Wildlife Area - Bridge St. Pond,4/18/2023,5/6/2023,No Birds,,2023 San Jacinto Wildlife Area - Bridge St. Pond p1,No Birds,ND,ND,ND,ND,ND,ND,ND
+48439,San Jacinto Wildlife Area,2023 West of Davis,2023 San Jacinto Wildlife Area West of Davis,5/6/2023,6/29/2023,Multiple,,2023 San Jacinto Wildlife Area West of Davis p1,Successful,pre,pre,pre,pre,5/10/2023,ND,ND
+48439,San Jacinto Wildlife Area,2023 West of Davis,2023 San Jacinto Wildlife Area West of Davis,5/6/2023,6/29/2023,Multiple,,2023 San Jacinto Wildlife Area West of Davis p2,Successful,pre,5/10/2023,5/22/2023,6/2/2023,6/5/2023,ND,ND
+48440,San Bernardino,2023 Peterson Ranch Pond - East,2023 Peterson Ranch Pond - East,4/5/2023,7/28/2023,No Colony,,2023 Peterson Ranch Pond - East p1,No Colony,ND,ND,ND,ND,ND,ND,ND
+48444,Los Vaqueros,2023 Los Vaqueros Reservoir,2023 Los Vaqueros Reservoir,3/24/2023,7/31/2023,Complex,"Asynchronous, Multiple",2023 Los Vaqueros Reservoir p1,Successful,4/7/2023,4/16/2023,4/28/2023,5/5/2023,6/13/2023,ND,ND
+48444,Los Vaqueros,2023 Los Vaqueros Reservoir,2023 Los Vaqueros Reservoir,3/24/2023,7/31/2023,Complex,"Asynchronous, Multiple",2023 Los Vaqueros Reservoir p2,Successful,5/27/2023,6/3/2023,6/15/2023,6/26/2023,7/16/2023,ND,ND
+48445,Oregon,2023 OR Prineville North,2023 Oregon State - Prineville Grimes Rd,4/29/2023,7/15/2023,Multiple,,2023 Oregon State - Prineville Grimes Rd p1,Successful,ND,5/3/2023,5/15/2023,5/27/2023,5/28/2023,ND,ND
+48445,Oregon,2023 OR Prineville North,2023 Oregon State - Prineville Grimes Rd,4/29/2023,7/15/2023,Multiple,,2023 Oregon State - Prineville Grimes Rd p2,Successful,6/3/2023,6/8/2023,6/20/2023,7/6/2023,7/11/2023,ND,ND
+48446,Merced and San Luis NWR,2023 Merced NWR - Cottonwood,2023 Merced NWR - Cottonwood Trail,5/12/2023,6/16/2023,Multiple,,2023 Merced NWR - Cottonwood Trail p1,Successful,pre,pre,pre,pre,5/28/2023,ND,ND
+48446,Merced and San Luis NWR,2023 Merced NWR - Cottonwood,2023 Merced NWR - Cottonwood Trail,5/12/2023,6/16/2023,Multiple,,2023 Merced NWR - Cottonwood Trail p2,Partially Abandoned,pre,5/13/2023,5/25/2023,6/4/2023,post,ND,6/2/2023
+48447,Merced and San Luis NWR,2023 San Luis Bear Creek,2023 San Luis NWR - Tanager Slough,6/16/2023,7/24/2023,Simple,,2023 San Luis NWR - Tanager Slough p1,Partially Abandoned,pre,6/20/2023,7/2/2023,7/14/2023,7/17/2023,ND,6/20/2023
+48448,Bob's Sites,2023 North Regional Pond,2023 North Regional Pond,3/31/2023,6/2/2023,Simple,,2023 North Regional Pond p1,Successful,4/7/2023,4/23/2023,5/5/2023,5/15/2023,5/30/2023,ND,ND
+48454,Colusa NWR,2023 Delevan NWR T43.1,2023 Delevan NWR T43.1,5/16/2023,7/18/2023,No Birds,,2023 Delevan NWR T43.1 p1,No Birds,ND,ND,ND,ND,ND,ND,ND
+48455,Colusa NWR,2023 Colusa NWR T27.1,2023 Colusa NWR T27.1,6/1/2023,8/1/2023,Simple,,2023 Colusa NWR T27.1 p1,Successful,6/19/2023,7/4/2023,7/16/2023,7/27/2023,7/29/2023,ND,ND
+48456,Bob's Sites,2023 Virginia at Ostrom,2023 Virginia at Ostrom,4/18/2023,6/14/2023,No Colony,,2023 Virginia at Ostrom p1,No Colony,ND,ND,ND,ND,ND,ND,ND
+48457,Iron Point,2023 Iron Point,2023 Iron Point,5/9/2023,8/22/2023,Simple,,2023 Iron Point p1,Partially Abandoned,pre,pre,pre,5/24/2023,6/11/2023,ND,5/13/2023
+48459,Bob's Sites,2023 Laguna Fry Confluence - 45 Sump,2023 Laguna Fry Confluence - 45 Sump,4/25/2023,6/18/2023,Simple,,2023 Laguna Fry Confluence - 45 Sump p1,Successful,pre,4/29/2023,5/11/2023,5/21/2023,5/30/2023,ND,ND
+48462,Solano County,2023 Creed Rd,2023 Denverton Creek,3/12/2023,8/7/2023,Simple,,2023 Denverton Creek p1,Abandoned,4/22/2023,5/6/2023,~5/18/2023,ND,ND,5/10/2023,ND
+48463,Bob's Sites,2023 Hale Road,2023 Hale Road,4/18/2023,7/8/2023,Multiple,,2023 Hale Road p1,Successful,5/20/2023,5/25/2023,6/6/2023,6/13/2023,7/6/2023,ND,ND
+48463,Bob's Sites,2023 Hale Road,2023 Hale Road,4/18/2023,7/8/2023,Multiple,,2023 Hale Road p2,Unknown,6/24/2023,6/29/2023,post,post,post,ND,ND
+48464,Merced and San Luis NWR,2023 San Luis NWR - West Bank Creek,2023 San Luis NWR - Fiddleneck Lake,5/26/2023,7/12/2023,Simple,,2023 San Luis NWR - Fiddleneck Lake p1,Partially Abandoned,pre,6/1/2023,6/13/2023,6/24/2023,7/4/2023,ND,6/5/2023
+48465,Bob's Sites,2023 Laguna Fry Confluence - Site 1,2023 Laguna Fry Confluence - Site 1,5/9/2023,6/18/2023,Simple,,2023 Laguna Fry Confluence - Site 1 p1,Successful,pre,5/4/2023,5/16/2023,5/26/2023,5/31/2023,ND,ND
+48466,Sedgwick,2023 Sedgwick,2023 Sedgwick,3/26/2023,7/29/2023,Asynchronous,,2023 Sedgwick p1,Successful,pre,4/3/2023,4/15/2023,4/29/2023,5/17/2023,ND,ND
+48467,Southern Sierra Research Station,2023 Kern - Canebreak Ecological Reserve 4,2023 Kern - Canebreak Ecological Reserve 4,5/25/2023,8/11/2023,No Birds,,2023 Kern - Canebreak Ecological Reserve 4 p1,No Birds,ND,ND,ND,ND,ND,ND,ND
+48469,Wind Wolves Preserve,2023 Wind Wolves Preserve Site 2,2023 Wind Wolves Preserve - Santiago Wetlands,4/7/2023,7/25/2023,Asynchronous,,2023 Wind Wolves Preserve - Santiago Wetlands p1,Successful,pre,4/19/2023,5/1/2023,5/8/2023,6/7/2023,ND,ND
+48470,Southern Sierra Research Station,2023 Kern - HQ2,2023 Kern - Headquarters 2,5/3/2023,8/11/2023,Multiple,,2023 Kern - Headquarters 2 p1,Successful,5/20/2023,5/27/2023,6/8/2023,6/20/2023,7/3/2023,ND,ND
+48470,Southern Sierra Research Station,2023 Kern - HQ2,2023 Kern - Headquarters 2,5/3/2023,8/11/2023,Multiple,,2023 Kern - Headquarters 2 p2,Successful,6/24/2023,7/1/2023,7/13/2023,7/22/2023,8/7/2023,ND,ND
+48471,Wind Wolves Preserve,2023 Wind Wolves Preserve site 1,2023 Wind Wolves Preserve - Los Lobos,4/7/2023,7/25/2023,Asynchronous,,2023 Wind Wolves Preserve - Los Lobos p1,Successful,pre,4/23/2023,5/5/2023,5/17/2023,5/31/2023,ND,ND
+48472,Colusa NWR,2023 Delevan T6,2023 Delevan T6,5/30/2023,7/25/2023,No Birds,,2023 Delevan T6 p1,No Birds,ND,ND,ND,ND,ND,ND,ND
+48473,Bob's Sites,2023 Conaway Ranch - HQ,2023 Conaway Ranch - Headquarters,5/24/2023,7/5/2023,Simple,,2023 Conaway Ranch - Headquarters p1,Successful,5/26/2023,6/1/2023,6/13/2023,6/20/2023,6/29/2023,ND,ND
+48474,Bob's Sites,2023 Conaway Ranch NE,2023 Conaway Ranch Northeast,5/26/2023,7/11/2023,Simple,,2023 Conaway Ranch Northeast p1,Successful,pre,5/30/2023,6/11/2023,6/25/2023,6/29/2023,ND,ND
+48475,Bob's Sites,2023 Plumas Arboga 2,2023 Plumas Arboga 2,5/26/2023,7/8/2023,Simple,,2023 Plumas Arboga 2 p1,Successful,pre,5/26/2023,6/7/2023,6/17/2023,6/30/2023,ND,ND
+48476,Bob's Sites,2023 Conaway Ranch North 2,2023 Conaway Ranch North 2,6/13/2023,7/27/2023,Simple,,2023 Conaway Ranch North 2 p1,Successful,pre,6/16/2023,6/28/2023,7/7/2023,7/23/2023,ND,ND
+48477,Bob's Sites,2023 Conaway Ranch North 1,2023 Conaway Ranch North 1,6/8/2023,7/13/2023,Simple,,2023 Conaway Ranch North 1 p1,Successful,pre,6/6/2023,6/18/2023,6/28/2023,7/12/2023,ND,ND
+48478,Bob's Sites,2023 South Virginia Road 3,2023 South Virginia Road 3,4/11/2023,6/6/2023,No Birds,,2023 South Virginia Road 3 p1,No Birds,ND,ND,ND,ND,ND,ND,ND
+48490,Merced and San Luis NWR,2023 Merced NWR Deadman Wetland Ditch,2023 Merced NWR - Deadman Wetland Ditch,5/23/2023,6/27/2023,Simple,,2023 Merced NWR - Deadman Wetland Ditch p1,Abandoned,pre,5/18/2023,5/30/2023,ND,ND,6/4/2023,ND
+48747,Bob's Sites,2023 Weagell Property 1,2023 Weagell Property 1,4/19/2023,6/18/2023,Complex,"Additions, Multiple",2023 Weagell Property 1 p1,Successful,4/20/2023,4/21/2023,5/3/2023,5/22/2023,6/15/2023,ND,ND
+48747,Bob's Sites,2023 Weagell Property 1,2023 Weagell Property 1,4/19/2023,6/18/2023,Complex,"Additions, Multiple",2023 Weagell Property 1 p2,Successful,ND,5/4/2023,5/16/2023,ND,ND,ND,ND
+48747,Bob's Sites,2023 Weagell Property 1,2023 Weagell Property 1,4/19/2023,6/18/2023,Complex,"Additions, Multiple",2023 Weagell Property 1 p3,Successful,ND,5/25/2023,6/6/2023,ND,ND,ND,ND
+48747,Bob's Sites,2023 Weagell Property 1,2023 Weagell Property 1,4/19/2023,6/18/2023,Complex,"Additions, Multiple",2023 Weagell Property 1 p4,Unknown,ND,6/1/2023,6/13/2023,ND,ND,ND,ND
+48764,Rancho Jamul,2023 Rancho Jamul North Pond - fix lat lon,2023 Rancho Jamul - North Pond,3/27/2023,8/4/2023,Simple,,2023 Rancho Jamul - North Pond p1,Successful,4/22/2023,5/4/2023,5/16/2023,5/25/2023,6/3/2023,ND,ND
+48765,Rancho Jamul,2023 Rancho Jamul Site 1 fix lat lon,2023 Rancho Jamul - Site 1,3/27/2023,8/3/2023,Multiple,,2023 Rancho Jamul - Site 1 p1,Successful,3/29/2023,4/13/2023,4/25/2023,5/6/2023,5/30/2023,ND,ND
+48765,Rancho Jamul,2023 Rancho Jamul Site 1 fix lat lon,2023 Rancho Jamul - Site 1,3/27/2023,8/3/2023,Multiple,,2023 Rancho Jamul - Site 1 p2,Successful,5/26/2023,6/10/2023,6/22/2023,7/10/2023,7/21/2023,ND,ND
+48797,CNLM,2023 Panoche Creek Preserve - Corrals SE,2023 Panoche Creek Preserve - Corrals South East,4/29/2023,6/12/2023,Simple,,2023 Panoche Creek Preserve - Corrals South East p1,Successful,pre,pre,pre,5/7/2023,5/16/2023,ND,ND
+48877,Colusa NWR,2023 Delevan NWR T43.2,2023 Delevan NWR T43.2,5/16/2023,9/16/2023,No Birds,,2023 Delevan NWR T43.2 p1,No Birds,ND,ND,ND,ND,ND,ND,ND
+52597,CNLM,2022 Panoche Creek Preserve Loc3,2022 Panoche Creek Preserve Location 3,3/18/2022,6/23/2022,Simple,,2022 Panoche Creek Preserve Location 3 p1,Successful,3/22/2022,4/8/2022,4/20/2022,5/3/2022,5/16/2022,ND,ND
+52598,CNLM,2022 Panoche Creek Preserve Loc4,2022 Panoche Creek Preserve Location 4,3/22/2022,4/14/2022,No Colony,,2022 Panoche Creek Preserve Location 4 p1,No Colony,ND,ND,ND,ND,ND,ND,ND
+57589,Monterey,2020 Fort Ord,2020 Fort Ord,4/8/2020,7/15/2020,Simple,,2020 Fort Ord p1,Successful,pre,4/12/2020,4/24/2020,5/9/2020,5/28/2020,ND,ND
+58629,Colusa NWR,2023 Colusa NWR T27.2,2023 Colusa NWR T27.2,6/1/2023,8/1/2023,Simple,,2023 Colusa NWR T27.2 p1,Successful,pre,6/8/2023,6/20/2023,6/29/2023,7/19/2023,ND,ND
+63044,Los Vaqueros,2024 Los Vaqueros Reservoir,2024 Los Vaqueros Reservoir,3/15/2024,6/24/2024,Multiple,,2024 Los Vaqueros Reservoir p1,Partially Abandoned,3/15/2024,4/23/2024,5/5/2024,5/19/2024,ND,ND,4/26/2024
+63044,Los Vaqueros,2024 Los Vaqueros Reservoir,2024 Los Vaqueros Reservoir,3/15/2024,6/24/2024,Multiple,,2024 Los Vaqueros Reservoir p2,Successful,5/17/2024,5/29/2024,6/10/2024,6/18/2024,post,ND,ND
+63049,Monterey,2024 Ohlone - Santa Lucia Preserve,2024 Ohlone Pond - Santa Lucia Preserve,4/10/2024,7/1/2024,Asynchronous,,2024 Ohlone Pond - Santa Lucia Preserve p1,Successful,pre,4/20/2024,5/2/2024,5/18/2024,post,ND,ND
+63085,Markham Ravine,2024 Markham Ravine 1,2024 Markham Ravine 1,5/7/2024,5/24/2024,No Birds,,2024 Markham Ravine 1 p1,No Birds,ND,ND,ND,ND,ND,ND,ND
+63086,Oregon,2024 OR Eureka Lane,2024 Oregon State -  Eureka Lane,5/4/2024,7/14/2024,No Birds,,2024 Oregon State -  Eureka Lane p1,No Birds,ND,ND,ND,ND,ND,ND,ND
+63087,Monterey,2024 Moore Lake - confirm lat lon,2024 Moore's Lake,4/10/2024,7/1/2024,No Birds,,2024 Moore's Lake p1,No Birds,ND,ND,ND,ND,ND,ND,ND
+63089,San Jacinto Wildlife Area,2024 SJWA Thistle NW of Bridge Street Pond,2024 San Jacinto Wildlife Area - Thistle Patch NW of Bridge Street Pond,6/5/2024,6/22/2024,Simple,,2024 San Jacinto Wildlife Area - Thistle Patch NW of Bridge Street Pond p1,Successful,pre,pre,pre,6/13/2024,6/19/2024,ND,ND
+63114,Merced and San Luis NWR,2024 Merced NWR - Cottonwood Trail,2024 Merced NWR - Duck Slough Farmfield,4/25/2024,7/12/2024,Asynchronous,,2024 Merced NWR - Duck Slough Farmfield p1,Successful,pre,ND,ND,5/11/2024,6/11/2024,ND,ND
+63115,CNLM,2024 Dublin Ranch Preserve - Lin Livermore Conservation Area,2024 Dublin Ranch Preserve - Lin Livermore Conservation Area,5/21/2024,8/15/2024,Simple,,2024 Dublin Ranch Preserve - Lin Livermore Conservation Area p1,Successful,pre,5/19/2024,5/31/2024,6/15/2024,6/23/2024,ND,ND
+63116,Washington,2024 WA Harder Spring,2024 Washington State - Harder Spring,3/25/2024,8/3/2024,Simple,,2024 Washington State - Harder Spring p1,Successful,ND,7/6/2024,7/18/2024,7/27/2024,post,ND,ND
+63465,Washington,2024 WA McCain Pond,2024 Washington State - McCain Wetlands,3/29/2024,8/9/2024,Simple,,2024 Washington State - McCain Wetlands p1,Successful,ND,4/28/2024,5/10/2024,5/24/2024,6/1/2024,ND,ND
+63468,Rancho Jamul,2024 Rancho Jamul - North Pond,2024 Rancho Jamul - North Pond,3/27/2024,6/22/2024,No Colony,,2024 Rancho Jamul - North Pond p1,No Colony,ND,ND,ND,ND,ND,ND,ND
+63656,Rancho Jamul,2024 Rancho Jamul - Main Pond 1,2024 Rancho Jamul - Main Pond 1,3/26/2024,8/7/2024,Complex,"Asynchronous, Multiple",2024 Rancho Jamul - Main Pond 1 p1,Successful,pre,4/9/2024,ND,ND,5/24/2024,ND,ND
+63656,Rancho Jamul,2024 Rancho Jamul - Main Pond 1,2024 Rancho Jamul - Main Pond 1,3/26/2024,8/7/2024,Complex,"Asynchronous, Multiple",2024 Rancho Jamul - Main Pond 1 p2,Successful,5/1/2024,5/14/2024,5/26/2024,6/9/2024,7/30/2024,ND,ND
+63738,Sedgwick,2024 Sedgwick,2024 Sedgwick,4/4/2024,8/4/2024,Asynchronous,,2024 Sedgwick p1,Successful,pre,4/8/2024,4/20/2024,5/6/2024,6/6/2024,ND,ND
+65444,Baja,2024 Baja Lago Mesa Redonda,2024 Baja Lago Mesa Redonda,5/2/2024,8/4/2024,Multiple,,2024 Baja Lago Mesa Redonda p1,Successful,pre,pre,pre,5/3/2024,ND,ND,ND
+65444,Baja,2024 Baja Lago Mesa Redonda,2024 Baja Lago Mesa Redonda,5/2/2024,8/4/2024,Multiple,,2024 Baja Lago Mesa Redonda p2,Successful,pre,5/12/2024,5/24/2024,ND,ND,ND,ND
+65444,Baja,2024 Baja Lago Mesa Redonda,2024 Baja Lago Mesa Redonda,5/2/2024,8/4/2024,Multiple,,2024 Baja Lago Mesa Redonda p3,Successful,5/30/2024,6/9/2024,6/21/2024,ND,7/7/2024,ND,ND
+65446,Baja,2024 Baja Rancho Cinega Redonda 1,2024 Baja Ciénega Redonda North,4/23/2024,8/19/2024,Multiple,,2024 Baja Ciénega Redonda North p1,Successful,pre,pre,pre,5/6/2024,5/29/2024,ND,ND
+65446,Baja,2024 Baja Rancho Cinega Redonda 1,2024 Baja Ciénega Redonda North,4/23/2024,8/19/2024,Multiple,,2024 Baja Ciénega Redonda North p2,Successful,4/24/2024,5/13/2024,5/25/2024,6/6/2024,6/13/2024,ND,ND
+65446,Baja,2024 Baja Rancho Cinega Redonda 1,2024 Baja Ciénega Redonda North,4/23/2024,8/19/2024,Multiple,,2024 Baja Ciénega Redonda North p3,Successful,6/4/2024,6/6/2024,6/18/2024,6/26/2024,7/16/2024,ND,ND
+65447,Baja,2024 Baja Rancho Cinega Redonda 2,2024 Baja Ciénega Redonda South,4/23/2024,8/1/2024,Multiple,,2024 Baja Ciénega Redonda South p1,Successful,pre,4/17/2024,4/29/2024,5/10/2024,5/27/2024,ND,ND
+65447,Baja,2024 Baja Rancho Cinega Redonda 2,2024 Baja Ciénega Redonda South,4/23/2024,8/1/2024,Multiple,,2024 Baja Ciénega Redonda South p2,Successful,5/11/2024,5/23/2024,6/4/2024,6/12/2024,6/21/2024,ND,ND
+65453,Colusa NWR,2024 Colusa NWR T27.1,2024 Colusa NWR T27.1,4/24/2024,9/3/2024,Simple,,2024 Colusa NWR T27.1 p1,Partially Abandoned,5/25/2024,5/30/2024,6/11/2024,ND,ND,ND,6/19/2024
+65454,Colusa NWR,2024 Colusa NWR T27.2,2024 Colusa NWR T27.2,4/24/2024,8/4/2024,No Colony,,2024 Colusa NWR T27.2 p1,No Colony,6/18/2024,ND,ND,ND,ND,ND,ND
+65456,Southern Sierra Research Station,2024 Kern 1 - check lat lon,2024 Kern 1,4/8/2024,8/12/2024,No Colony,,2024 Kern 1 p1,No Colony,ND,ND,ND,ND,ND,ND,ND
+65471,CNLM,2024 Panoche Creek Preserve - Dollar Marsh East,2024 Panoche Creek Preserve - Dollar Marsh East,4/15/2024,8/1/2024,Simple,,2024 Panoche Creek Preserve - Dollar Marsh East p1,Successful,pre,4/17/2024,4/29/2024,5/12/2024,5/30/2024,ND,ND
+65480,Wind Wolves Preserve,2024 Wind Wolves Preserve - Tevis fix lat lon,2024 Wind Wolves Preserve - Tevis,4/30/2024,9/24/2024,Simple,,2024 Wind Wolves Preserve - Tevis p1,Successful,pre,pre,pre,5/17/2024,6/7/2024,ND,ND
+65481,Wind Wolves Preserve,2024 Wind Wolves Preserve - Los Lobos fix lat lon,2024 Wind Wolves Preserve - Los Lobos,4/30/2024,9/11/2024,Asynchronous,,2024 Wind Wolves Preserve - Los Lobos p1,Successful,pre,pre,pre,pre,6/13/2024,ND,ND
+65482,Wind Wolves Preserve,2024 Wind Wolves Preserve - Pleitito,2024 Wind Wolves Preserve - Pleitito Creek,4/26/2024,8/11/2024,Complex,"Asynchronous, Multiple",2024 Wind Wolves Preserve - Pleitito Creek p1,Successful,pre,pre,pre,4/30/2024,5/27/2024,ND,ND
+65482,Wind Wolves Preserve,2024 Wind Wolves Preserve - Pleitito,2024 Wind Wolves Preserve - Pleitito Creek,4/26/2024,8/11/2024,Complex,"Asynchronous, Multiple",2024 Wind Wolves Preserve - Pleitito Creek p2,Successful,ND,5/13/2024,5/25/2024,6/11/2024,6/16/2024,ND,ND
+65483,Wind Wolves Preserve,2024 Wind Wolves Preserve - Santiago,2024 Wind Wolves Preserve - Santiago Wetlands,4/30/2024,8/31/2024,Asynchronous,,2024 Wind Wolves Preserve - Santiago Wetlands p1,Successful,pre,pre,pre,5/4/2024,6/30/2024,ND,ND
+66012,San Bernardino,2024 Newberry Springs,2024 Newberry Springs  - Lake Wainani,5/27/2024,6/2/2024,Unknown,,2024 Newberry Springs  - Lake Wainani p1,Successful,pre,pre,pre,pre,post,ND,ND
+77023,Bob's Sites,2024 North Regional Pond,2024 North Regional Pond,4/16/2024,6/2/2024,No Colony,,2024 North Regional Pond p1,No Colony,4/20/2024,ND,ND,ND,ND,ND,ND
+82621,San Jacinto Wildlife Area,2018 SJWA WSS,2018 SJWA Little Ramona,4/2/2018,5/1/2018,Unknown,,2018 SJWA Little Ramona p1,Abandoned,4/10/2018,4/20/2018,~4/24/2018,ND,ND,43212,ND
