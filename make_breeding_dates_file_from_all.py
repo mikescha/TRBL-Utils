@@ -126,7 +126,8 @@ def example_process_row(row):
     complex_types = row.get('Complex Types', '')
     first_rec = row.get('First Recording', '')
     last_rec = row.get('Last Recording', '')
-       	
+    substrate = row.get('Substrate')
+    colony_size = row.get('Approx Colony Size')
 
     # Define pulse outcomes to process
     pulses = ['p1', 'p2', 'p3', 'p4']
@@ -153,7 +154,9 @@ def example_process_row(row):
             'Breeding Type': breeding_type,
             'Complex Types': complex_types,
             'Pulse Name': pretty_site_name + ' ' + pulse,
-            'Outcome': outcome
+            'Outcome': outcome,
+            'Substrate' : substrate, 
+            'Colony Size' : colony_size,     
         }
         
         # Add pulse-specific date columns
