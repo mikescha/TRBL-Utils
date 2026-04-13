@@ -1,0 +1,13 @@
+Breeding Type Summary
+=====================
+
+Breeding Type
+Simple          66
+Sequential      43
+Asynchronous    23
+No Colony       23
+Unknown         18
+Complex         18
+No TRBL         16
+Additions        4
+Name: count, dtype: int64

@@ -5,6 +5,7 @@ from datetime import datetime, timedelta
 import re
 from typing import Any, Callable
 from copy import deepcopy
+import time
 
 
 DAYS_TO_COUNT = 10
@@ -16,9 +17,12 @@ BASE_DIR = Path(".")
 DATA_DIR = Path("C:\\Users\\mikes\\OneDrive\\Documents\\GitHub\\TRBLSummarizer\\TRBLSummarizer\\")
 BREEDING_DATES_CSV = BASE_DIR / "breeding dates.csv"
 PMJ_DIR = DATA_DIR / "PMJ Data"
-OUTPUT_CSV = DATA_DIR / "nestling-to-female-ratios.csv"
-FILTERED_OUTPUT_CSV = DATA_DIR / "nestling-to-female-ratios-filtered.csv"
+SHARING_OUTPUT_DIR = "G:\\My Drive\\TRBL for Wendy GDrive\\"
+OUT_FILE = Path("nestling-to-female-ratios.csv")
+OUTPUT_CSV = DATA_DIR / OUT_FILE
+SHARING_OUTPUT_CSV = SHARING_OUTPUT_DIR / OUT_FILE
 
+FILTERED_OUTPUT_CSV = DATA_DIR / "nestling-to-female-ratios-filtered.csv"
 # Source column name for site in the tracking CSV (row-2 headers)
 NAME_SOURCE_COL = "Name"
 HATCH_COL = "hatch"
@@ -33,7 +37,7 @@ VALID_OUTCOMES = {
 }
 VALID_BT = {
     "Simple",
-    "Multiple",
+    "Sequential",
 }
 
 
@@ -71,6 +75,7 @@ def make_base_result_row(row: pd.Series) -> dict[str, Any]:
         # Static site metadata copied to every output row
         "Substrate": row["Substrate"],
         "Approx_Size": row["Colony Size"],
+        "Comment" : "",
     }
 
 def parse_hatch_date_line(name: str, raw_line: str) -> datetime | None:
@@ -178,6 +183,7 @@ def summarize_for_hatch_date(
     fledgling_df: pd.DataFrame,
     site_info:pd.Series,
 ) -> dict:
+    comment = ""
     """Given a site name, a hatch_date, and already-loaded female/nestling dataframes
     (with a 'date' column), compute all summary metrics and return a dict for results.
     """
@@ -248,19 +254,29 @@ def summarize_for_hatch_date(
         total_fledgling_calls = 0
         avg_fledgling_calls_per_day = None
 
-    # Ratio
+    # Calculate ARI Ratio
     if not (avg_female_per_day is None) and \
-       avg_female_per_day > 0 and \
-       not (avg_nestling_per_day is None) and \
+       incubation_days >= 4 and \
+       nestling_days >= 4 and \
        site_info[OUTCOME_COL] in (VALID_OUTCOMES) and \
        site_info["Breeding Type"] in VALID_BT:
-       
         if avg_female_per_day > 0 :
             ratio = avg_nestling_per_day / avg_female_per_day 
         else:
-            pass
+            comment = "Female calls = 0"
+            ratio = None
     else:
         ratio = None
+        if total_female_calls == 0:
+            comment += "Female calls = 0 |"
+        if incubation_days < 4:
+            comment += "Incubation days less than 4 |"
+        if nestling_days < 4:
+            comment += "Nestling days less than 4 |"
+        if not (site_info[OUTCOME_COL] in (VALID_OUTCOMES)):
+            comment += f"Outcome is not valid: {site_info[OUTCOME_COL]} |"
+        if not (site_info["Breeding Type"] in VALID_BT):
+            comment += f"Breeding Type is not valid: {site_info["Breeding Type"]}"
 
     def fmt_date(d: pd.Timestamp | None) -> str:
         if d is None or pd.isna(d):
@@ -295,10 +311,9 @@ def summarize_for_hatch_date(
             round(avg_fledgling_calls_per_day, 3) if avg_fledgling_calls_per_day is not None else None
         ), 
         "Fledglings_Present" : True if total_fledgling_calls else False,
-
+        "Comment" : comment,
     }
 
-import time
 
 def save_csv_with_retry(df, path, retry_delay=1.0):
     """
@@ -463,6 +478,7 @@ def make_ratios():
             if hatch_dt is None:
                 # Output a row indicating this line existed but could not be parsed
                 base["Hatch_Date"] = str(raw_line).strip() if raw_line != "ND" else "NHD"
+                base["Comment"] = "No valid hatch date"
             else:
                 patch = summarize_for_hatch_date(hatch_dt, 
                                                female_df, 
@@ -474,6 +490,10 @@ def make_ratios():
 
     if results:
         results_df = pd.DataFrame(results)
+
+        save_csv_with_retry(results_df, OUTPUT_CSV)
+        save_csv_with_retry(results_df, SHARING_OUTPUT_CSV)
+        print(f"[DONE] Wrote full results to: {OUTPUT_CSV} and {SHARING_OUTPUT_CSV}")
 
         filtered_outcomes =  {"Successful","Partially Abandoned",}
         mask_keep = (
@@ -569,14 +589,11 @@ def make_ratios():
 
         with open("ratios_results.txt", "w") as file:
             file.write(msg)
-        save_csv_with_retry(results_df, OUTPUT_CSV)
-        print(f"[DONE] Wrote full results to: {OUTPUT_CSV}")
-
 
         # For comparison with the old one
         bad = {"NHD", "post", "pre"}
         bad2={"Unknown"}
-        bad3={"Simple", "Multiple"}
+        bad3={"Simple", "Sequential"}
         mask = (
             ~results_df["Hatch_Date"].isin(bad) &
             ~results_df["Outcome"].isin(bad2) &

@@ -77,6 +77,19 @@ def process_csv(input_file, output_file, process_row_func):
                 print(f"Processed {row_count} input rows")
                 print(f"Generated {output_count} output rows")
                 print(f"Output written to: {output_file}")
+
+                import pandas as pd
+                from pathlib import Path
+
+                df = pd.DataFrame(all_output_rows)
+                breeding_type_counts = df["Breeding Type"].value_counts()
+                print(breeding_type_counts)
+
+                output_path = Path("results.txt")
+                with output_path.open("w", encoding="utf-8") as f:
+                    f.write("Breeding Type Summary\n")
+                    f.write("=====================\n\n")
+                    f.write(f"{breeding_type_counts}")
             else:
                 print(f"Processed {row_count} input rows")
                 print(f"No output rows generated (all rows may have been skipped)")
@@ -113,8 +126,8 @@ def example_process_row(row):
     """
     output_rows = []
     
-    # Skip rows where "Skip Site" is not empty
-    if row.get('Skip Site', '').strip():
+    # Skip rows where "Skip Site" = Y
+    if row["Skip Site"] == "Y":
         return output_rows
     
     # Extract base site information
@@ -122,6 +135,7 @@ def example_process_row(row):
     group = row.get('Group', '')
     pretty_site_name = row.get('Pretty Site Name', '')
     site_name = row.get('Name')
+    comment = row.get('Comment for Skip Site')
     breeding_type = row.get('Breeding Type', '')
     complex_types = row.get('Complex Types', '')
     first_rec = row.get('First Recording', '')
@@ -149,6 +163,7 @@ def example_process_row(row):
             'Group': group,
             'Name' : site_name,
             'Pretty Name': pretty_site_name,
+            'Comment' : comment,
             'Deployment Start': first_rec,
             'Deployment End' : last_rec,
             'Breeding Type': breeding_type,

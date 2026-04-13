@@ -3,11 +3,11 @@
 One-time builder for an intermediate table of recording counts per site per day per hour.
 
 Input:
-  - Raw TRBLSummarizer exports: "data YYYY.csv" (e.g., data 2017.csv ... data 2024.csv)
+  - Raw TRBLSummarizer exports: "data YYYY.parquet" (e.g., data 2017.parquet ... data 2024.parquet)
     Must include columns: site, day, month, year, hour
 
 Output:
-  - recordings_per_day_hour.parquet (recommended) and/or recordings_per_day_hour.csv
+  - recordings_per_day_hour.parquet (recommended) and/or recordings_per_day_hour.parquet
 
 Schema:
   - site (str)
@@ -20,7 +20,7 @@ Usage examples:
     --raw-dir "C:\\Users\\mikes\\OneDrive\\Documents\\GitHub\\TRBLSummarizer\\TRBLSummarizer\\Data" \
     --out-parquet "recordings_per_day_hour.parquet"
 
-  python build_recordings_per_day_hour.py --raw-dir "...\\Data" --out-csv "recordings_per_day_hour.csv"
+  python build_recordings_per_day_hour.py --raw-dir "...\\Data" --out-parquet "recordings_per_day_hour.parquet"
 
 Dependencies:
   - pandas
@@ -38,28 +38,28 @@ from pathlib import Path
 import argparse
 import re
 from typing import Dict, Tuple
-
+import pyarrow.parquet as pq
 import pandas as pd
 
 
 def discover_year_files(raw_dir: Path) -> list[Path]:
-    """Return data YYYY.csv files sorted by year."""
-    files = sorted(raw_dir.glob("data *.csv"))
+    """Return data YYYY.parquet files sorted by year."""
+    files = sorted(raw_dir.glob("data *.parquet"))
 
     def year_key(p: Path) -> int:
-        m = re.search(r"data\s+(\d{4})\.csv$", p.name)
+        m = re.search(r"data\s+(\d{4})\.parquet$", p.name)
         if not m:
             return 0
         return int(m.group(1))
 
-    files = sorted([p for p in files if re.search(r"data\s+\d{4}\.csv$", p.name)], key=year_key)
+    files = sorted([p for p in files if re.search(r"data\s+\d{4}\.parquet$", p.name)], key=year_key)
     if not files:
-        raise FileNotFoundError(f"No files matching 'data YYYY.csv' found in: {raw_dir}")
+        raise FileNotFoundError(f"No files matching 'data YYYY.parquet' found in: {raw_dir}")
     return files
 
 
 def build_counts(raw_dir: Path, chunksize: int = 2_000_000) -> pd.DataFrame:
-    """Scan all 'data YYYY.csv' files and build a (site, date, hour) -> n_recordings table."""
+    """Scan all 'data YYYY.parquet' files and build a (site, date, hour) -> n_recordings table."""
 
     year_files = discover_year_files(raw_dir)
 
@@ -71,13 +71,12 @@ def build_counts(raw_dir: Path, chunksize: int = 2_000_000) -> pd.DataFrame:
 
     for fpath in year_files:
         print(f"[READ] {fpath}")
+        pf = pq.ParquetFile(fpath)
+        pf.iter_batches(batch_size=chunksize, columns=usecols)
 
-        for chunk in pd.read_csv(
-            fpath,
-            usecols=usecols,
-            dtype=dtypes,
-            chunksize=chunksize,
-        ):
+        for batch in pf.iter_batches(batch_size=chunksize, columns=usecols):
+            chunk = batch.to_pandas()
+
             chunk = chunk.dropna(subset=["site", "date", "hour"])
             # hour values look like '20:40:00' or '9:32:00' -> extract the hour (20, 9)
             h = chunk["hour"].astype("string").str.strip()
@@ -130,7 +129,7 @@ def build_counts(raw_dir: Path, chunksize: int = 2_000_000) -> pd.DataFrame:
 
 def build_recordings_per_day_per_hour_file() -> None:
     ap = argparse.ArgumentParser(
-        description="Build per-site per-day per-hour recording counts from data YYYY.csv files."
+        description="Build per-site per-day per-hour recording counts from data YYYY.parquet files."
     )
 
     ap.add_argument(
@@ -139,7 +138,7 @@ def build_recordings_per_day_per_hour_file() -> None:
         default=Path(
             "C:/Users/mikes/OneDrive/Documents/GitHub/TRBLSummarizer/TRBLSummarizer/Data"
         ),
-        help="Directory containing 'data YYYY.csv' files.",
+        help="Directory containing 'data YYYY.parquet' files.",
     )
 
     ap.add_argument(
@@ -150,17 +149,10 @@ def build_recordings_per_day_per_hour_file() -> None:
     )
 
     ap.add_argument(
-        "--out-csv",
-        type=Path,
-        default=None,
-        help="Write output to this CSV file (optional).",
-    )
-
-    ap.add_argument(
         "--chunksize",
         type=int,
         default=2_000_000,
-        help="Rows per chunk when reading raw CSVs.",
+        help="Rows per chunk when reading raw parquet.",
     )
 
     args = ap.parse_args()
@@ -178,11 +170,6 @@ def build_recordings_per_day_per_hour_file() -> None:
         args.out_parquet.parent.mkdir(parents=True, exist_ok=True)
         df.to_parquet(args.out_parquet, index=False)
         print(f"[WRITE] Parquet: {args.out_parquet}")
-
-    if args.out_csv is not None:
-        args.out_csv.parent.mkdir(parents=True, exist_ok=True)
-        df.to_csv(args.out_csv, index=False)
-        print(f"[WRITE] CSV: {args.out_csv}")
 
     print(f"[DONE] rows={len(df):,}")
 

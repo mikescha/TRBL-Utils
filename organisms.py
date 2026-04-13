@@ -12,7 +12,7 @@ import pandas as pd
 # -----------------
 
 BASE_DIR = Path(".")
-TRACKING_CSV = BASE_DIR / "breeding dates.csv"
+BREEDING_DATES_CSV = BASE_DIR / "breeding dates.csv"
 
 # Root of TRBLSummarizer repo (used for denominators + PMJ Data)
 # Use forward slashes to avoid escape issues on Windows.
@@ -20,20 +20,14 @@ DATA_DIR = Path("C:/Users/mikes/OneDrive/Documents/GitHub/TRBLSummarizer/TRBLSum
 RAW_DATA_DIR = DATA_DIR / "Data"  # contains data 2017.csv ... data 2024.csv
 PMJ_DIR = DATA_DIR / "PMJ Data"
 
-# Optional: precomputed daily recording-count tables (recommended).
-# Prefer Parquet if present, fall back to CSV.
 # Expected columns: site, date, n_recordings
 DAILY_COUNTS_PARQUET = BASE_DIR / "recordings_per_day.parquet"
 DAILY_COUNTS_CSV = RAW_DATA_DIR / "recordings_per_day.csv"
-
-INSECT_OUTPUT_CSV = BASE_DIR / "insects.csv"
-PTF_OUTPUT_CSV = BASE_DIR / "ptfs.csv"
-
+OUTPUT_CSV = BASE_DIR / "organisms.csv"
 
 # -----------------
 # Tracking CSV columns
 # -----------------
-
 NAME_SOURCE_COL = "Name"          # site name
 PULSE_NAME_COL = "Pulse Name"     # pulse name
 HATCH_DATE_COL = "hatch"          # renamed internally to "Hatch Date"
@@ -45,14 +39,11 @@ HATCH_DATE_PRE_TOKEN = "pre"
 # -----------------
 # Organisms
 # -----------------
-
-INSECT_TYPES: tuple[str, ...] = ("Insect 30", "Insect 31", "Insect 32", "Insect 33")
-FROG_TYPES: tuple[str, ...] = ("Pacific Tree Frog",)
-
-ORGANISMS: dict[str, dict] = {
-    "PTF": {"types": FROG_TYPES, "output_csv": PTF_OUTPUT_CSV},
-    "Insect": {"types": INSECT_TYPES, "output_csv": INSECT_OUTPUT_CSV},
-}
+ORGANISMS: tuple[str, ...] = (
+    "Chirper",
+    "Triller",
+    "Pacific Tree Frog",
+)
 
 WINDOW_DAYS = 11  # inclusive; window_end = start + WINDOW_DAYS
 
@@ -62,7 +53,8 @@ WINDOW_DAYS = 11  # inclusive; window_end = start + WINDOW_DAYS
 # -----------------
 
 def parse_hatch_date_line(site_name: str, raw_line: str) -> pd.Timestamp | None:
-    """Parse a single hatch-date line into a normalized Timestamp.
+    """
+    Parse a single hatch-date line into a normalized Timestamp.
 
     Cleanup rules:
       - Ignore blank / ND
@@ -115,8 +107,9 @@ def count_present(df: pd.DataFrame) -> int:
 # Tracking table
 # -----------------
 
-def load_tracking_table() -> pd.DataFrame:
-    """Load tracking CSV and return standardized columns.
+def load_breeding_dates_table() -> pd.DataFrame:
+    """
+    Load tracking CSV and return standardized columns.
 
     Required columns:
       - NAME_SOURCE_COL
@@ -126,8 +119,8 @@ def load_tracking_table() -> pd.DataFrame:
       - PULSE_NAME_COL
       - FLEDGE_START_COL
     """
-    print(f"Loading breeding dates: {TRACKING_CSV}")
-    df = pd.read_csv(TRACKING_CSV, dtype=str)
+    print(f"Loading breeding dates: {BREEDING_DATES_CSV}")
+    df = pd.read_csv(BREEDING_DATES_CSV, dtype=str)
 
     required = [NAME_SOURCE_COL, HATCH_DATE_COL]
     missing = [c for c in required if c not in df.columns]
@@ -148,7 +141,8 @@ def load_tracking_table() -> pd.DataFrame:
 # -----------------
 
 def load_call_table(path: Path) -> pd.DataFrame:
-    """Load a call CSV with columns: year, month, day, validated, recording; add normalized 'date'.
+    """
+    Load a call CSV with columns: year, month, day, validated, recording; add normalized 'date'.
 
     Returns empty DF with correct columns if file missing.
     """
@@ -193,7 +187,8 @@ _daily_counts_df: pd.DataFrame | None = None
 
 
 def load_daily_counts() -> pd.DataFrame | None:
-    """Load precomputed recordings_per_day table.
+    """
+    Load precomputed recordings_per_day table.
 
     Preference order:
       1) recordings_per_day.parquet (fastest)
@@ -225,7 +220,8 @@ def load_daily_counts() -> pd.DataFrame | None:
 
 
 def count_total_recordings(site_name: str, window_start: pd.Timestamp, window_end: pd.Timestamp) -> int:
-    """Count total recordings for a site in [window_start, window_end] (inclusive).
+    """
+    Count total recordings for a site in [window_start, window_end] (inclusive).
 
     Uses recordings_per_day.(parquet|csv).
     """
@@ -239,80 +235,20 @@ def count_total_recordings(site_name: str, window_start: pd.Timestamp, window_en
         ]
         total = int(df_site["n_recordings"].sum())
 
-#None of this should be neccesary as I'll make sure we have the parquet file
-    # yr = site_year(site_name)
-    # raw_path = RAW_DATA_DIR / f"data {yr}.csv"
-
-    # total = 0
-    # usecols = ["site", "day", "month", "year"]
-
-    # for chunk in pd.read_csv(
-    #     raw_path,
-    #     usecols=usecols,
-    #     dtype={"site": str, "day": int, "month": int, "year": int},
-    #     chunksize=2_000_000,
-    # ):
-    #     chunk = chunk[chunk["site"] == site_name]
-    #     if chunk.empty:
-    #         continue
-
-    #     date_str = chunk["year"].astype(str) + "-" + chunk["month"].astype(str) + "-" + chunk["day"].astype(str)
-    #     chunk_dates = pd.to_datetime(date_str, errors="coerce").dt.normalize()
-    #     mask = (chunk_dates >= window_start) & (chunk_dates <= window_end)
-    #     total += int(mask.sum())
-
     return total
 
 
 # -----------------
 # Summarization
 # -----------------
-
-def summarize_organisms_for_window(
+def summarize_all_organisms_for_window(
     site_name: str,
     pulse_name: str,
     date_type_used: str,
     window_start: pd.Timestamp,
     window_end: pd.Timestamp,
-    org_key: str,
-    organism_cfg: dict,
 ) -> dict:
-    """Summarize detections for a site + time window.
-
-    Denominator (TOTAL) is total recordings in the window from TRBLSummarizer data.
-    Numerators (PRESENT) come from validated=='present' in the organism call files.
-    """
-
-    org_types: tuple[str, ...] = organism_cfg["types"]
-
-    total_recordings_window = count_total_recordings(site_name, window_start, window_end)
-
-    per_type_total: dict[str, int] = {}
-    per_type_present: dict[str, int] = {}
-
-    earliest_any: pd.Timestamp | None = None
-
-    # For present_all_types (dedupe by recording)
-    window_rows_for_present: list[pd.DataFrame] = []
-
-    for t in org_types:
-        print(f"Loading organism calls for {t}...")
-        path = PMJ_DIR / site_name / f"{site_name} {t}.csv"
-
-        df = load_call_table(path)
-        mask = (df["date"] >= window_start) & (df["date"] <= window_end)
-        df2 = df.loc[mask, ["recording", "validated", "date"]].copy().assign(organism_type=t)
-
-        pres = count_present(df2)
-
-        per_type_total[t] = int(total_recordings_window)
-        per_type_present[t] = int(pres)
-
-        if not df2.empty:
-            dmin = df2["date"].min()
-            if earliest_any is None or dmin < earliest_any:
-                earliest_any = dmin
-            window_rows_for_present.append(df2[["recording", "validated"]])
+    total_recordings_in_window = count_total_recordings(site_name, window_start, window_end)
 
     out: dict[str, object] = {
         "Site Name": site_name,
@@ -320,30 +256,35 @@ def summarize_organisms_for_window(
         "Date Used": date_type_used,
         "Window Start": fmt_date(window_start),
         "Window End": fmt_date(window_end),
-        "Earliest Rec": fmt_date(earliest_any),
+        "Earliest Rec": "n/a",
+        "Total Recordings in Window": total_recordings_in_window,
     }
 
-    for t in org_types:
-        out[f"Total Recordings in Window"] = per_type_total.get(t, 0)
-        out[f"Total {t} Calls Present"] = per_type_present.get(t, 0)
-        out[f"Ratio {t}"] = ratio(per_type_present.get(t, 0), per_type_total.get(t, 0))
+    earliest_any: pd.Timestamp | None = None
 
-    if window_rows_for_present:
-        all_df = pd.concat(window_rows_for_present, ignore_index=True)
-        v = all_df["validated"].astype(str).str.strip().str.lower()
-        present_unique = int(all_df.loc[v == "present", "recording"].nunique())
-    else:
-        present_unique = 0
+    for organism_type in ORGANISMS:
+        print(f"Loading organism calls for {organism_type}...")
+        path = PMJ_DIR / site_name / f"{site_name} {organism_type}.csv"
+        df = load_call_table(path)
 
-    if len(org_types) > 1:
-        out[f"Total Recordings All Types"] = int(total_recordings_window)
-        out[f"Total {org_key} Calls Present All Types"] = int(present_unique)
-        out["Ratio All Types"] = ratio(present_unique, int(total_recordings_window))
+        mask = (df["date"] >= window_start) & (df["date"] <= window_end)
+        df2 = df.loc[mask, ["recording", "validated", "date"]].copy()
 
+        pres = count_present(df2)
+
+        if not df2.empty:
+            dmin = df2["date"].min()
+            if earliest_any is None or dmin < earliest_any:
+                earliest_any = dmin
+
+        out[f"Total {organism_type} Calls Present"] = int(pres)
+        out[f"Ratio {organism_type}"] = ratio(pres, total_recordings_in_window)
+
+    out["Earliest Rec"] = fmt_date(earliest_any)
     return out
 
 
-def _audit_row(site_name: str, pulse_name: str, org_key: str, org_types: tuple[str, ...], window_start_raw: str) -> dict:
+def _audit_row(site_name: str, pulse_name: str, window_start_raw: str) -> dict:
     row = {
         "Site Name": site_name,
         "Pulse Name": pulse_name,
@@ -351,17 +292,10 @@ def _audit_row(site_name: str, pulse_name: str, org_key: str, org_types: tuple[s
         "Window Start": window_start_raw,
         "Window End": "n/a",
         "Earliest Rec": "n/a",
-        **{f"Total Recordings in Window": 0 for t in org_types},
-        **{f"Total {t} Calls Present": 0 for t in org_types},
-        **{f"Ratio {t}": "n/a" for t in org_types},
-        f"Total Recordings All Types": 0,
-        f"Total {org_key} Calls Present All Types": 0,
-        "Ratio All Types": "n/a",
+        "Total Recordings in Window": 0,
+        **{f"Total {t} Calls Present": 0 for t in ORGANISMS},
+        **{f"Ratio {t}": "n/a" for t in ORGANISMS},
     }
-    if len(org_types) == 1:
-        del row["Total Recordings All Types"]
-        del row[f"Total {org_key} Calls Present All Types"]
-        del row["Ratio All Types"]
         
     return row
 
@@ -369,91 +303,73 @@ def _audit_row(site_name: str, pulse_name: str, org_key: str, org_types: tuple[s
 # -----------------
 # Main
 # -----------------
-
 def make_critter_ratios_file() -> None:
-    tracking_df = load_tracking_table()
+    breeding_dates_df = load_breeding_dates_table()
+    results: list[dict] = []
 
-    for org_key, cfg in ORGANISMS.items():
-        org_types: tuple[str, ...] = cfg["types"]
-        results: list[dict] = []
+    for _, row in breeding_dates_df.iterrows():
+        site_name = str(row.get(NAME_SOURCE_COL, "")).strip()
+        pulse_name = str(row.get(PULSE_NAME_COL, "")).strip()
+        hatch_cell = row.get("Hatch Date", "")
 
-        for _, row in tracking_df.iterrows():
-            site_name = str(row.get(NAME_SOURCE_COL, "")).strip()
-            pulse_name = str(row.get(PULSE_NAME_COL, "")).strip()
-            hatch_cell = row.get("Hatch Date", "")
+        if not site_name or pd.isna(hatch_cell):
+            continue
 
-            if not site_name:
+        hatch_str = str(hatch_cell).strip()
+        if not hatch_str:
+            continue
+
+        if hatch_str.lower() == HATCH_DATE_PRE_TOKEN:
+            fledge_cell = row.get(FLEDGE_START_COL, "")
+            if pd.isna(fledge_cell):
+                print(f"[ERROR] Hatch Date line is 'pre' but Fledge Start is missing for '{site_name}'.")
+                results.append(_audit_row(site_name, pulse_name, hatch_str))
                 continue
 
-            if pd.isna(hatch_cell) or not str(hatch_cell).strip():
+            fledge_str = str(fledge_cell).strip()
+            if not fledge_str or fledge_str.upper() == "ND":
+                print(f"[ERROR] Fledge Start is missing/ND for '{site_name}': {fledge_cell!r}")
+                results.append(_audit_row(site_name, pulse_name, hatch_str))
                 continue
 
-            for raw_line in str(hatch_cell).splitlines():
-                raw_s = str(raw_line).strip()
+            try:
+                fledge_dt = pd.to_datetime(fledge_str, errors="raise", dayfirst=False).normalize()
+            except Exception:
+                print(f"[ERROR] Bad Fledge Start for '{site_name}': {fledge_cell!r}")
+                results.append(_audit_row(site_name, pulse_name, hatch_str))
+                continue
 
-                if raw_s.lower() == HATCH_DATE_PRE_TOKEN:
-                    fledge_cell = row.get(FLEDGE_START_COL, "")
-                    if pd.isna(fledge_cell) or not str(fledge_cell).strip() or str(fledge_cell).strip().upper() == "ND":
-                        print(f"[ERROR] Hatch Date line is 'pre' but Fledge Start is missing/ND for '{site_name}'.")
-                        results.append(_audit_row(site_name, pulse_name, org_key, org_types, raw_s))
-                        continue
+            date_type_used = "Fledge"
+            window_start = fledge_dt - timedelta(days=WINDOW_DAYS)
+            window_end = fledge_dt
 
-                    try:
-                        fledge_dt = pd.to_datetime(str(fledge_cell).strip(), errors="raise", dayfirst=False).normalize()
-                    except Exception:
-                        valid = ["pre"]
-                        if fledge_cell in valid:
-                            print(f"[ERROR] Bad Fledge Start for '{site_name}': {fledge_cell!r}")
-                            results.append(_audit_row(site_name, pulse_name, org_key, org_types, raw_s))
-                        continue
+        else:
+            hatch_dt = parse_hatch_date_line(site_name, hatch_str)
+            if hatch_dt is None:
+                results.append(_audit_row(site_name, pulse_name, hatch_str))
+                continue
 
-                    window_end = fledge_dt
-                    window_start = fledge_dt - timedelta(days=WINDOW_DAYS)
-                    date_type_used = "Fledge"
+            date_type_used = "Hatch"
+            window_start = hatch_dt
+            window_end = hatch_dt + timedelta(days=WINDOW_DAYS)
 
-                    results.append(
-                        summarize_organisms_for_window(
-                            site_name=site_name,
-                            pulse_name=pulse_name,
-                            date_type_used=date_type_used,
-                            window_start=window_start,
-                            window_end=window_end,
-                            org_key=org_key,
-                            organism_cfg=cfg,
-                        )
-                    )
-                    continue
+        results.append(
+            summarize_all_organisms_for_window(
+                site_name=site_name,
+                pulse_name=pulse_name,
+                date_type_used=date_type_used,
+                window_start=window_start,
+                window_end=window_end,
+            )
+        )
 
-                hatch_dt = parse_hatch_date_line(site_name, raw_line)
-                if hatch_dt is None:
-                    results.append(_audit_row(site_name, pulse_name, org_key, org_types, raw_s))
-                    continue
+    df_out = pd.DataFrame(results)
+    if not df_out.empty:
+        int_cols = [c for c in df_out.columns if c.startswith("Total ")]
+        df_out[int_cols] = df_out[int_cols].apply(pd.to_numeric, errors="coerce").astype("Int64")
 
-                window_start = hatch_dt
-                window_end = hatch_dt + timedelta(days=WINDOW_DAYS)
-                date_type_used = "Hatch"
-
-                results.append(
-                    summarize_organisms_for_window(
-                        site_name=site_name,
-                        pulse_name=pulse_name,
-                        date_type_used=date_type_used,
-                        window_start=window_start,
-                        window_end=window_end,
-                        org_key=org_key,
-                        organism_cfg=cfg,
-                    )
-                )
-
-        df_out = pd.DataFrame(results)
-
-        if not df_out.empty:
-            int_cols = [c for c in df_out.columns if c.startswith("Total ")]
-            df_out[int_cols] = df_out[int_cols].apply(pd.to_numeric, errors="coerce").astype("Int64")
-
-        output_file: Path = cfg["output_csv"]
-        df_out.to_csv(output_file, index=False)
-        print(f"[DONE] Wrote results to: {output_file}")
+    df_out.to_csv(OUTPUT_CSV, index=False)
+    print(f"[DONE] Wrote results to: {OUTPUT_CSV}")
 
 
 if __name__ == "__main__":

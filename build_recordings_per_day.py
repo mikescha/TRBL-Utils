@@ -36,47 +36,46 @@ from pathlib import Path
 import argparse
 import re
 from typing import Dict, Tuple
+import pyarrow.parquet as pq
 
 import pandas as pd
 
 
 def discover_year_files(raw_dir: Path) -> list[Path]:
-    """Return data YYYY.csv files sorted by year."""
-    files = sorted(raw_dir.glob("data *.csv"))
+    """Return data YYYY.parquet files sorted by year."""
+    files = sorted(raw_dir.glob("data *.parquet"))
 
     def year_key(p: Path) -> int:
-        m = re.search(r"data\s+(\d{4})\.csv$", p.name)
+        m = re.search(r"data\s+(\d{4})\.parquet$", p.name)
         if not m:
             return 0
         return int(m.group(1))
 
-    files = sorted([p for p in files if re.search(r"data\s+\d{4}\.csv$", p.name)], key=year_key)
+    files = sorted([p for p in files if re.search(r"data\s+\d{4}\.parquet$", p.name)], key=year_key)
     if not files:
-        raise FileNotFoundError(f"No files matching 'data YYYY.csv' found in: {raw_dir}")
+        raise FileNotFoundError(f"No files matching 'data YYYY.parquet' found in: {raw_dir}")
     return files
 
 
 def build_counts(raw_dir: Path, chunksize: int = 2_000_000) -> pd.DataFrame:
-    """Scan all 'data YYYY.csv' files and build a (site, date) -> n_recordings table."""
+    """Scan all 'data YYYY.parquet' files and build a (site, date) -> n_recordings table."""
 
     year_files = discover_year_files(raw_dir)
 
     # Aggregate counts across all years: (site, date) -> int
     counts: Dict[Tuple[str, pd.Timestamp], int] = {}
 
-    usecols = ["site", "date"]
     dtypes = {"site": "string", "date": "string"}
+    usecols = ["site", "date"]
 
     for fpath in year_files:
         print(f"[READ] {fpath}")
 
+        pf = pq.ParquetFile(fpath)
         # Read in chunks to keep memory bounded.
-        for chunk in pd.read_csv(
-            fpath,
-            usecols=usecols,
-            dtype=dtypes,
-            chunksize=chunksize,
-        ):
+        for batch in pf.iter_batches(batch_size=chunksize, columns=usecols):
+            chunk = batch.to_pandas()
+            
             # Drop obvious NA sites (shouldn't happen, but cheap).
             chunk = chunk.dropna(subset=["site", "date"])
             if chunk.empty:
@@ -125,7 +124,7 @@ def build_recordings_per_day_file() -> None:
         default=Path(
             "C:/Users/mikes/OneDrive/Documents/GitHub/TRBLSummarizer/TRBLSummarizer/Data"
         ),
-        help="Directory containing 'data YYYY.csv' files.",
+        help="Directory containing 'data YYYY.parquet' files.",
     )
     ap.add_argument(
         "--out-parquet",
