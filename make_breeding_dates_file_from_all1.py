@@ -1,3 +1,28 @@
+'''
+The script writes four files:
+
+File	Purpose
+breeding dates.csv	Main pulse/site outcome table
+breeding_dates_review.csv	Only output rows needing review
+breeding_dates_source_issues.csv	One row per validation issue found in the source sheet
+results.txt	Summary counts
+
+The important distinction:
+
+breeding_dates_review.csv tells you which output rows need review.
+breeding_dates_source_issues.csv catches all source issues, including bad values in skipped rows and non-exported fields like pNmcend.
+
+
+Practical workflow:
+1. Run the script.
+2. Open breeding_dates_review.csv first.
+3. Fix human-review problems in All.csv.
+4. Open breeding_dates_source_issues.csv next.
+5. Fix invalid values, odd abandonment coding, or source-sheet debris.
+6. Rerun until the review/issue counts are where you expect.
+7. Commit the script and regenerated outputs.
+
+'''
 from __future__ import annotations
 
 import argparse
@@ -7,7 +32,6 @@ from collections import Counter
 from datetime import date, datetime
 from pathlib import Path
 from typing import Iterable
-
 
 DEFAULT_INPUT_FILE = Path(
     r"C:\Users\mikes\OneDrive\Documents\GitHub\TRBLSummarizer\TRBLSummarizer\Data\TRBL Analysis tracking - All.csv"
@@ -78,7 +102,6 @@ ISSUE_FIELDS = [
     "Issue Type",
     "Severity",
     "Value",
-    "Suggested Value",
     "Message",
     "Skip Site",
     "Included In Main Output",
@@ -112,34 +135,6 @@ def normalized(value: object) -> str:
     return clean(value).casefold()
 
 
-def is_ai_or_formula_placeholder(value: object) -> bool:
-    """Return True for AI/formula placeholders that should be cleaned to blank."""
-    text = clean(value)
-    if not text.startswith("="):
-        return False
-
-    lowered = text.casefold()
-    return (
-        lowered.startswith("=ai(")
-        or "fill an appropriate value" in lowered
-        or "based on the table context" in lowered
-    )
-
-
-def cleaned_output_value(value: object) -> str:
-    """Return the value to emit in cleaned output fields."""
-    if is_ai_or_formula_placeholder(value):
-        return ""
-    return clean(value)
-
-
-def suggested_issue_value(value: object) -> str:
-    """Return the suggested replacement value for the source issue file."""
-    if is_ai_or_formula_placeholder(value):
-        return ""
-    return clean(value)
-
-
 def has_real_outcome(value: object) -> bool:
     """Return True when the human review outcome field contains a real outcome."""
     return normalized(value) not in NO_OUTCOME_VALUES
@@ -167,7 +162,6 @@ def make_issue(
         "Issue Type": issue_type,
         "Severity": severity,
         "Value": clean(value),
-        "Suggested Value": suggested_issue_value(value),
         "Message": message,
         "Skip Site": clean(row.get("Skip Site")),
         "Included In Main Output": "Yes" if included_in_main_output else "No",
@@ -197,9 +191,6 @@ def parse_date_token(value: object, field: str) -> tuple[str, date | None, bool]
     """
     text = clean(value)
     low = normalized(text)
-
-    if is_ai_or_formula_placeholder(text):
-        return "invalid_formula_placeholder", None, False
 
     if low in MISSING_DATE_VALUES:
         return "missing", None, False
@@ -266,7 +257,7 @@ def split_partial_abandon(row: dict[str, str], pulse: str, outcome: str) -> tupl
     - exported abandon becomes ND
     - partial abandon gets pNabandon with trailing P/p removed
     """
-    raw_abandon = cleaned_output_value(row.get(f"{pulse}abandon", ""))
+    raw_abandon = clean(row.get(f"{pulse}abandon", ""))
 
     if normalized(outcome) != "partially abandoned":
         return raw_abandon, "ND"
@@ -362,11 +353,7 @@ def validate_pulse(
                     issue_type="invalid_date_value",
                     severity="ERROR",
                     value=value,
-                    message=(
-                        f"{column} contains an AI/formula placeholder. Delete it and leave the cell blank."
-                        if status == "invalid_formula_placeholder"
-                        else f"{column} has invalid value type: {status}."
-                    ),
+                    message=f"{column} has invalid value type: {status}.",
                 )
             )
 
@@ -450,7 +437,7 @@ def validate_pulse(
                     )
                 )
 
-    raw_abandon = cleaned_output_value(row.get(f"{pulse}abandon", ""))
+    raw_abandon = clean(row.get(f"{pulse}abandon", ""))
     abandon_has_value = field_has_value(row, pulse, "abandon")
     abandon_has_p_suffix = raw_abandon.endswith(("P", "p"))
 
@@ -586,7 +573,7 @@ def build_output_row(
     }
 
     for field in OUTPUT_DATE_FIELDS:
-        value = cleaned_output_value(row.get(f"{pulse}{field}", ""))
+        value = clean(row.get(f"{pulse}{field}", ""))
         if field == "hatch":
             output_row[field] = normalize_hatch(value)
         elif field == "abandon":
@@ -644,13 +631,9 @@ def extract_rows_and_issues(
 
     for source_row_number, row in source_rows:
         skip_site_norm = normalized(row.get("Skip Site"))
+        skip_site_is_y = skip_site_norm == "y"
 
-        # Skip Site = Y rows are explicitly excluded from the final dataset.
-        # Do not validate them, do not emit source issues, and do not output rows.
-        if skip_site_norm == "y":
-            continue
-
-        if skip_site_norm not in {"", "dupe"}:
+        if skip_site_norm not in {"", "y", "dupe"}:
             source_issues.append(
                 make_issue(
                     source_row_number=source_row_number,
@@ -671,9 +654,12 @@ def extract_rows_and_issues(
                 row=row,
                 pulse=pulse,
                 source_row_number=source_row_number,
-                validate_outcome_consistency=True,
+                validate_outcome_consistency=not skip_site_is_y,
             )
             source_issues.extend(pulse_issues)
+
+            if skip_site_is_y:
+                continue
 
             source_outcome = clean(row.get(f"{pulse}Outcome", ""))
             has_outcome = has_real_outcome(source_outcome)
@@ -784,7 +770,7 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def main() -> None:
+def make_breeding_dates_file() -> None:
     args = parse_args()
 
     source_rows = read_all_csv(args.input_csv)
@@ -808,4 +794,4 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    make_breeding_dates_file()

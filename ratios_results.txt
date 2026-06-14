@@ -1,25 +1,25 @@
 ARI percentiles (from filtered_df):
-0.05    0.0622
-0.10    0.1372
-0.15    0.2158
-Name: ARI_num, dtype: float64Option 1: largest adjacent gap with ARI <= 0.8 is 0.086 between 0.292 and 0.378. Suggested cutoff is midpoint 0.335 (rounded to 0.33).
+0.05    0.0608
+0.10    0.1278
+0.15    0.2104
+Name: ARI_num, dtype: float64Option 1: largest adjacent gap with ARI <= 0.8 is 0.084 between 0.294 and 0.378. Suggested cutoff is midpoint 0.336 (rounded to 0.34).
 Top gaps within lower regime:
  ARI_lower  ARI_upper   gap
-     0.292      0.378 0.086
-     0.059      0.123 0.064
-     0.429      0.486 0.057
-     0.715      0.769 0.054
+     0.294      0.378 0.084
+     0.000      0.059 0.059
+     0.068      0.123 0.055
+     0.486      0.540 0.054
      0.132      0.184 0.052
      0.378      0.429 0.051
-     0.017      0.059 0.042
      0.652      0.693 0.041
-     0.486      0.522 0.036
+     0.429      0.461 0.032
      0.615      0.646 0.031
-{'n_values_total': 82, 'upper_bound_used': 0.8, 'ari_lower': 0.292, 'ari_upper': 0.378, 'gap': 0.08600000000000002, 'cutoff_midpoint': 0.335, 'cutoff_rounded': 0.33, 'interpretation': 'Option 1: largest adjacent gap with ARI <= 0.8 is 0.086 between 0.292 and 0.378. Suggested cutoff is midpoint 0.335 (rounded to 0.33).'}
+     0.461      0.486 0.025
+{'n_values_total': 85, 'upper_bound_used': 0.8, 'ari_lower': 0.294, 'ari_upper': 0.378, 'gap': 0.08400000000000002, 'cutoff_midpoint': 0.336, 'cutoff_rounded': 0.34, 'interpretation': 'Option 1: largest adjacent gap with ARI <= 0.8 is 0.084 between 0.294 and 0.378. Suggested cutoff is midpoint 0.336 (rounded to 0.34).'}
 
 Calculated_Outcome counts:Calculated_Outcome
-Unknown                123
+Unknown                122
 Successful              63
-Partially Abandoned     18
-Abandoned                7
+Partially Abandoned     19
+Abandoned                8
 Name: count, dtype: int64

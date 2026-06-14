@@ -1,13 +1,46 @@
-Breeding Type Summary
-=====================
+Breeding Dates Extraction Summary
+=================================
 
-Breeding Type
-Simple          66
-Sequential      43
-Asynchronous    23
-No Colony       23
-Unknown         18
-Complex         18
-No TRBL         16
-Additions        4
-Name: count, dtype: int64
+Output rows: 214
+Output rows needing review: 12
+Source issues: 13
+
+Output Review Status Counts
+---------------------------
+OK: 202
+REVIEW: 12
+
+Issue Severity Counts
+---------------------
+REVIEW: 13
+
+Issue Type Counts
+-----------------
+outcome_without_dates: 5
+date_order_error: 2
+missing_outcome_with_dates: 2
+abandoned_outcome_missing_abandon_date: 1
+partial_outcome_missing_p_suffix: 1
+p_suffix_without_partial_outcome: 1
+successful_outcome_with_abandon_date: 1
+
+Outcome Counts
+--------------
+Successful: 131
+No Colony: 22
+Partially Abandoned: 21
+No TRBL: 16
+Abandoned: 13
+Unknown: 9
+REVIEW_MISSING_OUTCOME: 2
+
+Breeding Type Counts
+--------------------
+Simple: 67
+Sequential: 45
+No Colony: 22
+Asynchronous: 22
+Unknown: 20
+Complex: 18
+No TRBL: 16
+Additions: 4

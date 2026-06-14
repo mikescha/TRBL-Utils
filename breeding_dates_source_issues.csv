@@ -1,0 +1,14 @@
+Source Row,Site ID,Name,Pulse,Column,Issue Type,Severity,Value,Suggested Value,Message,Skip Site,Included In Main Output
+6,3348,2018 Markham Ravine Main,p1,p1Outcome,outcome_without_dates,REVIEW,Successful,Successful,"p1Outcome is 'Successful', but all exported date fields are blank or ND.",,Yes
+23,4639,2019 Leisure Town,p2,p2Outcome,outcome_without_dates,REVIEW,Successful,Successful,"p2Outcome is 'Successful', but all exported date fields are blank or ND.",,Yes
+38,6199,2020 Hay Landfill,p2,p2Outcome,outcome_without_dates,REVIEW,Successful,Successful,"p2Outcome is 'Successful', but all exported date fields are blank or ND.",,Yes
+55,24658,2021 Iron Point,p1,p1abandon,abandoned_outcome_missing_abandon_date,REVIEW,ND,ND,"Outcome is Abandoned, but abandon date is blank or ND.",,Yes
+60,26534,2021 Kern 5,p2,p2Outcome,outcome_without_dates,REVIEW,Successful,Successful,"p2Outcome is 'Successful', but all exported date fields are blank or ND.",,Yes
+68,24119,2021 Rancho Jamul,p1,p1Outcome,outcome_without_dates,REVIEW,Successful,Successful,"p1Outcome is 'Successful', but all exported date fields are blank or ND.",,Yes
+88,33966,2022 Hay Landfill,p1,p1abandon,partial_outcome_missing_p_suffix,REVIEW,ND,ND,"Outcome is Partially Abandoned, but abandon date does not end with P/p.",,Yes
+119,48474,2023 Conaway Ranch NE,p1,p1abandon,p_suffix_without_partial_outcome,REVIEW,6/17/2023P,6/17/2023P,"Abandon date ends with P/p, but outcome is not Partially Abandoned.",,Yes
+119,48474,2023 Conaway Ranch NE,p1,p1abandon,successful_outcome_with_abandon_date,REVIEW,6/17/2023P,6/17/2023P,"Outcome is Successful, but abandon date has a value.",,Yes
+133,48747,2023 Weagell Property 1,p2,p2incstart,date_order_error,REVIEW,5/16/2023 > 5/12/2023,5/16/2023 > 5/12/2023,p2mcstart is after p2incstart.,,Yes
+157,48447,2023 San Luis Bear Creek,p1,p1abandon,date_order_error,REVIEW,6/20/2023P < 6/23/2023,6/20/2023P < 6/23/2023,p1abandon is before p1incstart.,,Yes
+167,65444,2024 Baja Lago Mesa Redonda,p2,p2Outcome,missing_outcome_with_dates,REVIEW,n/a,n/a,p2 has exported pulse date fields but p2Outcome is blank or n/a.,,Yes
+182,65471,2024 Panoche Creek Preserve - Dollar Marsh East,p2,p2Outcome,missing_outcome_with_dates,REVIEW,n/a,n/a,p2 has exported pulse date fields but p2Outcome is blank or n/a.,,Yes

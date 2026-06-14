@@ -1,12 +1,12 @@
 from __future__ import annotations
-import pandas as pd
-from pathlib import Path
-from datetime import datetime, timedelta
-import re
-from typing import Any, Callable
-from copy import deepcopy
-import time
 
+import re
+import time
+from datetime import timedelta
+from pathlib import Path
+from typing import Any
+
+import pandas as pd
 
 DAYS_TO_COUNT = 10
 NESTLING_OFFSET_DAYS = 2    #How many days after hatching we start looking for NESTLING calls
@@ -78,7 +78,7 @@ def make_base_result_row(row: pd.Series) -> dict[str, Any]:
         "Comment" : "",
     }
 
-def parse_hatch_date_line(name: str, raw_line: str) -> datetime | None:
+def parse_hatch_date_line(name: str, raw_line: str) -> pd.Timestamp | None:
     """Parse a single line from the Hatch Date cell.
     Returns a datetime (normalized date) or None if invalid.
     Logs an error (print) if it can't be parsed.
@@ -102,7 +102,7 @@ def parse_hatch_date_line(name: str, raw_line: str) -> datetime | None:
     # Code length is 1–2 alphanumeric characters
     s = re.sub(r"\s*\([A-Za-z0-9]{1,2}\)$", "", s).strip()
 
-    if s not in ["pre", "post", "ND", "n/a"]:
+    if s not in ["inf", "missed", "ND", "n/a"]:
         # Try to parse as date (month/day/year style)
         try:
             dt = pd.to_datetime(s, errors="raise", dayfirst=False)
@@ -255,7 +255,7 @@ def summarize_for_hatch_date(
         avg_fledgling_calls_per_day = None
 
     # Calculate ARI Ratio
-    if not (avg_female_per_day is None) and \
+    if avg_female_per_day is not None and \
        incubation_days >= 4 and \
        nestling_days >= 4 and \
        site_info[OUTCOME_COL] in (VALID_OUTCOMES) and \
@@ -273,9 +273,9 @@ def summarize_for_hatch_date(
             comment += "Incubation days less than 4 |"
         if nestling_days < 4:
             comment += "Nestling days less than 4 |"
-        if not (site_info[OUTCOME_COL] in (VALID_OUTCOMES)):
+        if site_info[OUTCOME_COL] not in (VALID_OUTCOMES):
             comment += f"Outcome is not valid: {site_info[OUTCOME_COL]} |"
-        if not (site_info["Breeding Type"] in VALID_BT):
+        if site_info["Breeding Type"] not in VALID_BT:
             comment += f"Breeding Type is not valid: {site_info["Breeding Type"]}"
 
     def fmt_date(d: pd.Timestamp | None) -> str:
@@ -435,9 +435,6 @@ def find_ari_cutoff_option1(
     top_gaps = gaps_df_used.head(top_n).reset_index(drop=True)
 
     return cutoff_info, top_gaps
-
-
-
 
 
 

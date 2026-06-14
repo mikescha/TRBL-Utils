@@ -1,9 +1,10 @@
-from make_breeding_dates_file_from_all import make_breeding_dates_file
-from ratios import make_ratios
 from build_recordings_per_day import build_recordings_per_day_file
 from build_recordings_per_day_per_hour import build_recordings_per_day_per_hour_file
-from organisms import make_critter_ratios_file
-from validate_dates import validate
+from make_breeding_dates_file_from_all import make_breeding_dates_file
+from ratios import make_ratios
+
+#from organisms import make_critter_ratios_file
+#from validate_dates import validate
 
 def main() -> None:
     print("Making support files...")
@@ -21,11 +22,11 @@ def main() -> None:
     print("Generating ratios of nestling to female calls...")
     make_ratios()
 
-    print("Generating ratios for insects and frogs...")
-    make_critter_ratios_file()
+#    print("Generating ratios for insects and frogs...")
+#    make_critter_ratios_file()
 
-    print("Validating dates")
-    validate()
-    
+#    print("Validating dates")
+#    validate()
+   
 if __name__ == "__main__":
     main()

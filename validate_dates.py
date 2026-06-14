@@ -37,31 +37,6 @@ DAYS=5 #The number of days on either side of the target day to check
 threshold=4  #The target number of recordings per day that must match. We're starting with this and will update it.
 
 
-
-
-
-def save_csv_with_retry(df, path, retry_delay=1.0):
-    """
-    Attempt to save a CSV. If the file is open (e.g., in Excel),
-    prompt the user and retry until successful.
-    """
-    while True:
-        try:
-            df.to_csv(path, index=False)
-            print(f"Saved results to {path}")
-            break
-
-        except PermissionError:
-            print(
-                f"\n⚠️  Cannot write to {path}."
-                "\nIt is likely open in Excel."
-                "\nPlease close the file, then press Enter to retry "
-                "(Ctrl+C to abort)."
-            )
-            input()
-            time.sleep(retry_delay)
-
-
 BASE_DIR = Path(".")
 DATA_DIR = Path("C:\\Users\\mikes\\OneDrive\\Documents\\GitHub\\TRBLSummarizer\\TRBLSummarizer\\")
 BREEDING_DATES_CSV = BASE_DIR / "breeding dates.csv"
@@ -93,6 +68,30 @@ TAG_MAP = {"p1": ["tag<p1n>", "val<Agelaius tricolor/Alternative Song>"],
            "p3": ["tag<p3n>", "tag<YNC-p3>"],
            "p4": ["tag<p4n>", "tag<YNC-p4>"],
 }
+
+
+
+def save_csv_with_retry(df, path, retry_delay=1.0):
+    """
+    Attempt to save a CSV. If the file is open (e.g., in Excel),
+    prompt the user and retry until successful.
+    """
+    while True:
+        try:
+            df.to_csv(path, index=False)
+            print(f"Saved results to {path}")
+            break
+
+        except PermissionError:
+            print(
+                f"\n⚠️  Cannot write to {path}."
+                "\nIt is likely open in Excel."
+                "\nPlease close the file, then press Enter to retry "
+                "(Ctrl+C to abort)."
+            )
+            input()
+            time.sleep(retry_delay)
+
 
 def make_output_file_row(row: pd.Series)->dict:
     d = {
@@ -942,6 +941,16 @@ def validate_hatch(row:pd.Series)->dict:
 
 
 def validate_male_chorus(row:pd.Series, recs_per_day:pd.DataFrame)->dict:
+    '''
+    We are using male chorus as a proxy for prospecting / early colony formation / pre-nesting activity close 
+    to the breeding attempt. We want to know, given a known incubation start date, what was the start date of 
+    the most recent meaningful male chorus bout before that incubation.
+
+    This is not trying to find the first male chorus in the season. Instead, it looks backward 
+    from incubation and tries to identify the last qualifying bout of male chorus activity before incubation.
+
+    
+    '''
     def get_male_chorus_per_day() -> pd.Series:
         site_name = row["Name"]
         df = load_pm_data_for_site(site_name, PMType.MC)
@@ -955,26 +964,12 @@ def validate_male_chorus(row:pd.Series, recs_per_day:pd.DataFrame)->dict:
             return pd.Series() # No MC found
         return v["normalized"]
 
-    def is_valid_bout(group):
-        # Requirement: >= 3 active days within any 5-day span
-        # We apply a rolling count on the original mask within this specific bout
-        original_active_days = active_mask.loc[group.index]
-        
-        if len(original_active_days) < 3:
-            return False
-            
-        # Check if there is ANY 5-day window in this bout with >= 3 active days
-        # (If the bout is shorter than 5 days, it just sums the whole thing)
-        density_check = original_active_days.rolling(window=5, min_periods=1).sum()
-        return (density_check >= 3).any()
-
     ''' 
     Identify start of prospecting 
     '''
     results = {
         "Calc_MC_Date":"",
         "MC_msg":""
-
     }
     mc_per_day = get_male_chorus_per_day()
     if len(mc_per_day) == 0:
@@ -985,43 +980,48 @@ def validate_male_chorus(row:pd.Series, recs_per_day:pd.DataFrame)->dict:
     # Limit it to only days with male chorus in that window
     inc_start_date = row[INC_START_COL]
     if inc_start_date == "ND":
-        results["MC_msg"] = "No inc start date"
+        results["MC_msg"] = "No incubation start date"
         return results 
     elif inc_start_date == "pre":
         results["Calc_MC_Date"] = "pre"
         results["MC_msg"] = "inc_start was pre"
         return results
-    
-    window = 60 - 1 #for inclusive
+
+    # Convert the incubation start date to a datetime for math. If this fails, there wasn't a valid date, so return.    
     inc_start_date_date = date_str_to_date(inc_start_date)
     if inc_start_date_date is None:
-        results["MC_msg"] = "No inc start date"
+        results["MC_msg"] = "No incubation start date"
         return results 
 
+    # The last date we'll check is 1 day before the incubation date, but only check that if it's in our data set. 
+    # So if max_date = Jan 31 but mc_per_day ends on Jan 28, give Jan 28
     max_date = inc_start_date_date - pd.Timedelta(days=1)
-    # Pick the latest date that's in our data set: so if max_date = Jan 31 but mc_per_day ends on Jan 28, give Jan 28
-    max_mc = min(mc_per_day.index.max(), max_date)
+    max_male_chorus_date = min(mc_per_day.index.max(), max_date)
+
+    # Now look back as far as 60 days prior, but don't go before the start of our data. If min_date = Jan 1 
+    # but mc_per_day starts on Feb 1, give Feb 1
+    window = 60 - 1 # -1 for inclusive
     min_date = max_date - pd.Timedelta(days=window) 
-    # Pick the earliest date that's in our data set: so if min_date = Jan 1 but mc_per_day starts on Feb 1, give Feb 1
     min_mc = max(mc_per_day.index.min(), min_date)
 
     # Reindex to a complete daily range
-    full_idx = pd.date_range(min_mc, max_mc, freq="D")    
+    full_idx = pd.date_range(min_mc, max_male_chorus_date, freq="D")    
     if len(full_idx) == 0:
         results["MC_msg"] = "No MC in range"
         return results
 
-    #Calculate the threshold that would be "local to" the breeding stage
-    threshold_window = 14-1
+    # Calculate the threshold that would be "local to" the breeding stage. 
+    # Look at the 14 days prior to incubation start, but -1 for inclusive
+    threshold_window = 14-1  
     min_date_for_threshold = max_date - pd.Timedelta(days=threshold_window)
     threshold_earliest = max(mc_per_day.index.min(), min_date_for_threshold) 
-    threshold_date_idx = pd.date_range(threshold_earliest, max_mc, freq="D")
+    threshold_date_idx = pd.date_range(threshold_earliest, max_male_chorus_date, freq="D")
 
     # Step 2: Determine the threshold, want the median of the 7 noisiest days
-    median_window = 7 #Looking for the 7 noisiest days to set the threshold
-    threshold_ratio = 0.2
+    median_window = 7 
+    threshold_ratio = 0.2  #TODO Why this number?
     mc_per_day_in_threshold_window = mc_per_day.reindex(threshold_date_idx)
-    k = min(median_window, len(mc_per_day_in_threshold_window))
+#    k = min(median_window, len(mc_per_day_in_threshold_window))
     median_noisy = mc_per_day_in_threshold_window.nlargest(median_window).median()
     threshold = median_noisy * threshold_ratio
 
@@ -1063,9 +1063,6 @@ def validate_male_chorus(row:pd.Series, recs_per_day:pd.DataFrame)->dict:
     # Get the final valid bouts
     final_bouts = bouts.groupby(bouts).filter(lambda x: density_filter(x.index))
     
-    # # Group by the bout IDs and filter
-    # valid_bout_ids = bouts.groupby(bouts).filter(is_valid_bout).unique()
-
     if not final_bouts.empty:
         last_bout_id = final_bouts.iloc[-1]
         last_bout_indices = bouts[bouts == last_bout_id].index        
@@ -1210,18 +1207,26 @@ def validate():
 
     for _, row in breeding_dates_df.iterrows():   
         print(f"Working on {row[PULSE_COL]}")
+        
+        #Create a dict that contains placeholders for all the values that could be saved, so we have a consistent format
         results_row = make_output_file_row(row)
 
+        # For debugging: if you want to set a breakpoint for a specific site, you can do it here
         if row["Site ID"] == "65481":
-            pass #for debugging, set breakpoint here.
+            pass #set breakpoint here.
 
+        # Get the number of recordings per day for this site, we will use this for multiple validations 
+        # and to calculate the threshold for how many recordings per day must contain the target sound
+        # for that day to be considered part of the phase we're measuring. 
         recs_per_day = get_recs_per_day(row)
         threshold = get_threshold(recs_per_day)
         results_row["Threshold"] = threshold
 
-        has_tilde = row.str.contains("~", regex=False, na=False).any() #TODO log which columns have the tilde
+        # If we put a tilde as part of the date, that means the date was estimated not calculated.
+        has_tilde = row.str.contains("~", regex=False, na=False).any()
         results_row["Twiddle"] = "Twiddle" if has_tilde else ""
 
+        # Calculate 
         validation_results = validate_male_chorus(row, recs_per_day)
         results_row.update(validation_results)
 
