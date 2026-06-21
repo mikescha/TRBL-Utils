@@ -32,13 +32,13 @@ Dependencies:
 
 from __future__ import annotations
 
-from pathlib import Path
 import argparse
 import re
+from pathlib import Path
 from typing import Dict, Tuple
-import pyarrow.parquet as pq
 
 import pandas as pd
+import pyarrow.parquet as pq
 
 
 def discover_year_files(raw_dir: Path) -> list[Path]:
@@ -65,7 +65,6 @@ def build_counts(raw_dir: Path, chunksize: int = 2_000_000) -> pd.DataFrame:
     # Aggregate counts across all years: (site, date) -> int
     counts: Dict[Tuple[str, pd.Timestamp], int] = {}
 
-    dtypes = {"site": "string", "date": "string"}
     usecols = ["site", "date"]
 
     for fpath in year_files:
