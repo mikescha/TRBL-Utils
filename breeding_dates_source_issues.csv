@@ -1,14 +1,510 @@
 Source Row,Site ID,Name,Pulse,Column,Issue Type,Severity,Value,Suggested Value,Message,Skip Site,Included In Main Output
+4,2059,2017 Rush Ranch,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+5,3150,2018 Iron Point,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,,No
+5,3150,2018 Iron Point,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+5,3150,2018 Iron Point,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
 6,3348,2018 Markham Ravine Main,p1,p1Outcome,outcome_without_dates,REVIEW,Successful,Successful,"p1Outcome is 'Successful', but all exported date fields are blank or ND.",,Yes
+6,3348,2018 Markham Ravine Main,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,,No
+6,3348,2018 Markham Ravine Main,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+6,3348,2018 Markham Ravine Main,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+7,3366,2018 Markham Ravine westside,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,Dupe,No
+7,3366,2018 Markham Ravine westside,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,Dupe,No
+7,3366,2018 Markham Ravine westside,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,Dupe,No
+8,3281,2018 Red Wing Ranch,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,,No
+8,3281,2018 Red Wing Ranch,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+8,3281,2018 Red Wing Ranch,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+9,2719,2018 Rush Ranch,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,,No
+9,2719,2018 Rush Ranch,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+9,2719,2018 Rush Ranch,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+10,3682,2018 SJWA-rose-2,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,,No
+10,3682,2018 SJWA-rose-2,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+10,3682,2018 SJWA-rose-2,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+11,3417,2018 SJWA-rose-1,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,Dupe,No
+11,3417,2018 SJWA-rose-1,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,Dupe,No
+11,3417,2018 SJWA-rose-1,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,Dupe,No
+12,82621,2018 SJWA WSS,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,,No
+12,82621,2018 SJWA WSS,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+12,82621,2018 SJWA WSS,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+13,5642,2019 Colusa NWR 27-1,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,,No
+13,5642,2019 Colusa NWR 27-1,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+13,5642,2019 Colusa NWR 27-1,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+16,5643,2019 Colusa NWR 27-2,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,,No
+16,5643,2019 Colusa NWR 27-2,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+16,5643,2019 Colusa NWR 27-2,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+17,4455,2019 Creed Road,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+17,4455,2019 Creed Road,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+18,4456,2019 Hay Landfill,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+18,4456,2019 Hay Landfill,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+19,4979,2019 Iron Point,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
 23,4639,2019 Leisure Town,p2,p2Outcome,outcome_without_dates,REVIEW,Successful,Successful,"p2Outcome is 'Successful', but all exported date fields are blank or ND.",,Yes
+23,4639,2019 Leisure Town,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+23,4639,2019 Leisure Town,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+24,5637,2019 Markham Ravine,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,,No
+24,5637,2019 Markham Ravine,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+24,5637,2019 Markham Ravine,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+26,5640,2019 Markham Ravine 2,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,,No
+26,5640,2019 Markham Ravine 2,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+26,5640,2019 Markham Ravine 2,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+31,82630,2019 Red Wing Ranch,p1,p1Outcome,invalid_outcome_value,ERROR,n/a,n/a,p1Outcome has an unexpected outcome value.,,No
+31,82630,2019 Red Wing Ranch,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,,No
+31,82630,2019 Red Wing Ranch,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+31,82630,2019 Red Wing Ranch,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+32,5638,2019 Rush Ranch,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,,No
+32,5638,2019 Rush Ranch,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+32,5638,2019 Rush Ranch,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+34,7657,2020 Conaway Ranch,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,,No
+34,7657,2020 Conaway Ranch,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+34,7657,2020 Conaway Ranch,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+35,2908,2020 Creed Road,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,,No
+35,2908,2020 Creed Road,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+35,2908,2020 Creed Road,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+36,57589,2020 Fort Ord,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,,No
+36,57589,2020 Fort Ord,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+36,57589,2020 Fort Ord,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
 38,6199,2020 Hay Landfill,p2,p2Outcome,outcome_without_dates,REVIEW,Successful,Successful,"p2Outcome is 'Successful', but all exported date fields are blank or ND.",,Yes
+38,6199,2020 Hay Landfill,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+38,6199,2020 Hay Landfill,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+39,7650,2020 Iron Point,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,,No
+39,7650,2020 Iron Point,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+39,7650,2020 Iron Point,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+40,6404,2020 Markham Ravine,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,,No
+40,6404,2020 Markham Ravine,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+40,6404,2020 Markham Ravine,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+41,2915,2020 Rush Ranch,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,,No
+41,2915,2020 Rush Ranch,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+41,2915,2020 Rush Ranch,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+42,18572,2020 Ohlone - Santa Lucia Preserve,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,,No
+42,18572,2020 Ohlone - Santa Lucia Preserve,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+42,18572,2020 Ohlone - Santa Lucia Preserve,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+43,24130,2021 Colusa NWR 27-1,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,,No
+43,24130,2021 Colusa NWR 27-1,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+43,24130,2021 Colusa NWR 27-1,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+44,24221,2021 Colusa NWR 27-2,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,,No
+44,24221,2021 Colusa NWR 27-2,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+44,24221,2021 Colusa NWR 27-2,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+45,21652,2021 Conaway East,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,Dupe,No
+45,21652,2021 Conaway East,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,Dupe,No
+45,21652,2021 Conaway East,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,Dupe,No
+46,24652,2021 Conaway South,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,,No
+46,24652,2021 Conaway South,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+46,24652,2021 Conaway South,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+47,21591,2021 Conaway West,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,Dupe,No
+47,21591,2021 Conaway West,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,Dupe,No
+47,21591,2021 Conaway West,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,Dupe,No
+48,24122,2021 Dagnino Pond,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,,No
+48,24122,2021 Dagnino Pond,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+48,24122,2021 Dagnino Pond,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+49,21681,2021 Creed Road,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,,No
+49,21681,2021 Creed Road,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+49,21681,2021 Creed Road,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+50,24651,2021 Reeds Creek North,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,,No
+50,24651,2021 Reeds Creek North,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+50,24651,2021 Reeds Creek North,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+51,24653,2021 Reeds Creek South,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,,No
+51,24653,2021 Reeds Creek South,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+51,24653,2021 Reeds Creek South,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+52,21668,2021 Foley Ranch,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+52,21668,2021 Foley Ranch,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+53,21688,2021 Hale Road 2,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,,No
+53,21688,2021 Hale Road 2,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+53,21688,2021 Hale Road 2,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+54,11101,2021 Hay Landfill,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,,No
+54,11101,2021 Hay Landfill,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+54,11101,2021 Hay Landfill,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
 55,24658,2021 Iron Point,p1,p1abandon,abandoned_outcome_missing_abandon_date,REVIEW,ND,ND,"Outcome is Abandoned, but abandon date is blank or ND.",,Yes
+55,24658,2021 Iron Point,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,,No
+55,24658,2021 Iron Point,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+55,24658,2021 Iron Point,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+56,24606,2021 Kern 1,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,,No
+56,24606,2021 Kern 1,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+56,24606,2021 Kern 1,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+57,24544,2021 Kern 2,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,,No
+57,24544,2021 Kern 2,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+57,24544,2021 Kern 2,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+58,24641,2021 Kern 3,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,,No
+58,24641,2021 Kern 3,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+58,24641,2021 Kern 3,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+59,24655,2021 Kern 4,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,,No
+59,24655,2021 Kern 4,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+59,24655,2021 Kern 4,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
 60,26534,2021 Kern 5,p2,p2Outcome,outcome_without_dates,REVIEW,Successful,Successful,"p2Outcome is 'Successful', but all exported date fields are blank or ND.",,Yes
+60,26534,2021 Kern 5,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+60,26534,2021 Kern 5,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+61,26535,2021 Kern 6,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,,No
+61,26535,2021 Kern 6,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+61,26535,2021 Kern 6,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+62,26536,2021 Kern 7,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,,No
+62,26536,2021 Kern 7,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+62,26536,2021 Kern 7,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+63,26432,2021 Markham Ravine,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,,No
+63,26432,2021 Markham Ravine,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+63,26432,2021 Markham Ravine,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+64,24252,2021 Orchard Creek,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+64,24252,2021 Orchard Creek,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+65,24233,2021 Panoche Creek Preserve 1W,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,,No
+65,24233,2021 Panoche Creek Preserve 1W,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+65,24233,2021 Panoche Creek Preserve 1W,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+66,24232,2021 Panoche Creek Preserve 2E,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,,No
+66,24232,2021 Panoche Creek Preserve 2E,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+66,24232,2021 Panoche Creek Preserve 2E,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+67,21537,2021 Plumas Arboga,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,,No
+67,21537,2021 Plumas Arboga,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+67,21537,2021 Plumas Arboga,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
 68,24119,2021 Rancho Jamul,p1,p1Outcome,outcome_without_dates,REVIEW,Successful,Successful,"p1Outcome is 'Successful', but all exported date fields are blank or ND.",,Yes
+68,24119,2021 Rancho Jamul,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,,No
+68,24119,2021 Rancho Jamul,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+68,24119,2021 Rancho Jamul,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+69,24231,2021 Rodeo Grounds 1,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,,No
+69,24231,2021 Rodeo Grounds 1,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+69,24231,2021 Rodeo Grounds 1,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+70,24549,2021 Rush Ranch,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,,No
+70,24549,2021 Rush Ranch,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+70,24549,2021 Rush Ranch,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+71,25171,2021 SJWA,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,,No
+71,25171,2021 SJWA,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+71,25171,2021 SJWA,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+72,11100,2021 Sedgwick,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,,No
+72,11100,2021 Sedgwick,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+72,11100,2021 Sedgwick,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+73,24107,2021 Willey Wetlands 1,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,Dupe,No
+73,24107,2021 Willey Wetlands 1,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,Dupe,No
+73,24107,2021 Willey Wetlands 1,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,Dupe,No
+74,24261,2021 Willey Wetlands 2,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,,No
+74,24261,2021 Willey Wetlands 2,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+74,24261,2021 Willey Wetlands 2,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+75,24263,2021 Willey Wetlands 3,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,Dupe,No
+75,24263,2021 Willey Wetlands 3,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,Dupe,No
+75,24263,2021 Willey Wetlands 3,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,Dupe,No
+76,24790,2021 Wind Wolves Preserve,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,,No
+76,24790,2021 Wind Wolves Preserve,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+76,24790,2021 Wind Wolves Preserve,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+77,34485,2022 Baja 1,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,,No
+77,34485,2022 Baja 1,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+77,34485,2022 Baja 1,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+78,53136,2022 Baja 2,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,Dupe,No
+78,53136,2022 Baja 2,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,Dupe,No
+78,53136,2022 Baja 2,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,Dupe,No
+79,34044,2022 Colusa NWR T27.1,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,,No
+79,34044,2022 Colusa NWR T27.1,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+79,34044,2022 Colusa NWR T27.1,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+80,34079,2022 Colusa NWR T27.2,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,,No
+80,34079,2022 Colusa NWR T27.2,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+80,34079,2022 Colusa NWR T27.2,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+81,34111,2022 Conaway New Easement Pond West,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,,No
+81,34111,2022 Conaway New Easement Pond West,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+81,34111,2022 Conaway New Easement Pond West,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+82,34112,2022 Conaway North,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,,No
+82,34112,2022 Conaway North,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+82,34112,2022 Conaway North,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+83,34113,2022 Conaway North A,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,Dupe,No
+83,34113,2022 Conaway North A,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,Dupe,No
+83,34113,2022 Conaway North A,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,Dupe,No
+84,34115,2022 Conaway East,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,,No
+84,34115,2022 Conaway East,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+84,34115,2022 Conaway East,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+85,34078,2022 Creed Road,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,,No
+85,34078,2022 Creed Road,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+85,34078,2022 Creed Road,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+86,34118,2022 Foley Ranch A,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,,No
+86,34118,2022 Foley Ranch A,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+86,34118,2022 Foley Ranch A,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+87,34119,2022 Foley Ranch B,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,Dupe,No
+87,34119,2022 Foley Ranch B,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,Dupe,No
+87,34119,2022 Foley Ranch B,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,Dupe,No
 88,33966,2022 Hay Landfill,p1,p1abandon,partial_outcome_missing_p_suffix,REVIEW,ND,ND,"Outcome is Partially Abandoned, but abandon date does not end with P/p.",,Yes
+88,33966,2022 Hay Landfill,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+88,33966,2022 Hay Landfill,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+89,34077,2022 Laguna Seca,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+89,34077,2022 Laguna Seca,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+90,34117,2022 Los Vaqueros Reservoir,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,,No
+90,34117,2022 Los Vaqueros Reservoir,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+90,34117,2022 Los Vaqueros Reservoir,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+91,34076,2022 Marsh Creek Reservoir,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,,No
+91,34076,2022 Marsh Creek Reservoir,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+91,34076,2022 Marsh Creek Reservoir,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+92,34075,2022 Newberry Springs - Lake Wainani,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,,No
+92,34075,2022 Newberry Springs - Lake Wainani,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+92,34075,2022 Newberry Springs - Lake Wainani,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+93,33851,2022 OR1,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,,No
+93,33851,2022 OR1,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+93,33851,2022 OR1,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+94,34073,2022 OR2,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,,No
+94,34073,2022 OR2,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+94,34073,2022 OR2,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+95,34071,2022 Paicines Ranch - Teal Pond,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,,No
+95,34071,2022 Paicines Ranch - Teal Pond,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+95,34071,2022 Paicines Ranch - Teal Pond,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+96,34072,2022 Paicines Ranch - Teal Pond B,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,Dupe,No
+96,34072,2022 Paicines Ranch - Teal Pond B,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,Dupe,No
+96,34072,2022 Paicines Ranch - Teal Pond B,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,Dupe,No
+97,52598,2022 Panoche Creek Preserve Loc4,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,,No
+97,52598,2022 Panoche Creek Preserve Loc4,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+97,52598,2022 Panoche Creek Preserve Loc4,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+98,34130,2022 Panoche Creek Preserve Loc5,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,,No
+98,34130,2022 Panoche Creek Preserve Loc5,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+98,34130,2022 Panoche Creek Preserve Loc5,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+99,52597,2022 Panoche Creek Preserve Loc3,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,,No
+99,52597,2022 Panoche Creek Preserve Loc3,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+99,52597,2022 Panoche Creek Preserve Loc3,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+100,34012,2022 Plumas Arboga East,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+100,34012,2022 Plumas Arboga East,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+101,34013,2022 Plumas Arboga West,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,Dupe,No
+101,34013,2022 Plumas Arboga West,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,Dupe,No
+101,34013,2022 Plumas Arboga West,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,Dupe,No
+102,34131,2022 Private Site 1 - not real lat lon,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,,No
+102,34131,2022 Private Site 1 - not real lat lon,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+102,34131,2022 Private Site 1 - not real lat lon,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+103,34133,2022 Private Site 2 - not real lat lon,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,,No
+103,34133,2022 Private Site 2 - not real lat lon,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+103,34133,2022 Private Site 2 - not real lat lon,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+104,34132,2022 Private Site 3 - not real lat lon,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,,No
+104,34132,2022 Private Site 3 - not real lat lon,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+104,34132,2022 Private Site 3 - not real lat lon,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+105,34045,2022 Rancho Jamul,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,,No
+105,34045,2022 Rancho Jamul,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+105,34045,2022 Rancho Jamul,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+106,34046,2022 SJWA,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,,No
+106,34046,2022 SJWA,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+106,34046,2022 SJWA,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+107,34090,2022 Ohlone - Santa Lucia Preserve,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,,No
+107,34090,2022 Ohlone - Santa Lucia Preserve,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+107,34090,2022 Ohlone - Santa Lucia Preserve,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+108,33985,2022 Sedgwick,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+108,33985,2022 Sedgwick,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+109,33984,2022 WA Harder Spring,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+109,33984,2022 WA Harder Spring,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+110,33845,2022 WA1,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,,No
+110,33845,2022 WA1,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+110,33845,2022 WA1,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+112,34088,2022 Wind Wolves Preserve Pleitito Creek,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,,No
+112,34088,2022 Wind Wolves Preserve Pleitito Creek,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+112,34088,2022 Wind Wolves Preserve Pleitito Creek,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+113,34087,2022 Wind Wolves Preserve Santiago Wetlands,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,,No
+113,34087,2022 Wind Wolves Preserve Santiago Wetlands,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+113,34087,2022 Wind Wolves Preserve Santiago Wetlands,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+114,48459,2023 Laguna Fry Confluence - 45 Sump,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,,No
+114,48459,2023 Laguna Fry Confluence - 45 Sump,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+114,48459,2023 Laguna Fry Confluence - 45 Sump,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+115,48395,2023 Baja Rancho Cinega,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,,No
+115,48395,2023 Baja Rancho Cinega,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+115,48395,2023 Baja Rancho Cinega,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+116,48455,2023 Colusa NWR T27.1,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,,No
+116,48455,2023 Colusa NWR T27.1,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+116,48455,2023 Colusa NWR T27.1,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+117,58629,2023 Colusa NWR T27.2,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,,No
+117,58629,2023 Colusa NWR T27.2,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+117,58629,2023 Colusa NWR T27.2,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+118,48473,2023 Conaway Ranch - HQ,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,,No
+118,48473,2023 Conaway Ranch - HQ,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+118,48473,2023 Conaway Ranch - HQ,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
 119,48474,2023 Conaway Ranch NE,p1,p1abandon,p_suffix_without_partial_outcome,REVIEW,6/17/2023P,6/17/2023P,"Abandon date ends with P/p, but outcome is not Partially Abandoned.",,Yes
 119,48474,2023 Conaway Ranch NE,p1,p1abandon,successful_outcome_with_abandon_date,REVIEW,6/17/2023P,6/17/2023P,"Outcome is Successful, but abandon date has a value.",,Yes
+119,48474,2023 Conaway Ranch NE,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,,No
+119,48474,2023 Conaway Ranch NE,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+119,48474,2023 Conaway Ranch NE,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+120,48477,2023 Conaway Ranch North 1,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,,No
+120,48477,2023 Conaway Ranch North 1,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+120,48477,2023 Conaway Ranch North 1,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+121,48476,2023 Conaway Ranch North 2,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,,No
+121,48476,2023 Conaway Ranch North 2,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+121,48476,2023 Conaway Ranch North 2,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+122,48472,2023 Delevan T6,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,,No
+122,48472,2023 Delevan T6,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+122,48472,2023 Delevan T6,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+123,48454,2023 Delevan NWR T43.1,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,,No
+123,48454,2023 Delevan NWR T43.1,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+123,48454,2023 Delevan NWR T43.1,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+124,48877,2023 Delevan NWR T43.2,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,,No
+124,48877,2023 Delevan NWR T43.2,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+124,48877,2023 Delevan NWR T43.2,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+125,48462,2023 Creed Rd,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,,No
+125,48462,2023 Creed Rd,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+125,48462,2023 Creed Rd,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+126,48463,2023 Hale Road,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+126,48463,2023 Hale Road,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+127,48468,2023 Hale Road Site 2,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,Dupe,No
+127,48468,2023 Hale Road Site 2,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,Dupe,No
+127,48468,2023 Hale Road Site 2,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,Dupe,No
+128,48457,2023 Iron Point,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,,No
+128,48457,2023 Iron Point,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+128,48457,2023 Iron Point,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+129,48434,2023 Kentucky Lateral,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,,No
+129,48434,2023 Kentucky Lateral,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+129,48434,2023 Kentucky Lateral,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+130,48467,2023 Kern - Canebreak Ecological Reserve 4,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,,No
+130,48467,2023 Kern - Canebreak Ecological Reserve 4,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+130,48467,2023 Kern - Canebreak Ecological Reserve 4,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+131,48470,2023 Kern - HQ2,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+131,48470,2023 Kern - HQ2,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+132,48465,2023 Laguna Fry Confluence - Site 1,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,,No
+132,48465,2023 Laguna Fry Confluence - Site 1,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+132,48465,2023 Laguna Fry Confluence - Site 1,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
 133,48747,2023 Weagell Property 1,p2,p2incstart,date_order_error,REVIEW,5/16/2023 > 5/12/2023,5/16/2023 > 5/12/2023,p2mcstart is after p2incstart.,,Yes
+133,48747,2023 Weagell Property 1,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+134,48458,2023 Weagell Property 2,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,Dupe,No
+134,48458,2023 Weagell Property 2,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,Dupe,No
+136,48428,2023 Los Vaqueros - Walnut Trail Marsh,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,,No
+136,48428,2023 Los Vaqueros - Walnut Trail Marsh,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+136,48428,2023 Los Vaqueros - Walnut Trail Marsh,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+137,48444,2023 Los Vaqueros Reservoir,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+137,48444,2023 Los Vaqueros Reservoir,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+138,48436,2023 Markham Ravine,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,,No
+138,48436,2023 Markham Ravine,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+138,48436,2023 Markham Ravine,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+140,48446,2023 Merced NWR - Cottonwood,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+140,48446,2023 Merced NWR - Cottonwood,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+141,48490,2023 Merced NWR Deadman Wetland Ditch,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,,No
+141,48490,2023 Merced NWR Deadman Wetland Ditch,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+141,48490,2023 Merced NWR Deadman Wetland Ditch,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+142,48448,2023 North Regional Pond,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,,No
+142,48448,2023 North Regional Pond,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+142,48448,2023 North Regional Pond,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+143,48397,2023 OR Dizney Rd,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,,No
+143,48397,2023 OR Dizney Rd,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+143,48397,2023 OR Dizney Rd,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+144,48392,2023 OR Eureka Rd,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,,No
+144,48392,2023 OR Eureka Rd,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+144,48392,2023 OR Eureka Rd,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+145,48445,2023 OR Prineville North,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+145,48445,2023 OR Prineville North,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+146,48796,2023 Panoche Creek Preserve - Corrals NW,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,Dupe,No
+146,48796,2023 Panoche Creek Preserve - Corrals NW,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,Dupe,No
+146,48796,2023 Panoche Creek Preserve - Corrals NW,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,Dupe,No
+147,48797,2023 Panoche Creek Preserve - Corrals SE,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,,No
+147,48797,2023 Panoche Creek Preserve - Corrals SE,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+147,48797,2023 Panoche Creek Preserve - Corrals SE,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+148,48440,2023 Peterson Ranch Pond - East,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,,No
+148,48440,2023 Peterson Ranch Pond - East,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+148,48440,2023 Peterson Ranch Pond - East,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+149,48461,2023 Peterson Ranch Pond - West,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,Dupe,No
+149,48461,2023 Peterson Ranch Pond - West,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,Dupe,No
+149,48461,2023 Peterson Ranch Pond - West,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,Dupe,No
+150,48475,2023 Plumas Arboga 2,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,,No
+150,48475,2023 Plumas Arboga 2,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+150,48475,2023 Plumas Arboga 2,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+151,48437,2023 Plumas Arboga 8 - North Regional Pond,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+151,48437,2023 Plumas Arboga 8 - North Regional Pond,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+152,48764,2023 Rancho Jamul North Pond - fix lat lon,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,,No
+152,48764,2023 Rancho Jamul North Pond - fix lat lon,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+152,48764,2023 Rancho Jamul North Pond - fix lat lon,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+153,48765,2023 Rancho Jamul Site 1 fix lat lon,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+153,48765,2023 Rancho Jamul Site 1 fix lat lon,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+154,48438,2023 Bridge St Pond,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,,No
+154,48438,2023 Bridge St Pond,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+154,48438,2023 Bridge St Pond,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+155,48439,2023 West of Davis,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+155,48439,2023 West of Davis,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+156,48464,2023 San Luis NWR - West Bank Creek,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,,No
+156,48464,2023 San Luis NWR - West Bank Creek,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+156,48464,2023 San Luis NWR - West Bank Creek,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
 157,48447,2023 San Luis Bear Creek,p1,p1abandon,date_order_error,REVIEW,6/20/2023P < 6/23/2023,6/20/2023P < 6/23/2023,p1abandon is before p1incstart.,,Yes
+157,48447,2023 San Luis Bear Creek,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,,No
+157,48447,2023 San Luis Bear Creek,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+157,48447,2023 San Luis Bear Creek,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+158,48466,2023 Sedgwick,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,,No
+158,48466,2023 Sedgwick,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+158,48466,2023 Sedgwick,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+159,48478,2023 South Virginia Road 3,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,,No
+159,48478,2023 South Virginia Road 3,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+159,48478,2023 South Virginia Road 3,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+160,48456,2023 Virginia at Ostrom,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,,No
+160,48456,2023 Virginia at Ostrom,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+160,48456,2023 Virginia at Ostrom,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+161,48398,2023 WA Harder Spring,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+161,48398,2023 WA Harder Spring,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+162,48393,2023 WA McCain Wetlands,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,,No
+162,48393,2023 WA McCain Wetlands,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+162,48393,2023 WA McCain Wetlands,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+163,48471,2023 Wind Wolves Preserve site 1,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,,No
+163,48471,2023 Wind Wolves Preserve site 1,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+163,48471,2023 Wind Wolves Preserve site 1,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+164,48469,2023 Wind Wolves Preserve Site 2,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,,No
+164,48469,2023 Wind Wolves Preserve Site 2,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+164,48469,2023 Wind Wolves Preserve Site 2,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+165,65446,2024 Baja Rancho Cinega Redonda 1,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+165,65446,2024 Baja Rancho Cinega Redonda 1,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+166,65447,2024 Baja Rancho Cinega Redonda 2,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+166,65447,2024 Baja Rancho Cinega Redonda 2,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+167,65444,2024 Baja Lago Mesa Redonda,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,,Yes
 167,65444,2024 Baja Lago Mesa Redonda,p2,p2Outcome,missing_outcome_with_dates,REVIEW,n/a,n/a,p2 has exported pulse date fields but p2Outcome is blank or n/a.,,Yes
+167,65444,2024 Baja Lago Mesa Redonda,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+167,65444,2024 Baja Lago Mesa Redonda,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+168,65453,2024 Colusa NWR T27.1,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,,No
+168,65453,2024 Colusa NWR T27.1,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+168,65453,2024 Colusa NWR T27.1,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+169,65454,2024 Colusa NWR T27.2,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,,No
+169,65454,2024 Colusa NWR T27.2,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+169,65454,2024 Colusa NWR T27.2,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+170,63115,2024 Dublin Ranch Preserve - Lin Livermore Conservation Area,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,,No
+170,63115,2024 Dublin Ranch Preserve - Lin Livermore Conservation Area,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+170,63115,2024 Dublin Ranch Preserve - Lin Livermore Conservation Area,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+172,65456,2024 Kern 1 - check lat lon,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,,No
+172,65456,2024 Kern 1 - check lat lon,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+172,65456,2024 Kern 1 - check lat lon,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+173,63044,2024 Los Vaqueros Reservoir,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+173,63044,2024 Los Vaqueros Reservoir,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+174,63085,2024 Markham Ravine 1,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,,No
+174,63085,2024 Markham Ravine 1,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+174,63085,2024 Markham Ravine 1,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+175,63088,2024 Markham Ravine 2,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,Dupe,No
+175,63088,2024 Markham Ravine 2,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,Dupe,No
+175,63088,2024 Markham Ravine 2,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,Dupe,No
+176,63113,2024 Markham Ravine 3,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,Dupe,No
+176,63113,2024 Markham Ravine 3,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,Dupe,No
+176,63113,2024 Markham Ravine 3,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,Dupe,No
+177,63114,2024 Merced NWR - Cottonwood Trail,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,,No
+177,63114,2024 Merced NWR - Cottonwood Trail,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+177,63114,2024 Merced NWR - Cottonwood Trail,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+178,63087,2024 Moore Lake - confirm lat lon,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,,No
+178,63087,2024 Moore Lake - confirm lat lon,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+178,63087,2024 Moore Lake - confirm lat lon,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+179,66012,2024 Newberry Springs,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,,No
+179,66012,2024 Newberry Springs,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+179,66012,2024 Newberry Springs,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+180,77023,2024 North Regional Pond,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,,No
+180,77023,2024 North Regional Pond,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+180,77023,2024 North Regional Pond,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+181,63086,2024 OR Eureka Lane,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,,No
+181,63086,2024 OR Eureka Lane,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+181,63086,2024 OR Eureka Lane,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+182,65471,2024 Panoche Creek Preserve - Dollar Marsh East,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,,Yes
 182,65471,2024 Panoche Creek Preserve - Dollar Marsh East,p2,p2Outcome,missing_outcome_with_dates,REVIEW,n/a,n/a,p2 has exported pulse date fields but p2Outcome is blank or n/a.,,Yes
+182,65471,2024 Panoche Creek Preserve - Dollar Marsh East,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+182,65471,2024 Panoche Creek Preserve - Dollar Marsh East,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+183,65469,2024 Panoche Creek Preserve - Dollar Marsh South,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,Dupe,No
+183,65469,2024 Panoche Creek Preserve - Dollar Marsh South,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,Dupe,No
+183,65469,2024 Panoche Creek Preserve - Dollar Marsh South,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,Dupe,No
+184,65470,2024 Panoche Creek Preserve - Dollar Marsh West,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,Dupe,No
+184,65470,2024 Panoche Creek Preserve - Dollar Marsh West,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,Dupe,No
+184,65470,2024 Panoche Creek Preserve - Dollar Marsh West,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,Dupe,No
+185,63656,2024 Rancho Jamul - Main Pond 1,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+185,63656,2024 Rancho Jamul - Main Pond 1,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+186,63657,2024 Rancho Jamul - Main Pond 2,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,Dupe,No
+186,63657,2024 Rancho Jamul - Main Pond 2,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,Dupe,No
+187,63468,2024 Rancho Jamul - North Pond,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,,No
+187,63468,2024 Rancho Jamul - North Pond,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+187,63468,2024 Rancho Jamul - North Pond,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+188,63089,2024 SJWA Thistle NW of Bridge Street Pond,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,,No
+188,63089,2024 SJWA Thistle NW of Bridge Street Pond,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+188,63089,2024 SJWA Thistle NW of Bridge Street Pond,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+189,63049,2024 Ohlone - Santa Lucia Preserve,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,,No
+189,63049,2024 Ohlone - Santa Lucia Preserve,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+189,63049,2024 Ohlone - Santa Lucia Preserve,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+190,63738,2024 Sedgwick,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,,No
+190,63738,2024 Sedgwick,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+190,63738,2024 Sedgwick,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+191,63116,2024 WA Harder Spring,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+191,63116,2024 WA Harder Spring,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+192,63465,2024 WA McCain Pond,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,,No
+192,63465,2024 WA McCain Pond,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+192,63465,2024 WA McCain Pond,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+193,65481,2024 Wind Wolves Preserve - Los Lobos,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+193,65481,2024 Wind Wolves Preserve - Los Lobos,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+194,65482,2024 Wind Wolves Preserve - Pleitito,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+194,65482,2024 Wind Wolves Preserve - Pleitito,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+195,65483,2024 Wind Wolves Preserve - Santiago,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,,No
+195,65483,2024 Wind Wolves Preserve - Santiago,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+195,65483,2024 Wind Wolves Preserve - Santiago,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
+196,65480,2024 Wind Wolves Preserve - Tevis,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,,No
+196,65480,2024 Wind Wolves Preserve - Tevis,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
+196,65480,2024 Wind Wolves Preserve - Tevis,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No

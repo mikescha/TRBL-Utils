@@ -3,7 +3,7 @@ Breeding Dates Extraction Summary
 
 Output rows: 214
 Output rows needing review: 12
-Source issues: 13
+Source issues: 509
 
 Output Review Status Counts
 ---------------------------
@@ -12,10 +12,12 @@ REVIEW: 12
 
 Issue Severity Counts
 ---------------------
+ERROR: 496
 REVIEW: 13
 
 Issue Type Counts
 -----------------
+invalid_outcome_value: 496
 outcome_without_dates: 5
 date_order_error: 2
 missing_outcome_with_dates: 2
