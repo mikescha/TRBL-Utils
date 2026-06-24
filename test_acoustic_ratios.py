@@ -607,6 +607,22 @@ class TestAcousticReproductiveIndexPostProcess(unittest.TestCase):
         self.assertEqual(result.loc[0, "Calculated_Outcome"], "Abandoned")
         self.assertEqual(result.loc[1, "Calculated_Outcome"], "Partially Abandoned")
 
+    def test_post_process_nonzero_ari_uses_dynamic_cutoff(self) -> None:
+        metric = AcousticReproductiveIndex()
+        df = pd.DataFrame(
+            {
+                "ARI": [0.0, 0.1, 0.25, 0.9],
+                "Total_Fledgling_Calls": [0, 0, 0, 0],
+            }
+        )
+
+        result = metric.post_process(df.copy())
+
+        self.assertAlmostEqual(metric.calculated_cutoff, 0.175)
+        self.assertEqual(result.loc[0, "Calculated_Outcome"], "Abandoned")
+        self.assertEqual(result.loc[1, "Calculated_Outcome"], "Partially Abandoned")
+        self.assertEqual(result.loc[2, "Calculated_Outcome"], "Successful")
+        self.assertEqual(result.loc[3, "Calculated_Outcome"], "Successful")
 
     def test_post_process_classifies_numeric_ari_and_ignores_nd_statuses(self) -> None:
         metric = AcousticReproductiveIndex()
