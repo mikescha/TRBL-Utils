@@ -1,7 +1,7 @@
 from build_recordings_per_day import build_recordings_per_day_file
 from build_recordings_per_day_per_hour import build_recordings_per_day_per_hour_file
 from make_breeding_dates_file_from_all import make_breeding_dates_file
-from ratios_old import make_ratios
+from v0_8_ratios import make_ratios
 
 #from organisms import make_critter_ratios_file
 #from validate_dates import validate

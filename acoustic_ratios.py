@@ -5,7 +5,7 @@ from datetime import date, timedelta
 from functools import lru_cache
 from glob import escape
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 import numpy as np
 import pandas as pd
@@ -56,6 +56,16 @@ def filter_by_datetime_bounds(
     date_mask = (df[date_col] >= start_date) & (df[date_col] <= end_date)
     hour_mask = (df[hour_col] >= START_HOUR) & (df[hour_col] < END_HOUR)
     return df[date_mask & hour_mask]
+
+
+def inclusive_day_span(start_date: date, end_date: date) -> int:
+    """Returns the number of inclusive calendar days in a date window.
+
+    If the end date is before the start date, the usable window is empty.
+    """
+    if end_date < start_date:
+        return 0
+    return (end_date - start_date).days + 1
 
 
 @lru_cache(maxsize=1)
@@ -201,11 +211,11 @@ class AcousticReproductiveIndex(AcousticMetric):
         result = {
             "Earliest_Rec": "ND",
             "Incubation_Days": 0,
-            "Total_Female_Calls": 0,
+            "Female_Detection_Recordings": 0,
             AVG_FEMALE_CALLS: 0.0,
             "Latest_Rec": "ND",
             "Nestling_Days": 0,
-            "Total_Nestling_Calls": 0,
+            "Nestling_Detection_Recordings": 0,
             AVG_NESTLING_CALLS: 0.0,
             "ARI": "ND_MISSING_DATES",
             "Comment": ""
@@ -217,12 +227,22 @@ class AcousticReproductiveIndex(AcousticMetric):
         breeding_type = str(row.get("Breeding Type", "")).strip()
         complex_types = str(row.get("Complex Types", "")).strip()
         
+        invalid_breeding_type = False
+
         if breeding_type.lower() == "unknown":
             comments.append("Breeding Type is not valid: Unknown")
+            invalid_breeding_type = True
         if breeding_type.lower() == "complex":
             comments.append("Breeding Type is not valid: Complex")
+            invalid_breeding_type = True
         if "asynchronous" in complex_types.lower() or "asynchronous" in breeding_type.lower():
             comments.append("Breeding Type is not valid: Asynchronous")
+            invalid_breeding_type = True
+
+        if invalid_breeding_type:
+            result["ARI"] = "ND_INVALID_BREEDING_TYPE"
+            result["Comment"] = "; ".join(comments)
+            return result
 
         if not hatch_date:
             comments.append("No valid hatch date")
@@ -239,23 +259,26 @@ class AcousticReproductiveIndex(AcousticMetric):
         # ----------------------------------------------------------------------
         # 1. Define Windows & Query Parquet / Detections
         # ----------------------------------------------------------------------
-        # Female Window: max(10 days before hatch, day recording started) to 1 day before hatch
+        # Female Window: up to 10 calendar days ending the day before hatch,
+        # clipped by deployment bounds.
         f_start = max(hatch_date - timedelta(days=self.DAYS_TO_COUNT), rec_start)
-        f_end = hatch_date - timedelta(days=1)
-        
-        # Nestling Window: hatch+2 to min(date recordings stopped, 12 days after hatch)
+        f_end = min(hatch_date - timedelta(days=1), rec_stop)
+
+        # Nestling Window: 10 calendar days from hatch+2 through hatch+11,
+        # clipped by deployment stop.
         n_start = hatch_date + timedelta(days=self.NESTLING_OFFSET_DAYS)
-        n_end = min(rec_stop, hatch_date + timedelta(days=2+self.DAYS_TO_COUNT))
+        n_end = min(rec_stop, n_start + timedelta(days=self.DAYS_TO_COUNT - 1))
 
-        # Sum up total available recordings using centralized time mask helper
-        total_female_recs = get_total_recordings(site_name, f_start, f_end)
-        total_nest_recs = get_total_recordings(site_name, n_start, n_end)
-
-        # Count actual unique active daylight calendar days with data
-        inc_days_used = get_recording_days_count(site_name, f_start, f_end)
-        nest_days_used = get_recording_days_count(site_name, n_start, n_end)
+        # Span days are the inclusive analysis-window lengths, not unique detection days.
+        inc_days_used = inclusive_day_span(f_start, f_end)
+        nest_days_used = inclusive_day_span(n_start, n_end)
 
         result["Incubation_Days"] = inc_days_used
+        result["Nestling_Days"] = nest_days_used
+
+        # Sum up total available recordings using centralized time mask helper.
+        total_recs_during_incubation = get_total_recordings(site_name, f_start, f_end)
+        total_recs_during_nestling = get_total_recordings(site_name, n_start, n_end)
 
         # Fetch raw validation detection logs
         df_f = get_raw_validated_detections(site_name, "Female")
@@ -270,10 +293,10 @@ class AcousticReproductiveIndex(AcousticMetric):
             if not df_f_win.empty:
                 earliest_f = df_f_win["date"].min()
                 result["Earliest_Rec"] = earliest_f.strftime("%m/%d/%Y") if isinstance(earliest_f, date) else str(earliest_f)
-                result["Total_Female_Calls"] = len(df_f_win)
+                result["Female_Detection_Recordings"] = len(df_f_win)
                 
-                if total_female_recs > 0:
-                    result[AVG_FEMALE_CALLS] = round(result["Total_Female_Calls"] / total_female_recs, DECIMALS)
+                if total_recs_during_incubation > 0:
+                    result[AVG_FEMALE_CALLS] = round(result["Female_Detection_Recordings"] / total_recs_during_incubation, DECIMALS)
 
         # ----------------------------------------------------------------------
         # 3. Nestling Validation Processing
@@ -284,11 +307,10 @@ class AcousticReproductiveIndex(AcousticMetric):
             if not df_n_win.empty:
                 latest_n = df_n_win["date"].max()
                 result["Latest_Rec"] = latest_n.strftime("%m/%d/%Y") if isinstance(latest_n, date) else str(latest_n)
-                result["Nestling_Days"] = (latest_n - n_start).days + 1
-                result["Total_Nestling_Calls"] = len(df_n_win)
+                result["Nestling_Detection_Recordings"] = len(df_n_win)
                 
-                if total_nest_recs > 0:
-                    result[AVG_NESTLING_CALLS] = round(result["Total_Nestling_Calls"] / total_nest_recs, DECIMALS)
+                if total_recs_during_nestling > 0:
+                    result[AVG_NESTLING_CALLS] = round(result["Nestling_Detection_Recordings"] / total_recs_during_nestling, DECIMALS)
 
         # ----------------------------------------------------------------------
         # 4. Biological Quality Guardrails & Outcome Scoring
@@ -303,10 +325,10 @@ class AcousticReproductiveIndex(AcousticMetric):
 
         if result["ARI"] != "ND_INSUFFICIENT_DAYS":
             if result[AVG_FEMALE_CALLS] == 0:
-                result["ARI"] = "ND_DIV_ZERO" if result[AVG_NESTLING_CALLS] > 0 else 0.0
+                result["ARI"] = "ND_NO_FEMALE_CALLS"
             else:
                 result["ARI"] = round(result[AVG_NESTLING_CALLS] / result[AVG_FEMALE_CALLS], DECIMALS)
-
+        
         result["Comment"] = "; ".join(comments)
         return result
 
@@ -339,7 +361,7 @@ class FledglingMetrics(AcousticMetric):
         result = {
             "Latest_Fledgling_Rec": "ND",
             "Fledgling_Days": 0,
-            "Total_Fledgling_Calls": 0,
+            "Fledgling_Detection_Recordings": 0,
             "Avg_Fledgling_Calls_Day": 0.0,
             "Fledglings_Present": "No"
         }
@@ -352,9 +374,11 @@ class FledglingMetrics(AcousticMetric):
             return result
 
         fledge_start = hatch_date + timedelta(days=self.FLEDGLING_OFFSET_DAYS)
-        fledge_end = hatch_date + timedelta(days=self.FLEDGLING_LATEST_DAY_OFFSET)
+        fledge_end = min(rec_stop, hatch_date + timedelta(days=self.FLEDGLING_LATEST_DAY_OFFSET))
 
-        total_fledge_recs = get_total_recordings(site_name, fledge_start, fledge_end)
+        result["Fledgling_Days"] = inclusive_day_span(fledge_start, fledge_end)
+
+        total_recs_during_fledging = get_total_recordings(site_name, fledge_start, fledge_end)
         df_fld = get_raw_validated_detections(site_name, "Fledgling")
 
         if not df_fld.empty:
@@ -362,12 +386,11 @@ class FledglingMetrics(AcousticMetric):
             if not df_fld_win.empty:
                 latest_f = df_fld_win["date"].max()
                 result["Latest_Fledgling_Rec"] = latest_f.strftime("%m/%d/%Y") if isinstance(latest_f, date) else str(latest_f)
-                result["Fledgling_Days"] = (latest_f - fledge_start).days + 1
-                result["Total_Fledgling_Calls"] = len(df_fld_win)
+                result["Fledgling_Detection_Recordings"] = len(df_fld_win)
                 result["Fledglings_Present"] = "Yes"
                 
-                if total_fledge_recs > 0:
-                    result["Avg_Fledgling_Calls_Day"] = round(result["Total_Fledgling_Calls"] / total_fledge_recs, DECIMALS)
+                if total_recs_during_fledging > 0:
+                    result["Avg_Fledgling_Calls_Day"] = round(result["Fledgling_Detection_Recordings"] / total_recs_during_fledging, DECIMALS)
 
         return result
 
@@ -395,6 +418,7 @@ def main() -> None:
     ]
 
     source_df = pd.read_csv(BREEDING_DATES_CSV)
+    source_df.columns = source_df.columns.astype(str).str.strip()
     
     if "Name" in source_df.columns:
         source_df.rename(columns={"Name": "Site_Name"}, inplace=True)
@@ -406,8 +430,15 @@ def main() -> None:
 
     processed_records = []
 
-    for row in source_df.to_dict("records"):
-        out_row = row.copy()
+    records = source_df.to_dict("records")
+    print(f"Processing {len(records)} records", end="", flush=True)
+
+    for idx, raw_row in enumerate(records, start=1):
+        if idx == 1 or idx % 10 == 0 or idx == len(records):
+            print(".", end="", flush=True)
+
+        row = cast(dict[str, Any], raw_row)
+        out_row: dict[str, Any] = row.copy()
         
         site_name = str(row.get("Site_Name", "")).strip()
         hatch_str = str(row.get("Hatch_Date", ""))
@@ -426,13 +457,16 @@ def main() -> None:
     for metric in active_metrics:
         results_df = metric.post_process(results_df)
 
+    print(" done.")
+
+    print("Saving files...")
     # Establish sequence ordering
     desired_order = [
         "Site ID", "Site_Name", "Pulse Name", "Outcome", "Calculated_Outcome", 
         "Breeding Type", "Hatch_Date", "Earliest_Rec", "Incubation_Days", 
-        "Total_Female_Calls", AVG_FEMALE_CALLS, "Latest_Rec", "Nestling_Days", 
-        "Total_Nestling_Calls", AVG_NESTLING_CALLS, "ARI", "Latest_Fledgling_Rec", 
-        "Fledgling_Days", "Total_Fledgling_Calls", "Avg_Fledgling_Calls_Day", 
+        "Female_Detection_Recordings", AVG_FEMALE_CALLS, "Latest_Rec", "Nestling_Days", 
+        "Nestling_Detection_Recordings", AVG_NESTLING_CALLS, "ARI", "Latest_Fledgling_Rec", 
+        "Fledgling_Days", "Fledgling_Detection_Recordings", "Avg_Fledgling_Calls_Day", 
         "Fledglings_Present", "Substrate", "Approx Colony Size", "Comment"
     ]
     

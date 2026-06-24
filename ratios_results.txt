@@ -1,12 +1,12 @@
 Processing Complete
 ===================
 Rows processed: 214
-ARI Cutoff Threshold: 0.5365
+ARI Cutoff Threshold: 0.752
 
 Outcomes:
 ---------
 Calculated_Outcome
-Successful             83
-Unknown                82
-Partially Abandoned    33
-Abandoned              16
+Unknown                119
+Successful              52
+Partially Abandoned     35
+Abandoned                8
