@@ -91,6 +91,13 @@ def summarize_unique_dates(df: pd.DataFrame, date_col: str = "date", max_dates: 
     return ", ".join(shown) + f", ... (+{len(formatted) - max_dates} more)"
 
 
+def normalize_hatch_date_value(value: Any) -> str:
+    """Normalizes no-hatch-date values to NHD while preserving usable date strings."""
+    cleaned = str(value).replace("~", "").strip()
+    no_hatch_values = {"", "ND", "NHD", "nan", "NaN", "n/a", "N/A", "na", "NA", "inf", "missed"}
+    return "NHD" if cleaned in no_hatch_values else cleaned
+
+
 @lru_cache(maxsize=1)
 def load_recordings_parquet() -> pd.DataFrame:
     """Loads and caches the entire parquet file once at startup to optimize
@@ -276,7 +283,6 @@ class AcousticReproductiveIndex(AcousticMetric):
         complex_types = str(row.get("Complex Types", "")).strip()
         
         invalid_breeding_type = False
-
         if breeding_type.lower() == "unknown":
             comments.append("Breeding Type is not valid: Unknown")
             invalid_breeding_type = True
@@ -476,9 +482,33 @@ class AcousticReproductiveIndex(AcousticMetric):
 
         df["Calculated_Outcome"] = "Unknown"
         df.loc[numeric_mask & (numeric_ari == 0), "Calculated_Outcome"] = "Abandoned"
-        df.loc[numeric_mask & (numeric_ari > 0) & (numeric_ari <= cutoff), "Calculated_Outcome"] = "Partially Abandoned"
+        df.loc[
+            numeric_mask & (numeric_ari > 0) & (numeric_ari <= cutoff),
+            "Calculated_Outcome",
+        ] = "Partially Abandoned"
         df.loc[numeric_mask & (numeric_ari > cutoff), "Calculated_Outcome"] = "Successful"
-        
+
+        # Biological override:
+        # If ARI is zero because no nestling calls were detected, but fledglings were
+        # detected in the fledgling window, the colony showed some productivity.
+        if "Total_Fledgling_Calls" in df.columns:
+            fledgling_calls = pd.to_numeric(df["Total_Fledgling_Calls"], errors="coerce").fillna(0)
+
+            zero_ari_with_fledglings = (
+                numeric_mask
+                & (numeric_ari == 0)
+                & (fledgling_calls > 0)
+            )
+
+            df.loc[zero_ari_with_fledglings, "Calculated_Outcome"] = "Partially Abandoned"
+            if "Outcome_Diagnostic" in df.columns:
+                df.loc[
+                    zero_ari_with_fledglings,
+                    "Outcome_Diagnostic",
+                ] = (
+                    "ARI was zero because no nestling detections were found, but fledgling "
+                    "detections were present in the fledgling window; classified as Partially Abandoned"
+                )   
 
         #diagnostics
         df["ARI_Cutoff"] = cutoff
@@ -520,15 +550,13 @@ class AcousticReproductiveIndex(AcousticMetric):
             df["Outcome_Mismatch_Type"] = ""
             df["Outcome_Diagnostic"] = ""
 
-
-
         self.calculated_cutoff = cutoff
         return df
 
 
 class FledglingMetrics(AcousticMetric):
-    FLEDGLING_OFFSET_DAYS = 11
-    FLEDGLING_LATEST_DAY_OFFSET = 15
+    FLEDGLING_OFFSET_DAYS = 9
+    FLEDGLING_LATEST_DAY_OFFSET = FLEDGLING_OFFSET_DAYS + 7
 
     def calculate_row(self, row: dict[str, Any], hatch_date: date | None, site_name: str) -> dict[str, Any]:
         result = {
@@ -633,11 +661,10 @@ def main() -> None:
     if "hatch" in source_df.columns:
         source_df.rename(columns={"hatch": "Hatch_Date"}, inplace=True)
     
-    # Clean "~" out of Hatch_Date to enable seamless datetime math
-    source_df["Hatch_Date"] = source_df["Hatch_Date"].astype(str).str.replace("~", "", regex=False).str.strip()
+    # Clean and normalize Hatch_Date values for output and downstream datetime parsing.
+    source_df["Hatch_Date"] = source_df["Hatch_Date"].apply(normalize_hatch_date_value)
 
     processed_records = []
-
     records = source_df.to_dict("records")
     print(f"Processing {len(records)} records", end="", flush=True)
 
@@ -649,12 +676,15 @@ def main() -> None:
         out_row: dict[str, Any] = row.copy()
         
         site_name = str(row.get("Site_Name", "")).strip()
-        hatch_str = str(row.get("Hatch_Date", ""))
-        
-        try:
-            hatch_date = pd.to_datetime(hatch_str).date()
-        except Exception:
+        hatch_str = str(row.get("Hatch_Date", "")).strip()
+
+        if hatch_str == "NHD":
             hatch_date = None
+        else:
+            try:
+                hatch_date = pd.to_datetime(hatch_str).date()
+            except Exception:
+                hatch_date = None
 
         for metric in active_metrics:
             out_row.update(metric.calculate_row(row, hatch_date, site_name))

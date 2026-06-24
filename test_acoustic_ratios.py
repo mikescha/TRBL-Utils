@@ -16,6 +16,7 @@ from acoustic_ratios import (
     get_site_recording_bounds,
     get_total_recordings,
     inclusive_day_span,
+    normalize_hatch_date_value,
 )
 
 
@@ -592,6 +593,21 @@ class TestAcousticReproductiveIndex(unittest.TestCase):
 
 
 class TestAcousticReproductiveIndexPostProcess(unittest.TestCase):
+    def test_post_process_zero_ari_with_fledglings_is_partially_abandoned(self) -> None:
+        metric = AcousticReproductiveIndex()
+        df = pd.DataFrame(
+            {
+                "ARI": [0.0, 0.0],
+                "Total_Fledgling_Calls": [0, 3],
+            }
+        )
+
+        result = metric.post_process(df.copy())
+
+        self.assertEqual(result.loc[0, "Calculated_Outcome"], "Abandoned")
+        self.assertEqual(result.loc[1, "Calculated_Outcome"], "Partially Abandoned")
+
+
     def test_post_process_classifies_numeric_ari_and_ignores_nd_statuses(self) -> None:
         metric = AcousticReproductiveIndex()
         df = pd.DataFrame(
@@ -651,7 +667,7 @@ class TestFledglingMetrics(unittest.TestCase):
 
         self.assertEqual(result["Fledglings_Present"], "Yes")
         self.assertEqual(result["Fledgling_Detection_Recordings"], 2)
-        self.assertEqual(result["Fledgling_Days"], 5)
+        self.assertEqual(result["Fledgling_Days"], 7)
         self.assertEqual(result["Avg_Fledgling_Calls_Day"], 0.02)
 
     @patch("acoustic_ratios.get_raw_validated_detections")
@@ -703,7 +719,7 @@ class TestFledglingMetrics(unittest.TestCase):
         result = self.metric.calculate_row({}, self.hatch_date, self.site_name)
 
         self.assertEqual(result["Fledglings_Present"], "No")
-        self.assertEqual(result["Fledgling_Days"], 5)
+        self.assertEqual(result["Fledgling_Days"], 7)
         self.assertEqual(result["Fledgling_Detection_Recordings"], 0)
 
     def test_missing_hatch_date_returns_default_fledgling_result(self) -> None:
@@ -881,6 +897,19 @@ class TestRawValidatedDetectionsLoader(unittest.TestCase):
 
         self.assertTrue(result.empty)
         mock_print.assert_called_once()
+
+
+class TestHatchDateNormalization(unittest.TestCase):
+    def test_no_hatch_values_normalize_to_nhd(self) -> None:
+        values = ["ND", "NHD", "", "nan", "n/a", "NA", "inf", "missed", " ~ND "]
+
+        for value in values:
+            with self.subTest(value=value):
+                self.assertEqual(normalize_hatch_date_value(value), "NHD")
+
+    def test_valid_hatch_date_is_preserved_and_tilde_removed(self) -> None:
+        self.assertEqual(normalize_hatch_date_value("~05/15/2024"), "05/15/2024")
+        self.assertEqual(normalize_hatch_date_value(" 2024-05-15 "), "2024-05-15")
 
 
 
