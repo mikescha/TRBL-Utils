@@ -424,14 +424,27 @@ class TestAcousticReproductiveIndex(unittest.TestCase):
     @patch("acoustic_ratios.get_recording_days_count")
     @patch("acoustic_ratios.get_total_recordings")
     @patch("acoustic_ratios.get_site_recording_bounds")
-    def test_invalid_breeding_types_return_nd_status(
+    def test_invalid_breeding_types_calculate_diagnostics_but_not_numeric_ari(
         self,
         mock_bounds,
         mock_totals,
         mock_days_count,
         mock_detections,
     ) -> None:
-        """Invalid breeding types should not be scored as numeric ARI."""
+        """Invalid breeding types should keep call metrics but suppress numeric ARI."""
+        mock_bounds.return_value = (date(2024, 5, 1), date(2024, 5, 30))
+        mock_totals.return_value = 100
+        mock_days_count.return_value = 10
+
+        def side_effect_detections(site, call_type):
+            if call_type == "Female":
+                return self.female_df(list(range(10)))
+            if call_type == "Nestling":
+                return self.nestling_df(list(range(5)))
+            return pd.DataFrame()
+
+        mock_detections.side_effect = side_effect_detections
+
         rows = [
             ({"Breeding Type": "Unknown"}, "Unknown"),
             ({"Breeding Type": "Complex"}, "Complex"),
@@ -442,13 +455,19 @@ class TestAcousticReproductiveIndex(unittest.TestCase):
         for row, expected_comment in rows:
             with self.subTest(row=row):
                 result = self.metric.calculate_row(row, self.hatch_date, self.site_name)
+
                 self.assertEqual(result["ARI"], "ND_INVALID_BREEDING_TYPE")
                 self.assertIn(expected_comment, result["Comment"])
 
-        mock_bounds.assert_not_called()
-        mock_totals.assert_not_called()
-        mock_days_count.assert_not_called()
-        mock_detections.assert_not_called()
+                # These should still be populated even though numeric ARI is suppressed.
+                self.assertEqual(result["Earliest_Rec"], "05/05/2024")
+                self.assertEqual(result["Latest_Rec"], "05/21/2024")
+                self.assertEqual(result["Incubation_Days"], 10)
+                self.assertEqual(result["Nestling_Days"], 10)
+                self.assertEqual(result["Female_Detection_Recordings"], 10)
+                self.assertEqual(result[AVG_FEMALE_CALLS], 0.1)
+                self.assertEqual(result["Nestling_Detection_Recordings"], 5)
+                self.assertEqual(result[AVG_NESTLING_CALLS], 0.05)
 
     def test_missing_hatch_date_returns_missing_dates_status(self) -> None:
         result = self.metric.calculate_row({"Breeding Type": "Simple"}, None, self.site_name)
@@ -533,6 +552,43 @@ class TestAcousticReproductiveIndex(unittest.TestCase):
         self.assertEqual(result["Nestling_Days"], 3)
         self.assertEqual(result["ARI"], "ND_INSUFFICIENT_DAYS")
         self.assertIn("Nestling days less than 4", result["Comment"])
+
+
+    @patch("acoustic_ratios.get_raw_validated_detections")
+    @patch("acoustic_ratios.get_recording_days_count")
+    @patch("acoustic_ratios.get_total_recordings")
+    @patch("acoustic_ratios.get_site_recording_bounds")
+    def test_invalid_breeding_type_with_no_female_calls_does_not_divide_by_zero(
+        self,
+        mock_bounds,
+        mock_totals,
+        mock_days_count,
+        mock_detections,
+    ) -> None:
+        """Invalid breeding rows should not attempt numeric ARI division."""
+        mock_bounds.return_value = (date(2024, 5, 1), date(2024, 5, 30))
+        mock_totals.return_value = 100
+        mock_days_count.return_value = 10
+
+        def side_effect_detections(site, call_type):
+            if call_type == "Nestling":
+                return self.nestling_df([0, 1, 2])
+            return pd.DataFrame()
+
+        mock_detections.side_effect = side_effect_detections
+
+        result = self.metric.calculate_row(
+            {"Breeding Type": "Complex"},
+            self.hatch_date,
+            self.site_name,
+        )
+
+        self.assertEqual(result["ARI"], "ND_INVALID_BREEDING_TYPE")
+        self.assertEqual(result["Female_Detection_Recordings"], 0)
+        self.assertEqual(result[AVG_FEMALE_CALLS], 0.0)
+        self.assertEqual(result["Nestling_Detection_Recordings"], 3)
+        self.assertEqual(result[AVG_NESTLING_CALLS], 0.03)
+
 
 
 class TestAcousticReproductiveIndexPostProcess(unittest.TestCase):

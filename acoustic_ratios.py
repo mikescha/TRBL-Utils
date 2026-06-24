@@ -241,18 +241,6 @@ class AcousticReproductiveIndex(AcousticMetric):
             "Nestling_Detection_Recordings": 0,
             AVG_NESTLING_CALLS: 0.0,
             "ARI": "ND_MISSING_DATES",
-            "Comment": ""
-        }
-        result = {
-            "Earliest_Rec": "ND",
-            "Incubation_Days": 0,
-            "Female_Detection_Recordings": 0,
-            AVG_FEMALE_CALLS: 0.0,
-            "Latest_Rec": "ND",
-            "Nestling_Days": 0,
-            "Nestling_Detection_Recordings": 0,
-            AVG_NESTLING_CALLS: 0.0,
-            "ARI": "ND_MISSING_DATES",
             "Comment": "",
 
             # Diagnostic columns.
@@ -298,11 +286,6 @@ class AcousticReproductiveIndex(AcousticMetric):
         if "asynchronous" in complex_types.lower() or "asynchronous" in breeding_type.lower():
             comments.append("Breeding Type is not valid: Asynchronous")
             invalid_breeding_type = True
-
-        if invalid_breeding_type:
-            result["ARI"] = "ND_INVALID_BREEDING_TYPE"
-            result["Comment"] = "; ".join(comments)
-            return result
 
         if not hatch_date:
             comments.append("No valid hatch date")
@@ -439,19 +422,23 @@ class AcousticReproductiveIndex(AcousticMetric):
             comments.append("Nestling days less than 4")
             result["ARI"] = "ND_INSUFFICIENT_DAYS"
 
-        if result["ARI"] != "ND_INSUFFICIENT_DAYS":
+        if invalid_breeding_type:
+            result["ARI"] = "ND_INVALID_BREEDING_TYPE"
+        elif result["ARI"] != "ND_INSUFFICIENT_DAYS":
             if result[AVG_FEMALE_CALLS] == 0:
                 result["ARI"] = "ND_NO_FEMALE_CALLS"
             else:
                 result["ARI"] = round(result[AVG_NESTLING_CALLS] / result[AVG_FEMALE_CALLS], DECIMALS)
-        
 
 
         #diagnostics
         if result["ARI"] == "NHD":
             result["ARI_Diagnostic"] = "No hatch date; ARI windows cannot be defined"
         elif result["ARI"] == "ND_INVALID_BREEDING_TYPE":
-            result["ARI_Diagnostic"] = "Invalid breeding type; ARI not calculated"
+            result["ARI_Diagnostic"] = (
+                "Invalid breeding type; call dates/counts/rates calculated, "
+                "but numeric ARI not calculated"
+        )
         elif result["ARI"] == "ND_INSUFFICIENT_DAYS":
             result["ARI_Diagnostic"] = (
                 f"Insufficient span days: incubation={result['Incubation_Days']}, "
