@@ -160,11 +160,11 @@ class TestAcousticReproductiveIndex(unittest.TestCase):
         result = self.metric.calculate_row(row, self.hatch_date, self.site_name)
 
         self.assertEqual(result["Incubation_Days"], 10)
-        self.assertEqual(result["Total_Female_Calls"], 10)
+        self.assertEqual(result["Female_Detection_Recordings"], 10)
         self.assertEqual(result[AVG_FEMALE_CALLS], 0.1)
 
         self.assertEqual(result["Nestling_Days"], 10)
-        self.assertEqual(result["Total_Nestling_Calls"], 5)
+        self.assertEqual(result["Nestling_Detection_Recordings"], 5)
         self.assertEqual(result[AVG_NESTLING_CALLS], 0.05)
 
         self.assertEqual(result["ARI"], 0.5)
@@ -209,7 +209,7 @@ class TestAcousticReproductiveIndex(unittest.TestCase):
         result = self.metric.calculate_row({}, self.hatch_date, self.site_name)
 
         self.assertEqual(result["Nestling_Days"], 10)
-        self.assertEqual(result["Total_Nestling_Calls"], 2)
+        self.assertEqual(result["Nestling_Detection_Recordings"], 2)
         self.assertEqual(result[AVG_NESTLING_CALLS], 0.02)
         self.assertEqual(result["ARI"], 0.2)
 
@@ -256,7 +256,7 @@ class TestAcousticReproductiveIndex(unittest.TestCase):
         result = self.metric.calculate_row({}, self.hatch_date, self.site_name)
 
         self.assertEqual(result["Nestling_Days"], 5)
-        self.assertEqual(result["Total_Nestling_Calls"], 2)
+        self.assertEqual(result["Nestling_Detection_Recordings"], 2)
         self.assertIn(
             call(self.site_name, self.n_start, rec_stop),
             mock_totals.call_args_list,
@@ -290,7 +290,7 @@ class TestAcousticReproductiveIndex(unittest.TestCase):
         result = self.metric.calculate_row({}, self.hatch_date, self.site_name)
 
         self.assertEqual(result["Nestling_Days"], 10)
-        self.assertEqual(result["Total_Nestling_Calls"], 1)
+        self.assertEqual(result["Nestling_Detection_Recordings"], 1)
 
     @patch("acoustic_ratios.get_raw_validated_detections")
     @patch("acoustic_ratios.get_recording_days_count")
@@ -339,8 +339,8 @@ class TestAcousticReproductiveIndex(unittest.TestCase):
 
         result = self.metric.calculate_row({}, self.hatch_date, self.site_name)
 
-        self.assertEqual(result["Total_Female_Calls"], 10)
-        self.assertEqual(result["Total_Nestling_Calls"], 5)
+        self.assertEqual(result["Female_Detection_Recordings"], 10)
+        self.assertEqual(result["Nestling_Detection_Recordings"], 5)
         self.assertEqual(result["ARI"], 0.5)
 
     @patch("acoustic_ratios.get_raw_validated_detections")
@@ -396,8 +396,8 @@ class TestAcousticReproductiveIndex(unittest.TestCase):
         result = self.metric.calculate_row({}, self.hatch_date, self.site_name)
 
         self.assertEqual(result["ARI"], "ND_NO_FEMALE_CALLS")
-        self.assertEqual(result["Total_Female_Calls"], 0)
-        self.assertEqual(result["Total_Nestling_Calls"], 3)
+        self.assertEqual(result["Female_Detection_Recordings"], 0)
+        self.assertEqual(result["Nestling_Detection_Recordings"], 3)
 
     @patch("acoustic_ratios.get_raw_validated_detections")
     @patch("acoustic_ratios.get_recording_days_count")
@@ -453,7 +453,9 @@ class TestAcousticReproductiveIndex(unittest.TestCase):
     def test_missing_hatch_date_returns_missing_dates_status(self) -> None:
         result = self.metric.calculate_row({"Breeding Type": "Simple"}, None, self.site_name)
 
-        self.assertEqual(result["ARI"], "ND_MISSING_DATES")
+        self.assertEqual(result["ARI"], "NHD")
+        self.assertEqual(result["Earliest_Rec"], "NHD")
+        self.assertEqual(result["Latest_Rec"], "NHD")
         self.assertIn("No valid hatch date", result["Comment"])
 
     @patch("acoustic_ratios.get_site_recording_bounds")
@@ -592,7 +594,7 @@ class TestFledglingMetrics(unittest.TestCase):
         result = self.metric.calculate_row({}, self.hatch_date, self.site_name)
 
         self.assertEqual(result["Fledglings_Present"], "Yes")
-        self.assertEqual(result["Total_Fledgling_Calls"], 2)
+        self.assertEqual(result["Fledgling_Detection_Recordings"], 2)
         self.assertEqual(result["Fledgling_Days"], 5)
         self.assertEqual(result["Avg_Fledgling_Calls_Day"], 0.02)
 
@@ -625,7 +627,7 @@ class TestFledglingMetrics(unittest.TestCase):
 
         self.assertEqual(result["Fledglings_Present"], "Yes")
         self.assertEqual(result["Fledgling_Days"], 3)
-        self.assertEqual(result["Total_Fledgling_Calls"], 2)
+        self.assertEqual(result["Fledgling_Detection_Recordings"], 2)
         self.assertEqual(result["Avg_Fledgling_Calls_Day"], 0.02)
         mock_totals.assert_called_once_with(self.site_name, self.fledge_start, rec_stop)
 
@@ -646,14 +648,14 @@ class TestFledglingMetrics(unittest.TestCase):
 
         self.assertEqual(result["Fledglings_Present"], "No")
         self.assertEqual(result["Fledgling_Days"], 5)
-        self.assertEqual(result["Total_Fledgling_Calls"], 0)
+        self.assertEqual(result["Fledgling_Detection_Recordings"], 0)
 
     def test_missing_hatch_date_returns_default_fledgling_result(self) -> None:
         result = self.metric.calculate_row({}, None, self.site_name)
 
         self.assertEqual(result["Fledglings_Present"], "No")
         self.assertEqual(result["Fledgling_Days"], 0)
-        self.assertEqual(result["Total_Fledgling_Calls"], 0)
+        self.assertEqual(result["Fledgling_Detection_Recordings"], 0)
 
     @patch("acoustic_ratios.get_site_recording_bounds")
     def test_missing_deployment_logs_returns_default_fledgling_result(self, mock_bounds) -> None:
@@ -663,7 +665,7 @@ class TestFledglingMetrics(unittest.TestCase):
 
         self.assertEqual(result["Fledglings_Present"], "No")
         self.assertEqual(result["Fledgling_Days"], 0)
-        self.assertEqual(result["Total_Fledgling_Calls"], 0)
+        self.assertEqual(result["Fledgling_Detection_Recordings"], 0)
 
 
 class TestDataLoader(unittest.TestCase):
