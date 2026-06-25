@@ -9,6 +9,16 @@ import pandas as pd
 from acoustic_ratios import (
     AVG_FEMALE_CALLS,
     AVG_NESTLING_CALLS,
+    ARI_CLASS_HIGH_OFFSPRING_ACTIVITY,
+    ARI_CLASS_NO_OFFSPRING_EVIDENCE,
+    ARI_CLASS_NOT_SCORABLE,
+    ARI_CLASS_REDUCED_OFFSPRING_ACTIVITY,
+    ARI_STATUS_NO_FEMALE_CALLS,
+    ARI_STATUS_NUMERIC,
+    COL_ARI_CLASS,
+    COL_ARI_FEMALE_DENOMINATOR_FLAG,
+    COL_ARI_STATUS,
+    COL_FLEDGLING_DETECTION_RECORDINGS,
     AcousticReproductiveIndex,
     FledglingMetrics,
     filter_by_datetime_bounds,
@@ -598,7 +608,7 @@ class TestAcousticReproductiveIndexPostProcess(unittest.TestCase):
         df = pd.DataFrame(
             {
                 "ARI": [0.0, 0.0],
-                "Total_Fledgling_Calls": [0, 3],
+                COL_FLEDGLING_DETECTION_RECORDINGS: [0, 3],
             }
         )
 
@@ -606,13 +616,52 @@ class TestAcousticReproductiveIndexPostProcess(unittest.TestCase):
 
         self.assertEqual(result.loc[0, "Calculated_Outcome"], "Abandoned")
         self.assertEqual(result.loc[1, "Calculated_Outcome"], "Partially Abandoned")
+        self.assertEqual(result.loc[0, COL_ARI_CLASS], ARI_CLASS_NO_OFFSPRING_EVIDENCE)
+        self.assertEqual(result.loc[1, COL_ARI_CLASS], ARI_CLASS_REDUCED_OFFSPRING_ACTIVITY)
+
+    def test_post_process_assigns_publication_facing_ari_status_and_class(self) -> None:
+        metric = AcousticReproductiveIndex()
+        df = pd.DataFrame(
+            {
+                "ARI": [0.0, 0.0, 0.25, 0.5, 0.501, "ND_NO_FEMALE_CALLS"],
+                COL_FLEDGLING_DETECTION_RECORDINGS: [0, 2, 0, 0, 0, 0],
+                "Female_Detection_Recordings": [20, 20, 20, 20, 20, 0],
+            }
+        )
+
+        result = metric.post_process(df.copy())
+
+        self.assertEqual(result.loc[0, COL_ARI_STATUS], ARI_STATUS_NUMERIC)
+        self.assertEqual(result.loc[5, COL_ARI_STATUS], ARI_STATUS_NO_FEMALE_CALLS)
+        self.assertEqual(result.loc[0, COL_ARI_CLASS], ARI_CLASS_NO_OFFSPRING_EVIDENCE)
+        self.assertEqual(result.loc[1, COL_ARI_CLASS], ARI_CLASS_REDUCED_OFFSPRING_ACTIVITY)
+        self.assertEqual(result.loc[2, COL_ARI_CLASS], ARI_CLASS_REDUCED_OFFSPRING_ACTIVITY)
+        self.assertEqual(result.loc[3, COL_ARI_CLASS], ARI_CLASS_REDUCED_OFFSPRING_ACTIVITY)
+        self.assertEqual(result.loc[4, COL_ARI_CLASS], ARI_CLASS_HIGH_OFFSPRING_ACTIVITY)
+        self.assertEqual(result.loc[5, COL_ARI_CLASS], ARI_CLASS_NOT_SCORABLE)
+
+    def test_post_process_flags_low_female_denominator(self) -> None:
+        metric = AcousticReproductiveIndex()
+        df = pd.DataFrame(
+            {
+                "ARI": [0.25, 0.25, "ND_INVALID_BREEDING_TYPE"],
+                COL_FLEDGLING_DETECTION_RECORDINGS: [0, 0, 0],
+                "Female_Detection_Recordings": [5, 6, 1],
+            }
+        )
+
+        result = metric.post_process(df.copy())
+
+        self.assertTrue(result.loc[0, COL_ARI_FEMALE_DENOMINATOR_FLAG])
+        self.assertFalse(result.loc[1, COL_ARI_FEMALE_DENOMINATOR_FLAG])
+        self.assertFalse(result.loc[2, COL_ARI_FEMALE_DENOMINATOR_FLAG])
 
     def test_post_process_nonzero_ari_uses_dynamic_cutoff(self) -> None:
         metric = AcousticReproductiveIndex()
         df = pd.DataFrame(
             {
                 "ARI": [0.0, 0.1, 0.25, 0.9],
-                "Total_Fledgling_Calls": [0, 0, 0, 0],
+                COL_FLEDGLING_DETECTION_RECORDINGS: [0, 0, 0, 0],
             }
         )
 

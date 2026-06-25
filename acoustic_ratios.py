@@ -38,6 +38,93 @@ RECORDINGS_PARQUET = DATA_DIR / "Data" / "recordings_per_day_hour.parquet"
 
 DECIMALS = 3
 
+# Biological / descriptive thresholds
+ARI_HIGH_THRESHOLD = 0.5
+LOW_FEMALE_DENOMINATOR_THRESHOLD = 5
+
+# ARI status values
+ARI_STATUS_NUMERIC = "Numeric"
+ARI_STATUS_NHD = "NHD"
+ARI_STATUS_MISSING_DATES = "ND_MISSING_DATES"
+ARI_STATUS_INVALID_BREEDING_TYPE = "ND_INVALID_BREEDING_TYPE"
+ARI_STATUS_NO_FEMALE_CALLS = "ND_NO_FEMALE_CALLS"
+ARI_STATUS_INSUFFICIENT_DAYS = "ND_INSUFFICIENT_DAYS"
+
+# ARI descriptive classes for publication-facing output
+ARI_CLASS_NOT_SCORABLE = "Not ARI-scorable"
+ARI_CLASS_NO_OFFSPRING_EVIDENCE = "No detected offspring acoustic evidence"
+ARI_CLASS_REDUCED_OFFSPRING_ACTIVITY = "Reduced offspring acoustic activity"
+ARI_CLASS_HIGH_OFFSPRING_ACTIVITY = "High offspring acoustic activity"
+
+# Manual / legacy outcome labels
+OUTCOME_ABANDONED = "Abandoned"
+OUTCOME_PARTIALLY_ABANDONED = "Partially Abandoned"
+OUTCOME_SUCCESSFUL = "Successful"
+OUTCOME_UNKNOWN = "Unknown"
+
+# Breeding type labels
+BREEDING_TYPE_SIMPLE = "Simple"
+BREEDING_TYPE_SEQUENTIAL = "Sequential"
+BREEDING_TYPE_COMPLEX = "Complex"
+BREEDING_TYPE_UNKNOWN = "Unknown"
+BREEDING_TYPE_ASYNCHRONOUS = "Asynchronous"
+
+# Call type labels used for source-file discovery
+CALL_TYPE_FEMALE = "Female"
+CALL_TYPE_NESTLING = "Nestling"
+CALL_TYPE_FLEDGLING = "Fledgling"
+VALIDATED_PRESENT = "present"
+
+# Common CSV column names
+COL_SITE_ID = "Site ID"
+COL_SITE_NAME = "Site_Name"
+COL_PULSE_NAME = "Pulse Name"
+COL_OUTCOME = "Outcome"
+COL_CALCULATED_OUTCOME = "Calculated_Outcome"
+COL_BREEDING_TYPE = "Breeding Type"
+COL_COMPLEX_TYPES = "Complex Types"
+COL_HATCH_DATE = "Hatch_Date"
+COL_EARLIEST_REC = "Earliest_Rec"
+COL_INCUBATION_DAYS = "Incubation_Days"
+COL_FEMALE_DETECTION_RECORDINGS = "Female_Detection_Recordings"
+COL_LATEST_REC = "Latest_Rec"
+COL_NESTLING_DAYS = "Nestling_Days"
+COL_NESTLING_DETECTION_RECORDINGS = "Nestling_Detection_Recordings"
+COL_ARI = "ARI"
+COL_ARI_STATUS = "ARI_Status"
+COL_ARI_CLASS = "ARI_Class"
+COL_ARI_CLASS_THRESHOLD = "ARI_Class_Threshold"
+COL_ARI_FEMALE_DENOMINATOR_FLAG = "ARI_Female_Denominator_Flag"
+COL_LATEST_FLEDGLING_REC = "Latest_Fledgling_Rec"
+COL_FLEDGLING_DAYS = "Fledgling_Days"
+COL_FLEDGLING_DETECTION_RECORDINGS = "Fledgling_Detection_Recordings"
+COL_AVG_FLEDGLING_CALLS_DAY = "Avg_Fledgling_Calls_Day"
+COL_FLEDGLINGS_PRESENT = "Fledglings_Present"
+COL_SUBSTRATE = "Substrate"
+COL_APPROX_COLONY_SIZE = "Approx Colony Size"
+COL_COMMENT = "Comment"
+COL_OUTCOME_MISMATCH = "Outcome_Mismatch"
+COL_OUTCOME_MISMATCH_TYPE = "Outcome_Mismatch_Type"
+COL_OUTCOME_DIAGNOSTIC = "Outcome_Diagnostic"
+
+# Backward-compatibility for older test/output names. Prefer
+# COL_FLEDGLING_DETECTION_RECORDINGS in new code.
+LEGACY_COL_TOTAL_FLEDGLING_CALLS = "Total_Fledgling_Calls"
+
+NO_HATCH_VALUES = {
+    "",
+    ARI_STATUS_NHD,
+    "ND",
+    "nan",
+    "NaN",
+    "n/a",
+    "N/A",
+    "na",
+    "NA",
+    "inf",
+    "missed",
+}
+
 
 # ==============================================================================
 # DATA LOADING UTILITIES & FILTER HELPERS
@@ -94,8 +181,7 @@ def summarize_unique_dates(df: pd.DataFrame, date_col: str = "date", max_dates: 
 def normalize_hatch_date_value(value: Any) -> str:
     """Normalizes no-hatch-date values to NHD while preserving usable date strings."""
     cleaned = str(value).replace("~", "").strip()
-    no_hatch_values = {"", "ND", "NHD", "nan", "NaN", "n/a", "N/A", "na", "NA", "inf", "missed"}
-    return "NHD" if cleaned in no_hatch_values else cleaned
+    return ARI_STATUS_NHD if cleaned in NO_HATCH_VALUES else cleaned
 
 
 @lru_cache(maxsize=1)
@@ -208,7 +294,7 @@ def get_raw_validated_detections(site_name: str, call_type: str) -> pd.DataFrame
         df.columns = df.columns.str.lower().str.strip()
         
         # Filter for validated present detections
-        df = df[df["validated"].astype(str).str.strip().str.lower() == "present"].copy()
+        df = df[df["validated"].astype(str).str.strip().str.lower() == VALIDATED_PRESENT].copy()
         if df.empty:
             return pd.DataFrame()
             
@@ -346,8 +432,8 @@ class AcousticReproductiveIndex(AcousticMetric):
         result["ARI_Total_Nestling_Recordings"] = total_recs_during_nestling
 
         # Fetch raw validation detection logs
-        df_f = get_raw_validated_detections(site_name, "Female")
-        df_n = get_raw_validated_detections(site_name, "Nestling")
+        df_f = get_raw_validated_detections(site_name, CALL_TYPE_FEMALE)
+        df_n = get_raw_validated_detections(site_name, CALL_TYPE_NESTLING)
 
         # ----------------------------------------------------------------------
         # 2. Female Incubation Processing
@@ -469,10 +555,14 @@ class AcousticReproductiveIndex(AcousticMetric):
         return result
 
     def post_process(self, df: pd.DataFrame) -> pd.DataFrame:
-        numeric_ari = pd.to_numeric(df["ARI"], errors="coerce")
+        numeric_ari = pd.to_numeric(df[COL_ARI], errors="coerce")
         numeric_mask = numeric_ari.notna()
 
-        valid_ari = df.loc[numeric_mask & (numeric_ari < 0.8), "ARI"].sort_values().to_numpy(dtype=float)
+        valid_ari = (
+            df.loc[numeric_mask & (numeric_ari < 0.8), COL_ARI]
+            .sort_values()
+            .to_numpy(dtype=float)
+        )
 
         cutoff = 0.15
         if len(valid_ari) >= 2:
@@ -480,37 +570,71 @@ class AcousticReproductiveIndex(AcousticMetric):
             max_gap_idx = int(np.argmax(diffs))
             cutoff = float(valid_ari[max_gap_idx] + (diffs[max_gap_idx] / 2))
 
-        df["Calculated_Outcome"] = "Unknown"
-        df.loc[numeric_mask & (numeric_ari == 0), "Calculated_Outcome"] = "Abandoned"
+        # Legacy dynamic outcome classification retained for backward compatibility.
+        df[COL_CALCULATED_OUTCOME] = OUTCOME_UNKNOWN
+        df.loc[numeric_mask & (numeric_ari == 0), COL_CALCULATED_OUTCOME] = OUTCOME_ABANDONED
         df.loc[
             numeric_mask & (numeric_ari > 0) & (numeric_ari <= cutoff),
-            "Calculated_Outcome",
-        ] = "Partially Abandoned"
-        df.loc[numeric_mask & (numeric_ari > cutoff), "Calculated_Outcome"] = "Successful"
+            COL_CALCULATED_OUTCOME,
+        ] = OUTCOME_PARTIALLY_ABANDONED
+        df.loc[numeric_mask & (numeric_ari > cutoff), COL_CALCULATED_OUTCOME] = OUTCOME_SUCCESSFUL
 
-        # Biological override:
-        # If ARI is zero because no nestling calls were detected, but fledglings were
-        # detected in the fledgling window, the colony showed some productivity.
-        if "Total_Fledgling_Calls" in df.columns:
-            fledgling_calls = pd.to_numeric(df["Total_Fledgling_Calls"], errors="coerce").fillna(0)
+        # Use the current fledgling detection column, while still tolerating the
+        # older column name in tests or older output files.
+        if COL_FLEDGLING_DETECTION_RECORDINGS in df.columns:
+            fledgling_calls = pd.to_numeric(
+                df[COL_FLEDGLING_DETECTION_RECORDINGS], errors="coerce"
+            ).fillna(0)
+        elif LEGACY_COL_TOTAL_FLEDGLING_CALLS in df.columns:
+            fledgling_calls = pd.to_numeric(
+                df[LEGACY_COL_TOTAL_FLEDGLING_CALLS], errors="coerce"
+            ).fillna(0)
+        else:
+            fledgling_calls = pd.Series(0, index=df.index, dtype="float64")
 
-            zero_ari_with_fledglings = (
-                numeric_mask
-                & (numeric_ari == 0)
-                & (fledgling_calls > 0)
-            )
+        zero_ari_with_fledglings = (
+            numeric_mask
+            & (numeric_ari == 0)
+            & (fledgling_calls > 0)
+        )
 
-            df.loc[zero_ari_with_fledglings, "Calculated_Outcome"] = "Partially Abandoned"
-            if "Outcome_Diagnostic" in df.columns:
-                df.loc[
-                    zero_ari_with_fledglings,
-                    "Outcome_Diagnostic",
-                ] = (
-                    "ARI was zero because no nestling detections were found, but fledgling "
-                    "detections were present in the fledgling window; classified as Partially Abandoned"
-                )   
+        df.loc[zero_ari_with_fledglings, COL_CALCULATED_OUTCOME] = OUTCOME_PARTIALLY_ABANDONED
 
-        #diagnostics
+        # Publication-facing ARI status and descriptive class. These fields are
+        # intentionally about the acoustic evidence, not a definitive colony fate.
+        df[COL_ARI_STATUS] = df[COL_ARI].astype(str)
+        df.loc[numeric_mask, COL_ARI_STATUS] = ARI_STATUS_NUMERIC
+
+        df[COL_ARI_CLASS] = ARI_CLASS_NOT_SCORABLE
+        df[COL_ARI_CLASS_THRESHOLD] = ARI_HIGH_THRESHOLD
+        df.loc[
+            numeric_mask & (numeric_ari == 0) & (fledgling_calls <= 0),
+            COL_ARI_CLASS,
+        ] = ARI_CLASS_NO_OFFSPRING_EVIDENCE
+        df.loc[
+            zero_ari_with_fledglings
+            | (numeric_mask & (numeric_ari > 0) & (numeric_ari <= ARI_HIGH_THRESHOLD)),
+            COL_ARI_CLASS,
+        ] = ARI_CLASS_REDUCED_OFFSPRING_ACTIVITY
+        df.loc[
+            numeric_mask & (numeric_ari > ARI_HIGH_THRESHOLD),
+            COL_ARI_CLASS,
+        ] = ARI_CLASS_HIGH_OFFSPRING_ACTIVITY
+
+        if COL_FEMALE_DETECTION_RECORDINGS in df.columns:
+            female_detection_recordings = pd.to_numeric(
+                df[COL_FEMALE_DETECTION_RECORDINGS], errors="coerce"
+            ).fillna(0)
+        else:
+            female_detection_recordings = pd.Series(0, index=df.index, dtype="float64")
+
+        df[COL_ARI_FEMALE_DENOMINATOR_FLAG] = (
+            numeric_mask
+            & (female_detection_recordings > 0)
+            & (female_detection_recordings <= LOW_FEMALE_DENOMINATOR_THRESHOLD)
+        )
+
+        # Diagnostics for the legacy dynamic cutoff.
         df["ARI_Cutoff"] = cutoff
         df["ARI_Margin_To_Cutoff"] = pd.NA
 
@@ -518,37 +642,50 @@ class AcousticReproductiveIndex(AcousticMetric):
             numeric_ari.loc[numeric_mask] - cutoff
         ).round(DECIMALS)
 
-        if "Outcome" in df.columns:
-            human_outcome = df["Outcome"].astype(str).str.strip()
-            calculated_outcome = df["Calculated_Outcome"].astype(str).str.strip()
+        if COL_OUTCOME in df.columns:
+            human_outcome = df[COL_OUTCOME].astype(str).str.strip()
+            calculated_outcome = df[COL_CALCULATED_OUTCOME].astype(str).str.strip()
 
-            df["Outcome_Mismatch"] = (
+            df[COL_OUTCOME_MISMATCH] = (
                 human_outcome.ne("")
                 & human_outcome.ne("nan")
-                & human_outcome.ne("Unknown")
-                & calculated_outcome.ne("Unknown")
+                & human_outcome.ne(OUTCOME_UNKNOWN)
+                & calculated_outcome.ne(OUTCOME_UNKNOWN)
                 & human_outcome.ne(calculated_outcome)
             )
 
-            df["Outcome_Mismatch_Type"] = ""
+            df[COL_OUTCOME_MISMATCH_TYPE] = ""
             df.loc[
-                df["Outcome_Mismatch"],
-                "Outcome_Mismatch_Type",
+                df[COL_OUTCOME_MISMATCH],
+                COL_OUTCOME_MISMATCH_TYPE,
             ] = human_outcome + " -> " + calculated_outcome
 
-            df["Outcome_Diagnostic"] = ""
+            df[COL_OUTCOME_DIAGNOSTIC] = ""
 
             df.loc[
-                df["Outcome_Mismatch"] & human_outcome.eq("Successful") & calculated_outcome.eq("Partially Abandoned"),
-                "Outcome_Diagnostic",
+                zero_ari_with_fledglings,
+                COL_OUTCOME_DIAGNOSTIC,
             ] = (
-                "Human Successful but ARI below cutoff; inspect NBC detections, female denominator, "
-                "fledgling detections, and whether ARI cutoff is biologically appropriate"
+                "ARI was zero because no nestling detections were found, but fledgling "
+                "detections were present in the fledgling window; classified as "
+                "Partially Abandoned in the legacy Calculated_Outcome field"
+            )
+
+            df.loc[
+                df[COL_OUTCOME_MISMATCH]
+                & human_outcome.eq(OUTCOME_SUCCESSFUL)
+                & calculated_outcome.eq(OUTCOME_PARTIALLY_ABANDONED)
+                & df[COL_OUTCOME_DIAGNOSTIC].eq(""),
+                COL_OUTCOME_DIAGNOSTIC,
+            ] = (
+                "Human Successful but ARI below dynamic cutoff; inspect NBC detections, "
+                "female denominator, fledgling detections, and whether the legacy dynamic "
+                "cutoff is biologically appropriate"
             )
         else:
-            df["Outcome_Mismatch"] = False
-            df["Outcome_Mismatch_Type"] = ""
-            df["Outcome_Diagnostic"] = ""
+            df[COL_OUTCOME_MISMATCH] = False
+            df[COL_OUTCOME_MISMATCH_TYPE] = ""
+            df[COL_OUTCOME_DIAGNOSTIC] = ""
 
         self.calculated_cutoff = cutoff
         return df
@@ -559,14 +696,6 @@ class FledglingMetrics(AcousticMetric):
     FLEDGLING_LATEST_DAY_OFFSET = FLEDGLING_OFFSET_DAYS + 7
 
     def calculate_row(self, row: dict[str, Any], hatch_date: date | None, site_name: str) -> dict[str, Any]:
-        result = {
-            "Latest_Fledgling_Rec": "ND",
-            "Fledgling_Days": 0,
-            "Fledgling_Detection_Recordings": 0,
-            "Avg_Fledgling_Calls_Day": 0.0,
-            "Fledglings_Present": "No"
-        }
-
         result = {
             "Latest_Fledgling_Rec": "ND",
             "Fledgling_Days": 0,
@@ -607,7 +736,7 @@ class FledglingMetrics(AcousticMetric):
         #diagnostics
         result["Fledgling_Total_Recordings"] = total_recs_during_fledging
 
-        df_fld = get_raw_validated_detections(site_name, "Fledgling")
+        df_fld = get_raw_validated_detections(site_name, CALL_TYPE_FLEDGLING)
         if not df_fld.empty:
             df_fld_win = filter_by_datetime_bounds(df_fld, fledge_start, fledge_end)
 
@@ -700,12 +829,13 @@ def main() -> None:
     print("Saving files...")
     # Establish sequence ordering
     desired_order = [
-        "Site ID", "Site_Name", "Pulse Name", "Outcome", "Calculated_Outcome", 
-        "Breeding Type", "Hatch_Date", "Earliest_Rec", "Incubation_Days", 
-        "Female_Detection_Recordings", AVG_FEMALE_CALLS, "Latest_Rec", "Nestling_Days", 
-        "Nestling_Detection_Recordings", AVG_NESTLING_CALLS, "ARI", "Latest_Fledgling_Rec", 
-        "Fledgling_Days", "Fledgling_Detection_Recordings", "Avg_Fledgling_Calls_Day", 
-        "Fledglings_Present", "Substrate", "Approx Colony Size", "Comment"
+        COL_SITE_ID, COL_SITE_NAME, COL_PULSE_NAME, COL_OUTCOME, COL_CALCULATED_OUTCOME,
+        COL_ARI_STATUS, COL_ARI_CLASS, COL_ARI_CLASS_THRESHOLD, COL_ARI_FEMALE_DENOMINATOR_FLAG,
+        COL_BREEDING_TYPE, COL_HATCH_DATE, COL_EARLIEST_REC, COL_INCUBATION_DAYS,
+        COL_FEMALE_DETECTION_RECORDINGS, AVG_FEMALE_CALLS, COL_LATEST_REC, COL_NESTLING_DAYS,
+        COL_NESTLING_DETECTION_RECORDINGS, AVG_NESTLING_CALLS, COL_ARI, COL_LATEST_FLEDGLING_REC,
+        COL_FLEDGLING_DAYS, COL_FLEDGLING_DETECTION_RECORDINGS, COL_AVG_FLEDGLING_CALLS_DAY,
+        COL_FLEDGLINGS_PRESENT, COL_SUBSTRATE, COL_APPROX_COLONY_SIZE, COL_COMMENT,
     ]
     
     existing_cols = [c for c in desired_order if c in results_df.columns]
@@ -734,8 +864,11 @@ def main() -> None:
     log_text = (
         f"Processing Complete\n===================\n"
         f"Rows processed: {len(results_df)}\n"
-        f"ARI Cutoff Threshold: {cutoff_val}\n\n"
-        f"Outcomes:\n---------\n{results_df['Calculated_Outcome'].value_counts().to_string()}\n"
+        f"ARI Dynamic Cutoff Threshold: {cutoff_val}\n"
+        f"ARI Class Threshold: {ARI_HIGH_THRESHOLD}\n\n"
+        f"Legacy calculated outcomes:\n---------------------------\n"
+        f"{results_df[COL_CALCULATED_OUTCOME].value_counts().to_string()}\n\n"
+        f"ARI classes:\n------------\n{results_df[COL_ARI_CLASS].value_counts().to_string()}\n"
     )
     RESULTS_TXT.write_text(log_text, encoding="utf-8")
     print(f"\nProcessing Complete. Metrics updated successfully.\n{log_text}")

@@ -1,12 +1,21 @@
 Processing Complete
 ===================
 Rows processed: 214
-ARI Cutoff Threshold: 0.752
+ARI Dynamic Cutoff Threshold: 0.752
+ARI Class Threshold: 0.5
 
-Outcomes:
----------
+Legacy calculated outcomes:
+---------------------------
 Calculated_Outcome
 Unknown                119
 Successful              52
-Partially Abandoned     35
-Abandoned                8
+Partially Abandoned     38
+Abandoned                5
+
+ARI classes:
+------------
+ARI_Class
+Not ARI-scorable                           119
+High offspring acoustic activity            66
+Reduced offspring acoustic activity         24
+No detected offspring acoustic evidence      5
