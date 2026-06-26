@@ -29,10 +29,6 @@ RESULTS_TXT = BASE_DIR / "ratios_results.txt"
 OUT_DIAGNOSTIC_FILE = BASE_DIR / "nestling-to-female-ratios-diagnostics.csv"
 OUT_DAILY_DIAGNOSTIC_FILE = BASE_DIR / "nestling-to-female-ratios-daily-diagnostics.csv"
 
-AVG_FEMALE_CALLS = "Avg_Female_Calls_Per_Rec"
-AVG_NESTLING_CALLS = "Avg_Nestling_Calls_Per_Rec"
-
-
 # Path to the specified parquet database for total recordings
 RECORDINGS_PARQUET = DATA_DIR / "Data" / "recordings_per_day_hour.parquet"
 
@@ -44,7 +40,7 @@ LOW_FEMALE_DENOMINATOR_THRESHOLD = 5
 
 # ARI status values
 STATUS_ND = "ND"
-ARI_STATUS_NUMERIC = "Numeric"
+ARI_STATUS_OK = "OK"
 ARI_STATUS_NHD = "NHD"
 ARI_STATUS_MISSING_DATES = "ND_MISSING_DATES"
 ARI_STATUS_INVALID_BREEDING_TYPE = "ND_INVALID_BREEDING_TYPE"
@@ -93,7 +89,7 @@ COL_ARI = "ARI"
 COL_ARI_CLASS = "ARI_Class"
 COL_ARI_CLASS_THRESHOLD = "ARI_Class_Threshold"
 COL_ARI_STATUS = "ARI_Status"
-COL_AVG_FLEDGLING_CALLS_DAY = "Avg_Fledgling_Calls_Day"
+COL_FLEDGLING_DETECTION_RATE = "Fledgling_Detection_Rate"
 COL_BREEDING_TYPE = "Breeding Type"
 COL_CALL_TYPE = "Call_Type"
 COL_COMMENT = "Comment"
@@ -103,15 +99,15 @@ COL_DEPLOYMENT_END = "Deployment End"
 COL_DEPLOYMENT_START = "Deployment Start"
 COL_DETECTION_RATE = "Detection_Rate"
 COL_DETECTION_RECORDINGS = "Detection_Recordings"
-COL_EARLIEST_REC = "Earliest_Rec"
+COL_FEMALE_DETECTION_RATE = "Female_Detection_Rate"
 COL_FEMALE_DETECTION_RECORDINGS = "Female_Detection_Recordings"
 COL_FLEDGLING_DAYS = "Fledgling_Days"
-COL_FLEDGLING_DETECTION_DATES_IN_WINDOW = "Fledgling_Detection_Dates_In_Window",
+COL_FLEDGLING_DETECTION_DATES_IN_WINDOW = "Fledgling_Detection_Dates_In_Window"
 COL_FLEDGLING_DETECTION_RECORDINGS = "Fledgling_Detection_Recordings"
 COL_FLEDGLINGS_PRESENT = "Fledglings_Present"
-COL_FLEDGLING_RAW_DETECTION_ROWS = "Fledgling_Raw_Detection_Rows",
+COL_FLEDGLING_RAW_DETECTION_ROWS = "Fledgling_Raw_Detection_Rows"
 COL_FLEDGLING_TOTAL_RECORDINGS = "Fledgling_Total_Recordings"
-COL_FLEDGLING_WINDOW_DETECTION_ROWS = "Fledgling_Window_Detection_Rows",
+COL_FLEDGLING_WINDOW_DETECTION_ROWS = "Fledgling_Window_Detection_Rows"
 COL_FLEDGLING_WINDOW_END = "Fledgling_Window_End"
 COL_FLEDGLING_WINDOW_START = "Fledgling_Window_Start"
 COL_HAD_DETECTIONS = "Had_Detections"
@@ -119,8 +115,8 @@ COL_HAD_RECORDINGS = "Had_Recordings"
 COL_HATCH_DATE = "Hatch_Date"
 COL_INCUBATION_DAYS = "Incubation_Days"
 COL_LATEST_FLEDGLING_REC = "Latest_Fledgling_Rec"
-COL_LATEST_REC = "Latest_Rec"
 COL_NESTLING_DAYS = "Nestling_Days"
+COL_NESTLING_DETECTION_RATE = "Nestling_Detection_Rate"
 COL_NESTLING_DETECTION_RECORDINGS = "Nestling_Detection_Recordings"
 COL_OUTCOME = "Outcome"
 COL_PULSE_NAME = "Pulse Name"
@@ -200,14 +196,14 @@ PUBLICATION_COLUMNS = [
     COL_INCUBATION_DAYS,
     COL_ARI_TOTAL_FEMALE_RECORDINGS,
     COL_FEMALE_DETECTION_RECORDINGS,
-    AVG_FEMALE_CALLS,
+    COL_FEMALE_DETECTION_RATE,
 
     COL_ARI_WINDOW_NESTLING_START,
     COL_ARI_WINDOW_NESTLING_END,
     COL_NESTLING_DAYS,
     COL_ARI_TOTAL_NESTLING_RECORDINGS,
     COL_NESTLING_DETECTION_RECORDINGS,
-    AVG_NESTLING_CALLS,
+    COL_NESTLING_DETECTION_RATE,
 
     COL_ARI,
 
@@ -216,7 +212,7 @@ PUBLICATION_COLUMNS = [
     COL_FLEDGLING_DAYS,
     COL_FLEDGLING_TOTAL_RECORDINGS,
     COL_FLEDGLING_DETECTION_RECORDINGS,
-    COL_AVG_FLEDGLING_CALLS_DAY,
+    COL_FLEDGLING_DETECTION_RATE,
     COL_FLEDGLINGS_PRESENT,
     COL_LATEST_FLEDGLING_REC,
 ]
@@ -239,8 +235,6 @@ SOURCE_AUDIT_COLUMNS = [
 METRIC_DIAGNOSTIC_COLUMNS = [
     COL_COMMENT,
     COL_ARI_DIAGNOSTIC,
-    COL_EARLIEST_REC,
-    COL_LATEST_REC,
     COL_ARI_RECORDING_START,
     COL_ARI_RECORDING_STOP,
     COL_ARI_RAW_FEMALE_DETECTION_ROWS,
@@ -595,15 +589,14 @@ class AcousticReproductiveIndex(AcousticMetric):
     FEMALE_OFFSET_DAYS = 3
     def calculate_row(self, row: dict[str, Any], hatch_date: date | None, site_name: str) -> dict[str, Any]:
         result = {
-            COL_EARLIEST_REC: STATUS_ND,
             COL_INCUBATION_DAYS: 0,
             COL_FEMALE_DETECTION_RECORDINGS: 0,
-            AVG_FEMALE_CALLS: 0.0,
-            COL_LATEST_REC: STATUS_ND,
+            COL_FEMALE_DETECTION_RATE: 0.0,
             COL_NESTLING_DAYS: 0,
             COL_NESTLING_DETECTION_RECORDINGS: 0,
-            AVG_NESTLING_CALLS: 0.0,
-            COL_ARI: ARI_STATUS_MISSING_DATES,
+            COL_NESTLING_DETECTION_RATE: 0.0,
+            COL_ARI: "",
+            COL_ARI_STATUS: ARI_STATUS_MISSING_DATES,
             COL_COMMENT: "",
 
             # Diagnostic columns.
@@ -650,9 +643,8 @@ class AcousticReproductiveIndex(AcousticMetric):
 
         if not hatch_date:
             comments.append("No valid hatch date")
-            result[COL_EARLIEST_REC] = ARI_STATUS_NHD
-            result[COL_LATEST_REC] = ARI_STATUS_NHD
-            result[COL_ARI] = ARI_STATUS_NHD
+            result[COL_ARI] = ""
+            result[COL_ARI_STATUS] = ARI_STATUS_NHD
             result[COL_COMMENT] = "; ".join(comments)
             return result
 
@@ -737,20 +729,18 @@ class AcousticReproductiveIndex(AcousticMetric):
         # ----------------------------------------------------------------------
         if not df_f.empty:
             #diagnostics
-            result[COL_ARI_RAW_FEMALE_DETECTION_ROWS] = len(df_f)
             raw_earliest_f = df_f["date"].min()
             raw_latest_f = df_f["date"].max()
+            result[COL_ARI_RAW_FEMALE_DETECTION_ROWS] = len(df_f)
             result[COL_ARI_EARLIEST_RAW_FEMALE_DATE] = format_date_for_output(raw_earliest_f)
             result[COL_ARI_LATEST_RAW_FEMALE_DATE] = format_date_for_output(raw_latest_f)
-
 
             # Filter detections strictly matching target date and hour parameter helper
             df_f_win = filter_by_datetime_bounds(df_f, f_start, f_end)
 
             #diagnostics
             result[COL_ARI_WINDOW_FEMALE_DETECTION_ROWS] = len(df_f_win)
-            result[COL_ARI_FEMALE_DETECTION_DATES_IN_WINDOW] = summarize_unique_dates(df_f_win)
-        
+            result[COL_ARI_FEMALE_DETECTION_DATES_IN_WINDOW] = summarize_unique_dates(df_f_win)       
         
             if not df_f_win.empty:
                 earliest_f = df_f_win["date"].min()
@@ -759,12 +749,10 @@ class AcousticReproductiveIndex(AcousticMetric):
                 #diagnostics
                 result[COL_ARI_EARLIEST_WINDOW_FEMALE_DATE] = format_date_for_output(earliest_f)
                 result[COL_ARI_LATEST_WINDOW_FEMALE_DATE] = format_date_for_output(latest_f)
-
-                result[COL_EARLIEST_REC] = format_date_for_output(earliest_f)
                 result[COL_FEMALE_DETECTION_RECORDINGS] = len(df_f_win)
                 
                 if total_recs_during_incubation > 0:
-                    result[AVG_FEMALE_CALLS] = round(result[COL_FEMALE_DETECTION_RECORDINGS] / 
+                    result[COL_FEMALE_DETECTION_RATE] = round(result[COL_FEMALE_DETECTION_RECORDINGS] / 
                                                      total_recs_during_incubation, DECIMALS)
 
         # ----------------------------------------------------------------------
@@ -773,7 +761,6 @@ class AcousticReproductiveIndex(AcousticMetric):
         if not df_n.empty:
             # Filter nestling detections strictly matching target date and hour parameter helper
             df_n_win = filter_by_datetime_bounds(df_n, n_start, n_end)
-
 
             #diagnostics
             result[COL_ARI_RAW_NESTLING_DETECTION_ROWS] = len(df_n)
@@ -784,69 +771,65 @@ class AcousticReproductiveIndex(AcousticMetric):
             result[COL_ARI_WINDOW_NESTLING_DETECTION_ROWS] = len(df_n_win)
             result[COL_ARI_NESTLING_DETECTION_DATES_IN_WINDOW] = summarize_unique_dates(df_n_win)
 
-
             if not df_n_win.empty:
                 latest_n = df_n_win["date"].max()
-                result[COL_LATEST_REC] = format_date_for_output(latest_n)
                 result[COL_NESTLING_DETECTION_RECORDINGS] = len(df_n_win)                
-
 
                 #diagnostics
                 earliest_n = df_n_win["date"].min()
                 result[COL_ARI_EARLIEST_WINDOW_NESTLING_DATE] = format_date_for_output(earliest_n)
                 result[COL_ARI_LATEST_WINDOW_NESTLING_DATE] = format_date_for_output(latest_n)
 
-
                 if total_recs_during_nestling > 0:
-                    result[AVG_NESTLING_CALLS] = round(result[COL_NESTLING_DETECTION_RECORDINGS] / total_recs_during_nestling, DECIMALS)
+                    result[COL_NESTLING_DETECTION_RATE] = round(result[COL_NESTLING_DETECTION_RECORDINGS] / total_recs_during_nestling, DECIMALS)
 
         # ----------------------------------------------------------------------
         # 4. Biological Quality Guardrails & Outcome Scoring
         # ----------------------------------------------------------------------
+        result[COL_ARI] = ""
         if inc_days_used < MIN_REQUIRED_DAYS:
             comments.append("Incubation days less than 4")
-            result[COL_ARI] = ARI_STATUS_INSUFFICIENT_DAYS
+            result[COL_ARI_STATUS] = ARI_STATUS_INSUFFICIENT_DAYS
             
         if nest_days_used < MIN_REQUIRED_DAYS:
             comments.append("Nestling days less than 4")
-            result[COL_ARI] = ARI_STATUS_INSUFFICIENT_DAYS
+            result[COL_ARI_STATUS] = ARI_STATUS_INSUFFICIENT_DAYS
 
         if invalid_breeding_type:
-            result[COL_ARI] = ARI_STATUS_INVALID_BREEDING_TYPE
-        elif result[COL_ARI] != ARI_STATUS_INSUFFICIENT_DAYS:
-            if result[AVG_FEMALE_CALLS] == 0:
-                result[COL_ARI] = ARI_STATUS_NO_FEMALE_CALLS
+            result[COL_ARI_STATUS] = ARI_STATUS_INVALID_BREEDING_TYPE
+        elif result[COL_ARI_STATUS] != ARI_STATUS_INSUFFICIENT_DAYS:
+            if result[COL_FEMALE_DETECTION_RATE] == 0:
+                result[COL_ARI_STATUS] = ARI_STATUS_NO_FEMALE_CALLS
             else:
-                result[COL_ARI] = round(result[AVG_NESTLING_CALLS] / result[AVG_FEMALE_CALLS], DECIMALS)
-
-
+                result[COL_ARI] = round(result[COL_NESTLING_DETECTION_RATE] / result[COL_FEMALE_DETECTION_RATE], DECIMALS)
+                result[COL_ARI_STATUS] = ARI_STATUS_OK
         #diagnostics
-        if result[COL_ARI] == ARI_STATUS_NHD:
+        if result[COL_ARI_STATUS] == ARI_STATUS_NHD:
             result[COL_ARI_DIAGNOSTIC] = "No hatch date; ARI windows cannot be defined"
-        elif result[COL_ARI] == ARI_STATUS_INVALID_BREEDING_TYPE:
+        elif result[COL_ARI_STATUS] == ARI_STATUS_INVALID_BREEDING_TYPE:
             result[COL_ARI_DIAGNOSTIC] = (
                 "Invalid breeding type; call dates/counts/rates calculated, "
                 "but numeric ARI not calculated"
         )
-        elif result[COL_ARI] == ARI_STATUS_INSUFFICIENT_DAYS:
+        elif result[COL_ARI_STATUS] == ARI_STATUS_INSUFFICIENT_DAYS:
             result[COL_ARI_DIAGNOSTIC] = (
-                f"Insufficient span days: incubation={result['Incubation_Days']}, "
-                f"nestling={result['Nestling_Days']}"
-            )
-        elif result[COL_ARI] == ARI_STATUS_NO_FEMALE_CALLS:
+                f"Insufficient span days: incubation={result[COL_INCUBATION_DAYS]}, "
+                f"nestling={result[COL_NESTLING_DAYS]}"
+            ) 
+        elif result[COL_ARI_STATUS] == ARI_STATUS_NO_FEMALE_CALLS:
             result[COL_ARI_DIAGNOSTIC] = (
                 f"No female detections in female window; "
-                f"female_window={result['ARI_Window_Female_Start']} to {result['ARI_Window_Female_End']}; "
-                f"raw_female_rows={result['ARI_Raw_Female_Detection_Rows']}"
+                f"female_window={result[COL_ARI_WINDOW_FEMALE_START]} to {result[COL_ARI_WINDOW_FEMALE_END]}; "
+                f"raw_female_rows={result[COL_ARI_RAW_FEMALE_DETECTION_ROWS]}"
             )
         elif isinstance(result[COL_ARI], float):
             result[COL_ARI_DIAGNOSTIC] = (
-                f"ARI={result['ARI']} from "
-                f"nestling_rate={result[AVG_NESTLING_CALLS]} / "
-                f"female_rate={result[AVG_FEMALE_CALLS]}"
+                f"ARI={result[COL_ARI]} from "
+                f"nestling_rate={result[COL_NESTLING_DETECTION_RATE]} / "
+                f"female_rate={result[COL_FEMALE_DETECTION_RATE]}"
             )
         else:
-            result[COL_ARI_DIAGNOSTIC] = str(result[COL_ARI])
+            result[COL_ARI_DIAGNOSTIC] = str(result[COL_ARI_STATUS])
 
         result[COL_COMMENT] = "; ".join(comments)
         return result
@@ -873,11 +856,6 @@ class AcousticReproductiveIndex(AcousticMetric):
             & (numeric_ari == 0)
             & (fledgling_calls > 0)
         )
-
-        # Publication-facing ARI status and descriptive class. These fields are
-        # intentionally about the acoustic evidence, not a definitive colony fate.
-        df[COL_ARI_STATUS] = df[COL_ARI].astype(str)
-        df.loc[numeric_mask, COL_ARI_STATUS] = ARI_STATUS_NUMERIC
 
         df[COL_ARI_CLASS] = ARI_CLASS_NOT_SCORABLE
         df[COL_ARI_CLASS_THRESHOLD] = ARI_HIGH_THRESHOLD
@@ -916,7 +894,7 @@ class FledglingMetrics(AcousticMetric):
             COL_LATEST_FLEDGLING_REC: STATUS_ND,
             COL_FLEDGLING_DAYS: 0,
             COL_FLEDGLING_DETECTION_RECORDINGS: 0,
-            COL_AVG_FLEDGLING_CALLS_DAY: 0.0,
+            COL_FLEDGLING_DETECTION_RATE: 0.0,
             COL_FLEDGLINGS_PRESENT: "No",
 
             # Diagnostic columns.
@@ -940,17 +918,14 @@ class FledglingMetrics(AcousticMetric):
         fledge_end = min(rec_stop, hatch_date + timedelta(days=self.FLEDGLING_LATEST_DAY_OFFSET))
 
         #diagnostics
-        result["Fledgling_Window_Start"] = format_date_for_output(fledge_start)
-        result["Fledgling_Window_End"] = format_date_for_output(fledge_end)
-
-
+        result[COL_FLEDGLING_WINDOW_START] = format_date_for_output(fledge_start)
+        result[COL_FLEDGLING_WINDOW_END] = format_date_for_output(fledge_end)
         result[COL_FLEDGLING_DAYS] = inclusive_day_span(fledge_start, fledge_end)
 
         total_recs_during_fledging = get_total_recordings(site_name, fledge_start, fledge_end)
 
-
         #diagnostics
-        result["Fledgling_Total_Recordings"] = total_recs_during_fledging
+        result[COL_FLEDGLING_TOTAL_RECORDINGS] = total_recs_during_fledging
 
         df_fld = get_raw_validated_detections(site_name, CALL_TYPE_FLEDGLING)
 
@@ -971,10 +946,9 @@ class FledglingMetrics(AcousticMetric):
             df_fld_win = filter_by_datetime_bounds(df_fld, fledge_start, fledge_end)
 
             #diagnostics
-            result["Fledgling_Raw_Detection_Rows"] = len(df_fld)
-            result["Fledgling_Window_Detection_Rows"] = len(df_fld_win)
-            result["Fledgling_Detection_Dates_In_Window"] = summarize_unique_dates(df_fld_win)
-
+            result[COL_FLEDGLING_RAW_DETECTION_ROWS] = len(df_fld)
+            result[COL_FLEDGLING_WINDOW_DETECTION_ROWS] = len(df_fld_win)
+            result[COL_FLEDGLING_DETECTION_DATES_IN_WINDOW] = summarize_unique_dates(df_fld_win)
 
             if not df_fld_win.empty:
                 latest_f = df_fld_win["date"].max()
@@ -983,7 +957,7 @@ class FledglingMetrics(AcousticMetric):
                 result[COL_FLEDGLINGS_PRESENT] = "Yes"
                 
                 if total_recs_during_fledging > 0:
-                    result[COL_AVG_FLEDGLING_CALLS_DAY] = round(
+                    result[COL_FLEDGLING_DETECTION_RATE] = round(
                         result[COL_FLEDGLING_DETECTION_RECORDINGS] / total_recs_during_fledging, 
                         DECIMALS)
 
@@ -1001,7 +975,7 @@ def save_csv_with_retry(df: pd.DataFrame, path: Path, share = False) -> None:
         except PermissionError:
             input(f"\n[!] Output file is locked in Excel: {path.name}\nClose it and press Enter to retry...")
 
-    if share:
+    if False: #DEBUG turn this on later
         if SHARING_OUTPUT_DIR.exists():
             shutil.copy2(path, SHARING_OUTPUT_DIR / path.name)
 
