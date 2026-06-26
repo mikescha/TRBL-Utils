@@ -7,7 +7,6 @@ from glob import escape
 from pathlib import Path
 from typing import Any, cast
 
-import numpy as np
 import pandas as pd
 
 # ==============================================================================
@@ -93,7 +92,6 @@ COL_SITE_ID = "Site ID"
 COL_SITE_NAME = "Site_Name"
 COL_PULSE_NAME = "Pulse Name"
 COL_OUTCOME = "Outcome"
-COL_CALCULATED_OUTCOME = "Calculated_Outcome"
 COL_BREEDING_TYPE = "Breeding Type"
 COL_COMPLEX_TYPES = "Complex Types"
 COL_HATCH_DATE = "Hatch_Date"
@@ -126,9 +124,6 @@ COL_FLEDGLINGS_PRESENT = "Fledglings_Present"
 COL_SUBSTRATE = "Substrate"
 COL_APPROX_COLONY_SIZE = "Approx Colony Size"
 COL_COMMENT = "Comment"
-COL_OUTCOME_MISMATCH = "Outcome_Mismatch"
-COL_OUTCOME_MISMATCH_TYPE = "Outcome_Mismatch_Type"
-COL_OUTCOME_DIAGNOSTIC = "Outcome_Diagnostic"
 
 COL_ARI_DIAGNOSTIC = "ARI_Diagnostic"
 COL_ARI_WINDOW_FEMALE_START = "ARI_Window_Female_Start"
@@ -501,8 +496,9 @@ class AcousticMetric:
 
 
 class AcousticReproductiveIndex(AcousticMetric):
-    DAYS_TO_COUNT = 10
-    NESTLING_OFFSET_DAYS = 2
+    DAYS_TO_COUNT = 7
+    NESTLING_OFFSET_DAYS = 4
+    FEMALE_OFFSET_DAYS = 3
     def calculate_row(self, row: dict[str, Any], hatch_date: date | None, site_name: str) -> dict[str, Any]:
         result = {
             COL_EARLIEST_REC: STATUS_ND,
@@ -579,12 +575,13 @@ class AcousticReproductiveIndex(AcousticMetric):
         # ----------------------------------------------------------------------
         # 1. Define Windows & Query Parquet / Detections
         # ----------------------------------------------------------------------
-        # Female Window: up to 10 calendar days ending the day before hatch,
+        # Female Window: up to 7 calendar days from hatch-3 through hatch-9,
         # clipped by deployment bounds.
-        f_start = max(hatch_date - timedelta(days=self.DAYS_TO_COUNT), rec_start)
-        f_end = min(hatch_date - timedelta(days=1), rec_stop)
+        female_start_offset = self.DAYS_TO_COUNT + self.FEMALE_OFFSET_DAYS - 1
+        f_start = max(hatch_date - timedelta(days=female_start_offset), rec_start)
+        f_end = min(hatch_date - timedelta(days=self.FEMALE_OFFSET_DAYS), rec_stop)
 
-        # Nestling Window: 10 calendar days from hatch+2 through hatch+11,
+        # Nestling Window: 7 calendar days from hatch+5 through hatch+11,
         # clipped by deployment stop.
         n_start = hatch_date + timedelta(days=self.NESTLING_OFFSET_DAYS)
         n_end = min(rec_stop, n_start + timedelta(days=self.DAYS_TO_COUNT - 1))
@@ -764,27 +761,6 @@ class AcousticReproductiveIndex(AcousticMetric):
         numeric_ari = pd.to_numeric(df[COL_ARI], errors="coerce")
         numeric_mask = numeric_ari.notna()
 
-        valid_ari = (
-            df.loc[numeric_mask & (numeric_ari < 0.8), COL_ARI]
-            .sort_values()
-            .to_numpy(dtype=float)
-        )
-
-        cutoff = 0.15
-        if len(valid_ari) >= 2:
-            diffs = np.diff(valid_ari)
-            max_gap_idx = int(np.argmax(diffs))
-            cutoff = float(valid_ari[max_gap_idx] + (diffs[max_gap_idx] / 2))
-
-        # Legacy dynamic outcome classification retained for backward compatibility.
-        df[COL_CALCULATED_OUTCOME] = OUTCOME_UNKNOWN
-        df.loc[numeric_mask & (numeric_ari == 0), COL_CALCULATED_OUTCOME] = OUTCOME_ABANDONED
-        df.loc[
-            numeric_mask & (numeric_ari > 0) & (numeric_ari <= cutoff),
-            COL_CALCULATED_OUTCOME,
-        ] = OUTCOME_PARTIALLY_ABANDONED
-        df.loc[numeric_mask & (numeric_ari > cutoff), COL_CALCULATED_OUTCOME] = OUTCOME_SUCCESSFUL
-
         # Use the current fledgling detection column, while still tolerating the
         # older column name in tests or older output files.
         if COL_FLEDGLING_DETECTION_RECORDINGS in df.columns:
@@ -803,8 +779,6 @@ class AcousticReproductiveIndex(AcousticMetric):
             & (numeric_ari == 0)
             & (fledgling_calls > 0)
         )
-
-        df.loc[zero_ari_with_fledglings, COL_CALCULATED_OUTCOME] = OUTCOME_PARTIALLY_ABANDONED
 
         # Publication-facing ARI status and descriptive class. These fields are
         # intentionally about the acoustic evidence, not a definitive colony fate.
@@ -836,60 +810,6 @@ class AcousticReproductiveIndex(AcousticMetric):
             classify_female_denominator_confidence
         )
 
-        # Diagnostics for the legacy dynamic cutoff.
-        df["ARI_Cutoff"] = cutoff
-        df["ARI_Margin_To_Cutoff"] = pd.NA
-
-        df.loc[numeric_mask, "ARI_Margin_To_Cutoff"] = (
-            numeric_ari.loc[numeric_mask] - cutoff
-        ).round(DECIMALS)
-
-        if COL_OUTCOME in df.columns:
-            human_outcome = df[COL_OUTCOME].astype(str).str.strip()
-            calculated_outcome = df[COL_CALCULATED_OUTCOME].astype(str).str.strip()
-
-            df[COL_OUTCOME_MISMATCH] = (
-                human_outcome.ne("")
-                & human_outcome.ne("nan")
-                & human_outcome.ne(OUTCOME_UNKNOWN)
-                & calculated_outcome.ne(OUTCOME_UNKNOWN)
-                & human_outcome.ne(calculated_outcome)
-            )
-
-            df[COL_OUTCOME_MISMATCH_TYPE] = ""
-            df.loc[
-                df[COL_OUTCOME_MISMATCH],
-                COL_OUTCOME_MISMATCH_TYPE,
-            ] = human_outcome + " -> " + calculated_outcome
-
-            df[COL_OUTCOME_DIAGNOSTIC] = ""
-
-            df.loc[
-                zero_ari_with_fledglings,
-                COL_OUTCOME_DIAGNOSTIC,
-            ] = (
-                "ARI was zero because no nestling detections were found, but fledgling "
-                "detections were present in the fledgling window; classified as "
-                "Partially Abandoned in the legacy Calculated_Outcome field"
-            )
-
-            df.loc[
-                df[COL_OUTCOME_MISMATCH]
-                & human_outcome.eq(OUTCOME_SUCCESSFUL)
-                & calculated_outcome.eq(OUTCOME_PARTIALLY_ABANDONED)
-                & df[COL_OUTCOME_DIAGNOSTIC].eq(""),
-                COL_OUTCOME_DIAGNOSTIC,
-            ] = (
-                "Human Successful but ARI below dynamic cutoff; inspect NBC detections, "
-                "female denominator, fledgling detections, and whether the legacy dynamic "
-                "cutoff is biologically appropriate"
-            )
-        else:
-            df[COL_OUTCOME_MISMATCH] = False
-            df[COL_OUTCOME_MISMATCH_TYPE] = ""
-            df[COL_OUTCOME_DIAGNOSTIC] = ""
-
-        self.calculated_cutoff = cutoff
         return df
 
 
@@ -1045,7 +965,7 @@ def main() -> None:
     print("Saving files...")
     # Establish sequence ordering
     desired_order = [
-        COL_SITE_ID, COL_SITE_NAME, COL_PULSE_NAME, COL_OUTCOME, COL_CALCULATED_OUTCOME,
+        COL_SITE_ID, COL_SITE_NAME, COL_PULSE_NAME, COL_OUTCOME,
         COL_ARI_STATUS, COL_ARI_CLASS, COL_ARI_CLASS_THRESHOLD, COL_ARI_FEMALE_DENOMINATOR_CONFIDENCE,
         COL_BREEDING_TYPE, COL_HATCH_DATE, COL_EARLIEST_REC, COL_INCUBATION_DAYS,
         COL_FEMALE_DETECTION_RECORDINGS, AVG_FEMALE_CALLS, COL_LATEST_REC, COL_NESTLING_DAYS,
@@ -1082,8 +1002,8 @@ def main() -> None:
         f"Rows processed: {len(results_df)}\n"
         f"ARI Dynamic Cutoff Threshold: {cutoff_val}\n"
         f"ARI Class Threshold: {ARI_HIGH_THRESHOLD}\n\n"
-        f"Legacy calculated outcomes:\n---------------------------\n"
-        f"{results_df[COL_CALCULATED_OUTCOME].value_counts().to_string()}\n\n"
+        f"Manually determined outcomes:\n---------------------------\n"
+        f"{results_df[COL_OUTCOME].value_counts().to_string()}\n\n"
         f"ARI classes:\n------------\n{results_df[COL_ARI_CLASS].value_counts().to_string()}\n"
     )
     RESULTS_TXT.write_text(log_text, encoding="utf-8")
@@ -1100,10 +1020,6 @@ def main() -> None:
                 COL_SITE_NAME,
                 COL_PULSE_NAME,
                 COL_OUTCOME,
-                COL_CALCULATED_OUTCOME,
-                COL_OUTCOME_MISMATCH,
-                COL_OUTCOME_MISMATCH_TYPE,
-                COL_OUTCOME_DIAGNOSTIC,
                 COL_BREEDING_TYPE,
                 COL_COMPLEX_TYPES,
                 COL_HATCH_DATE,

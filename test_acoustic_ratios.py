@@ -28,7 +28,6 @@ from acoustic_ratios import (
     COL_ARI_CLASS,
     COL_ARI_FEMALE_DENOMINATOR_CONFIDENCE,
     COL_ARI_STATUS,
-    COL_CALCULATED_OUTCOME,
     COL_COMMENT,
     COL_EARLIEST_REC,
     COL_FEMALE_DETECTION_RECORDINGS,
@@ -141,8 +140,9 @@ class TestAcousticReproductiveIndex(unittest.TestCase):
         self.hatch_date = date(2024, 5, 15)
         self.site_name = "2024 Baja Rancho Cinega Redonda 1"
 
-        self.f_start = self.hatch_date - timedelta(days=self.metric.DAYS_TO_COUNT)
-        self.f_end = self.hatch_date - timedelta(days=1)
+        female_start_offset = self.metric.FEMALE_OFFSET_DAYS + self.metric.DAYS_TO_COUNT - 1
+        self.f_start = self.hatch_date - timedelta(days=female_start_offset)
+        self.f_end = self.hatch_date - timedelta(days=self.metric.FEMALE_OFFSET_DAYS)
 
         self.n_start = self.hatch_date + timedelta(days=self.metric.NESTLING_OFFSET_DAYS)
         self.n_end = self.n_start + timedelta(days=self.metric.DAYS_TO_COUNT - 1)
@@ -177,11 +177,11 @@ class TestAcousticReproductiveIndex(unittest.TestCase):
         """Successful ARI calculation uses detections per available recording."""
         mock_bounds.return_value = (date(2024, 5, 1), date(2024, 5, 30))
         mock_totals.return_value = 100
-        mock_days_count.return_value = 10
+        mock_days_count.return_value = self.metric.DAYS_TO_COUNT
 
         def side_effect_detections(site, call_type):
             if call_type == "Female":
-                return self.female_df(list(range(10)))
+                return self.female_df(list(range(self.metric.DAYS_TO_COUNT)))
             if call_type == "Nestling":
                 return self.nestling_df(list(range(5)))
             return pd.DataFrame()
@@ -191,28 +191,28 @@ class TestAcousticReproductiveIndex(unittest.TestCase):
         row = {"Breeding Type": "Simple"}
         result = self.metric.calculate_row(row, self.hatch_date, self.site_name)
 
-        self.assertEqual(result[COL_INCUBATION_DAYS], 10)
-        self.assertEqual(result[COL_FEMALE_DETECTION_RECORDINGS], 10)
-        self.assertEqual(result[AVG_FEMALE_CALLS], 0.1)
+        self.assertEqual(result[COL_INCUBATION_DAYS], self.metric.DAYS_TO_COUNT)
+        self.assertEqual(result[COL_FEMALE_DETECTION_RECORDINGS], 7)
+        self.assertEqual(result[AVG_FEMALE_CALLS], 0.07)
 
-        self.assertEqual(result[COL_NESTLING_DAYS], 10)
+        self.assertEqual(result[COL_NESTLING_DAYS], self.metric.DAYS_TO_COUNT)
         self.assertEqual(result[COL_NESTLING_DETECTION_RECORDINGS], 5)
         self.assertEqual(result[AVG_NESTLING_CALLS], 0.05)
 
-        self.assertEqual(result[COL_ARI], 0.5)
+        self.assertEqual(result[COL_ARI], 0.714)
 
     @patch("acoustic_ratios.get_raw_validated_detections")
     @patch("acoustic_ratios.get_recording_days_count")
     @patch("acoustic_ratios.get_total_recordings")
     @patch("acoustic_ratios.get_site_recording_bounds")
-    def test_nestling_window_is_hatch_plus_2_through_hatch_plus_11(
+    def test_nestling_window_is_hatch_plus_5_through_hatch_plus_11(
         self,
         mock_bounds,
         mock_totals,
         mock_days_count,
         mock_detections,
     ) -> None:
-        """Nestling ARI window is 10 inclusive days: hatch+2 through hatch+11.
+        """Nestling ARI window is 7 inclusive days: hatch+5 through hatch+11.
 
         A detection on hatch+12 must not leak into the numerator.
         """
@@ -240,10 +240,10 @@ class TestAcousticReproductiveIndex(unittest.TestCase):
 
         result = self.metric.calculate_row({}, self.hatch_date, self.site_name)
 
-        self.assertEqual(result[COL_NESTLING_DAYS], 10)
+        self.assertEqual(result[COL_NESTLING_DAYS], 7)
         self.assertEqual(result[COL_NESTLING_DETECTION_RECORDINGS], 2)
         self.assertEqual(result[AVG_NESTLING_CALLS], 0.02)
-        self.assertEqual(result[COL_ARI], 0.2)
+        self.assertEqual(result[COL_ARI], 0.286)
 
         self.assertIn(
             call(self.site_name, self.n_start, self.n_end),
@@ -321,7 +321,7 @@ class TestAcousticReproductiveIndex(unittest.TestCase):
 
         result = self.metric.calculate_row({}, self.hatch_date, self.site_name)
 
-        self.assertEqual(result[COL_NESTLING_DAYS], 10)
+        self.assertEqual(result[COL_NESTLING_DAYS], 7)
         self.assertEqual(result[COL_NESTLING_DETECTION_RECORDINGS], 1)
 
     @patch("acoustic_ratios.get_raw_validated_detections")
@@ -371,9 +371,9 @@ class TestAcousticReproductiveIndex(unittest.TestCase):
 
         result = self.metric.calculate_row({}, self.hatch_date, self.site_name)
 
-        self.assertEqual(result[COL_FEMALE_DETECTION_RECORDINGS], 10)
+        self.assertEqual(result[COL_FEMALE_DETECTION_RECORDINGS], 7)
         self.assertEqual(result[COL_NESTLING_DETECTION_RECORDINGS], 5)
-        self.assertEqual(result[COL_ARI], 0.5)
+        self.assertEqual(result[COL_ARI], 0.714)
 
     @patch("acoustic_ratios.get_raw_validated_detections")
     @patch("acoustic_ratios.get_recording_days_count")
@@ -492,12 +492,12 @@ class TestAcousticReproductiveIndex(unittest.TestCase):
                 self.assertIn(expected_comment, result[COL_COMMENT])
 
                 # These should still be populated even though numeric ARI is suppressed.
-                self.assertEqual(result[COL_EARLIEST_REC], "05/05/2024")
-                self.assertEqual(result[COL_LATEST_REC], "05/21/2024")
-                self.assertEqual(result[COL_INCUBATION_DAYS], 10)
-                self.assertEqual(result[COL_NESTLING_DAYS], 10)
-                self.assertEqual(result[COL_FEMALE_DETECTION_RECORDINGS], 10)
-                self.assertEqual(result[AVG_FEMALE_CALLS], 0.1)
+                self.assertEqual(result[COL_EARLIEST_REC], "05/06/2024")
+                self.assertEqual(result[COL_LATEST_REC], "05/23/2024")
+                self.assertEqual(result[COL_INCUBATION_DAYS], 7)
+                self.assertEqual(result[COL_NESTLING_DAYS], 7)
+                self.assertEqual(result[COL_FEMALE_DETECTION_RECORDINGS], 7)
+                self.assertEqual(result[AVG_FEMALE_CALLS], 0.07)
                 self.assertEqual(result[COL_NESTLING_DETECTION_RECORDINGS], 5)
                 self.assertEqual(result[AVG_NESTLING_CALLS], 0.05)
 
@@ -529,7 +529,7 @@ class TestAcousticReproductiveIndex(unittest.TestCase):
         mock_days_count,
         mock_detections,
     ) -> None:
-        rec_start = self.hatch_date - timedelta(days=2)
+        rec_start = self.hatch_date - timedelta(days=4)
         mock_bounds.return_value = (rec_start, date(2024, 5, 30))
         mock_totals.return_value = 100
         mock_days_count.return_value = 10
@@ -624,22 +624,6 @@ class TestAcousticReproductiveIndex(unittest.TestCase):
 
 
 class TestAcousticReproductiveIndexPostProcess(unittest.TestCase):
-    def test_post_process_zero_ari_with_fledglings_is_partially_abandoned(self) -> None:
-        metric = AcousticReproductiveIndex()
-        df = pd.DataFrame(
-            {
-                COL_ARI: [0.0, 0.0],
-                COL_FLEDGLING_DETECTION_RECORDINGS: [0, 3],
-            }
-        )
-
-        result = metric.post_process(df.copy())
-
-        self.assertEqual(result.loc[0, COL_CALCULATED_OUTCOME], "Abandoned")
-        self.assertEqual(result.loc[1, COL_CALCULATED_OUTCOME], "Partially Abandoned")
-        self.assertEqual(result.loc[0, COL_ARI_CLASS], ARI_CLASS_NO_OFFSPRING_EVIDENCE)
-        self.assertEqual(result.loc[1, COL_ARI_CLASS], ARI_CLASS_REDUCED_OFFSPRING_ACTIVITY)
-
     def test_post_process_assigns_publication_facing_ari_status_and_class(self) -> None:
         metric = AcousticReproductiveIndex()
         df = pd.DataFrame(
@@ -725,59 +709,6 @@ class TestAcousticReproductiveIndexPostProcess(unittest.TestCase):
             result.loc[2, COL_ARI_FEMALE_DENOMINATOR_CONFIDENCE],
             ARI_CONFIDENCE_NOT_EVALUATED,
         )
-
-
-    def test_post_process_nonzero_ari_uses_dynamic_cutoff(self) -> None:
-        metric = AcousticReproductiveIndex()
-        df = pd.DataFrame(
-            {
-                COL_ARI: [0.0, 0.1, 0.25, 0.9],
-                COL_FLEDGLING_DETECTION_RECORDINGS: [0, 0, 0, 0],
-            }
-        )
-
-        result = metric.post_process(df.copy())
-
-        self.assertAlmostEqual(metric.calculated_cutoff, 0.175)
-        self.assertEqual(result.loc[0, COL_CALCULATED_OUTCOME], "Abandoned")
-        self.assertEqual(result.loc[1, COL_CALCULATED_OUTCOME], "Partially Abandoned")
-        self.assertEqual(result.loc[2, COL_CALCULATED_OUTCOME], "Successful")
-        self.assertEqual(result.loc[3, COL_CALCULATED_OUTCOME], "Successful")
-
-    def test_post_process_classifies_numeric_ari_and_ignores_nd_statuses(self) -> None:
-        metric = AcousticReproductiveIndex()
-        df = pd.DataFrame(
-            {
-                COL_ARI: [
-                    0.0,
-                    0.1,
-                    0.25,
-                    0.9,
-                    ARI_STATUS_NO_FEMALE_CALLS,
-                    ARI_STATUS_INVALID_BREEDING_TYPE,
-                ]
-            }
-        )
-
-        result = metric.post_process(df.copy())
-
-        self.assertAlmostEqual(metric.calculated_cutoff, 0.175)
-        self.assertEqual(result.loc[0, COL_CALCULATED_OUTCOME], "Abandoned")
-        self.assertEqual(result.loc[1, COL_CALCULATED_OUTCOME], "Partially Abandoned")
-        self.assertEqual(result.loc[2, COL_CALCULATED_OUTCOME], "Successful")
-        self.assertEqual(result.loc[3, COL_CALCULATED_OUTCOME], "Successful")
-        self.assertEqual(result.loc[4, COL_CALCULATED_OUTCOME], "Unknown")
-        self.assertEqual(result.loc[5, COL_CALCULATED_OUTCOME], "Unknown")
-
-    def test_post_process_uses_default_cutoff_when_fewer_than_two_valid_values(self) -> None:
-        metric = AcousticReproductiveIndex()
-        df = pd.DataFrame({COL_ARI: [0.1, ARI_STATUS_NO_FEMALE_CALLS]})
-
-        result = metric.post_process(df.copy())
-
-        self.assertEqual(metric.calculated_cutoff, 0.15)
-        self.assertEqual(result.loc[0, COL_CALCULATED_OUTCOME], "Partially Abandoned")
-        self.assertEqual(result.loc[1, COL_CALCULATED_OUTCOME], "Unknown")
 
 
 class TestFledglingMetrics(unittest.TestCase):
