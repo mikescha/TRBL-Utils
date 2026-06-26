@@ -1,10 +1,7 @@
 Processing Complete
 ===================
 Rows processed: 214
-ARI Dynamic Cutoff Threshold: N/A
-ARI Class Threshold: 0.5
-
-Legacy calculated outcomes:
+Outcomes:
 ---------------------------
 Outcome
 Successful                131

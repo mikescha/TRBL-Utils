@@ -88,42 +88,51 @@ CALL_TYPE_FLEDGLING = "Fledgling"
 VALIDATED_PRESENT = "present"
 
 # Common CSV column names
-COL_SITE_ID = "Site ID"
-COL_SITE_NAME = "Site_Name"
-COL_PULSE_NAME = "Pulse Name"
-COL_OUTCOME = "Outcome"
+COL_APPROX_COLONY_SIZE = "Approx Colony Size"
+COL_ARI = "ARI"
+COL_ARI_CLASS = "ARI_Class"
+COL_ARI_CLASS_THRESHOLD = "ARI_Class_Threshold"
+COL_ARI_STATUS = "ARI_Status"
+COL_AVG_FLEDGLING_CALLS_DAY = "Avg_Fledgling_Calls_Day"
 COL_BREEDING_TYPE = "Breeding Type"
+COL_CALL_TYPE = "Call_Type"
+COL_COMMENT = "Comment"
 COL_COMPLEX_TYPES = "Complex Types"
-COL_HATCH_DATE = "Hatch_Date"
+COL_DATE = "Date"
+COL_DEPLOYMENT_END = "Deployment End"
+COL_DEPLOYMENT_START = "Deployment Start"
+COL_DETECTION_RATE = "Detection_Rate"
+COL_DETECTION_RECORDINGS = "Detection_Recordings"
 COL_EARLIEST_REC = "Earliest_Rec"
-COL_INCUBATION_DAYS = "Incubation_Days"
 COL_FEMALE_DETECTION_RECORDINGS = "Female_Detection_Recordings"
+COL_FLEDGLING_DAYS = "Fledgling_Days"
+COL_FLEDGLING_DETECTION_DATES_IN_WINDOW = "Fledgling_Detection_Dates_In_Window",
+COL_FLEDGLING_DETECTION_RECORDINGS = "Fledgling_Detection_Recordings"
+COL_FLEDGLINGS_PRESENT = "Fledglings_Present"
+COL_FLEDGLING_RAW_DETECTION_ROWS = "Fledgling_Raw_Detection_Rows",
+COL_FLEDGLING_TOTAL_RECORDINGS = "Fledgling_Total_Recordings"
+COL_FLEDGLING_WINDOW_DETECTION_ROWS = "Fledgling_Window_Detection_Rows",
+COL_FLEDGLING_WINDOW_END = "Fledgling_Window_End"
+COL_FLEDGLING_WINDOW_START = "Fledgling_Window_Start"
+COL_HAD_DETECTIONS = "Had_Detections"
+COL_HAD_RECORDINGS = "Had_Recordings"
+COL_HATCH_DATE = "Hatch_Date"
+COL_INCUBATION_DAYS = "Incubation_Days"
+COL_LATEST_FLEDGLING_REC = "Latest_Fledgling_Rec"
 COL_LATEST_REC = "Latest_Rec"
 COL_NESTLING_DAYS = "Nestling_Days"
 COL_NESTLING_DETECTION_RECORDINGS = "Nestling_Detection_Recordings"
-COL_DETECTION_RECORDINGS = "Detection_Recordings"
-COL_WINDOW_TYPE = "Window_Type"
-COL_CALL_TYPE = "Call_Type"
-COL_WINDOW_DAY = "Window_Day"
-COL_WINDOW_START = "Window_Start"
-COL_WINDOW_END = "Window_End"
-COL_DATE = "Date"
-COL_TOTAL_RECORDINGS = "Total_Recordings"
-COL_DETECTION_RATE = "Detection_Rate"
-COL_HAD_RECORDINGS = "Had_Recordings"
-COL_HAD_DETECTIONS = "Had_Detections"
-COL_ARI = "ARI"
-COL_ARI_STATUS = "ARI_Status"
-COL_ARI_CLASS = "ARI_Class"
-COL_ARI_CLASS_THRESHOLD = "ARI_Class_Threshold"
-COL_LATEST_FLEDGLING_REC = "Latest_Fledgling_Rec"
-COL_FLEDGLING_DAYS = "Fledgling_Days"
-COL_FLEDGLING_DETECTION_RECORDINGS = "Fledgling_Detection_Recordings"
-COL_AVG_FLEDGLING_CALLS_DAY = "Avg_Fledgling_Calls_Day"
-COL_FLEDGLINGS_PRESENT = "Fledglings_Present"
+COL_OUTCOME = "Outcome"
+COL_PULSE_NAME = "Pulse Name"
+COL_SITE_ID = "Site ID"
+COL_SITE_NAME = "Site_Name"
 COL_SUBSTRATE = "Substrate"
-COL_APPROX_COLONY_SIZE = "Approx Colony Size"
-COL_COMMENT = "Comment"
+COL_TOTAL_RECORDINGS = "Total_Recordings"
+COL_WINDOW_DAY = "Window_Day"
+COL_WINDOW_END = "Window_End"
+COL_WINDOW_START = "Window_Start"
+COL_WINDOW_TYPE = "Window_Type"
+
 
 COL_ARI_DIAGNOSTIC = "ARI_Diagnostic"
 COL_ARI_WINDOW_FEMALE_START = "ARI_Window_Female_Start"
@@ -167,6 +176,91 @@ NO_HATCH_VALUES = {
     "inf",
     "missed",
 }
+
+
+PUBLICATION_COLUMNS = [
+    COL_SITE_ID,
+    COL_SITE_NAME,
+    COL_PULSE_NAME,
+    COL_OUTCOME,
+    COL_ARI_STATUS,
+    COL_ARI_CLASS,
+    COL_ARI_CLASS_THRESHOLD,
+    COL_ARI_FEMALE_DENOMINATOR_CONFIDENCE,
+    COL_BREEDING_TYPE,
+    COL_COMPLEX_TYPES,
+    COL_HATCH_DATE,
+    COL_SUBSTRATE,
+    COL_APPROX_COLONY_SIZE,
+    COL_DEPLOYMENT_START,
+    COL_DEPLOYMENT_END,
+
+    COL_ARI_WINDOW_FEMALE_START,
+    COL_ARI_WINDOW_FEMALE_END,
+    COL_INCUBATION_DAYS,
+    COL_ARI_TOTAL_FEMALE_RECORDINGS,
+    COL_FEMALE_DETECTION_RECORDINGS,
+    AVG_FEMALE_CALLS,
+
+    COL_ARI_WINDOW_NESTLING_START,
+    COL_ARI_WINDOW_NESTLING_END,
+    COL_NESTLING_DAYS,
+    COL_ARI_TOTAL_NESTLING_RECORDINGS,
+    COL_NESTLING_DETECTION_RECORDINGS,
+    AVG_NESTLING_CALLS,
+
+    COL_ARI,
+
+    COL_FLEDGLING_WINDOW_START,
+    COL_FLEDGLING_WINDOW_END,
+    COL_FLEDGLING_DAYS,
+    COL_FLEDGLING_TOTAL_RECORDINGS,
+    COL_FLEDGLING_DETECTION_RECORDINGS,
+    COL_AVG_FLEDGLING_CALLS_DAY,
+    COL_FLEDGLINGS_PRESENT,
+    COL_LATEST_FLEDGLING_REC,
+]
+
+SOURCE_AUDIT_COLUMNS = [
+    "Group",
+    "Pretty Name",
+    "Colony Size",
+    "mcstart",
+    "incstart",
+    "fledgestart",
+    "fledgedisp",
+    "abandon",
+    "partial abandon",
+    "Source Row",
+    "Review Status",
+    "Review Notes",
+]
+
+METRIC_DIAGNOSTIC_COLUMNS = [
+    COL_COMMENT,
+    COL_ARI_DIAGNOSTIC,
+    COL_EARLIEST_REC,
+    COL_LATEST_REC,
+    COL_ARI_RECORDING_START,
+    COL_ARI_RECORDING_STOP,
+    COL_ARI_RAW_FEMALE_DETECTION_ROWS,
+    COL_ARI_WINDOW_FEMALE_DETECTION_ROWS,
+    COL_ARI_RAW_NESTLING_DETECTION_ROWS,
+    COL_ARI_WINDOW_NESTLING_DETECTION_ROWS,
+    COL_ARI_FEMALE_DETECTION_DATES_IN_WINDOW,
+    COL_ARI_NESTLING_DETECTION_DATES_IN_WINDOW,
+    COL_ARI_EARLIEST_RAW_FEMALE_DATE,
+    COL_ARI_LATEST_RAW_FEMALE_DATE,
+    COL_ARI_EARLIEST_WINDOW_FEMALE_DATE,
+    COL_ARI_LATEST_WINDOW_FEMALE_DATE,
+    COL_ARI_EARLIEST_RAW_NESTLING_DATE,
+    COL_ARI_LATEST_RAW_NESTLING_DATE,
+    COL_ARI_EARLIEST_WINDOW_NESTLING_DATE,
+    COL_ARI_LATEST_WINDOW_NESTLING_DATE,
+    COL_FLEDGLING_RAW_DETECTION_ROWS,
+    COL_FLEDGLING_WINDOW_DETECTION_ROWS,
+    COL_FLEDGLING_DETECTION_DATES_IN_WINDOW,
+]
 
 
 # ==============================================================================
@@ -899,13 +993,17 @@ class FledglingMetrics(AcousticMetric):
 # ==============================================================================
 # MAIN RUNTIME PIPELINE
 # ==============================================================================
-def save_csv_with_retry(df: pd.DataFrame, path: Path) -> None:
+def save_csv_with_retry(df: pd.DataFrame, path: Path, share = False) -> None:
     while True:
         try:
             df.to_csv(path, index=False)
             break
         except PermissionError:
             input(f"\n[!] Output file is locked in Excel: {path.name}\nClose it and press Enter to retry...")
+
+    if share:
+        if SHARING_OUTPUT_DIR.exists():
+            shutil.copy2(path, SHARING_OUTPUT_DIR / path.name)
 
 
 def main() -> None:
@@ -956,92 +1054,43 @@ def main() -> None:
                 
         processed_records.append(out_row)
 
-    results_df = pd.DataFrame(processed_records)
+    full_results_df = pd.DataFrame(processed_records)
     for metric in active_metrics:
-        results_df = metric.post_process(results_df)
+        full_results_df = metric.post_process(full_results_df)
 
     print(" done.")
 
     print("Saving files...")
-    # Establish sequence ordering
-    desired_order = [
-        COL_SITE_ID, COL_SITE_NAME, COL_PULSE_NAME, COL_OUTCOME,
-        COL_ARI_STATUS, COL_ARI_CLASS, COL_ARI_CLASS_THRESHOLD, COL_ARI_FEMALE_DENOMINATOR_CONFIDENCE,
-        COL_BREEDING_TYPE, COL_HATCH_DATE, COL_EARLIEST_REC, COL_INCUBATION_DAYS,
-        COL_FEMALE_DETECTION_RECORDINGS, AVG_FEMALE_CALLS, COL_LATEST_REC, COL_NESTLING_DAYS,
-        COL_NESTLING_DETECTION_RECORDINGS, AVG_NESTLING_CALLS, COL_ARI, COL_LATEST_FLEDGLING_REC,
-        COL_FLEDGLING_DAYS, COL_FLEDGLING_DETECTION_RECORDINGS, COL_AVG_FLEDGLING_CALLS_DAY,
-        COL_FLEDGLINGS_PRESENT, COL_SUBSTRATE, COL_APPROX_COLONY_SIZE, COL_COMMENT,
-    ]
-    
-    existing_cols = [c for c in desired_order if c in results_df.columns]
-    remainder = [c for c in results_df.columns if c not in existing_cols]
-    results_df = results_df[existing_cols + remainder]
-
-    save_csv_with_retry(results_df, OUT_FILE)
-    
-    if SHARING_OUTPUT_DIR.exists():
-        shutil.copy2(OUT_FILE, SHARING_OUTPUT_DIR / OUT_FILE.name)
-
-    numeric_mask = pd.to_numeric(results_df[COL_ARI], errors="coerce").notna()
-    save_csv_with_retry(results_df[numeric_mask], OUT_FILTERED_FILE)
+    publication_cols = [c for c in PUBLICATION_COLUMNS if c in full_results_df.columns]
+    publication_df = full_results_df[publication_cols].copy()
+    save_csv_with_retry(publication_df, OUT_FILE, share=True)
+ 
+    numeric_mask = pd.to_numeric(full_results_df[COL_ARI], errors="coerce").notna()
+    save_csv_with_retry(full_results_df[numeric_mask], OUT_FILTERED_FILE)
 
     comparison_mask = (
-        ~results_df[COL_HATCH_DATE].astype(str).str.strip().isin({ARI_STATUS_NHD, STATUS_ND, "inf", "missed", "n/a", "na", ""}) &
-        ~results_df.get(COL_OUTCOME, pd.Series(dtype=str)).astype(str).isin({"Unknown"}) &
-        results_df.get(COL_BREEDING_TYPE, pd.Series(dtype=str)).astype(str).str.strip().isin({"Simple", "Sequential"})
-    )
-    save_csv_with_retry(results_df.loc[comparison_mask].reset_index(drop=True), OUT_ARI_FILE)
-
-    # Calculate dynamic post-process metrics for text logs
-    ari_instance = next((m for m in active_metrics if isinstance(m, AcousticReproductiveIndex)), None)
-    cutoff_val = getattr(ari_instance, "calculated_cutoff", "N/A")
-
-    log_text = (
-        f"Processing Complete\n===================\n"
-        f"Rows processed: {len(results_df)}\n"
-        f"ARI Dynamic Cutoff Threshold: {cutoff_val}\n"
-        f"ARI Class Threshold: {ARI_HIGH_THRESHOLD}\n\n"
-        f"Manually determined outcomes:\n---------------------------\n"
-        f"{results_df[COL_OUTCOME].value_counts().to_string()}\n\n"
-        f"ARI classes:\n------------\n{results_df[COL_ARI_CLASS].value_counts().to_string()}\n"
-    )
-    RESULTS_TXT.write_text(log_text, encoding="utf-8")
-    print(f"\nProcessing Complete. Metrics updated successfully.\n{log_text}")
-
-
-    diagnostic_cols = [
-        col for col in results_df.columns
-        if (
-            col.startswith("ARI_")
-            or col.startswith("Fledgling_")
-            or col in {
-                COL_SITE_ID,
-                COL_SITE_NAME,
-                COL_PULSE_NAME,
-                COL_OUTCOME,
-                COL_BREEDING_TYPE,
-                COL_COMPLEX_TYPES,
-                COL_HATCH_DATE,
-                COL_EARLIEST_REC,
-                COL_LATEST_REC,
-                COL_INCUBATION_DAYS,
-                COL_NESTLING_DAYS,
-                COL_FEMALE_DETECTION_RECORDINGS,
-                COL_NESTLING_DETECTION_RECORDINGS,
-                AVG_FEMALE_CALLS,
-                AVG_NESTLING_CALLS,
-                COL_ARI,
-                COL_LATEST_FLEDGLING_REC,
-                COL_FLEDGLINGS_PRESENT,
-                COL_FLEDGLING_DETECTION_RECORDINGS,
-                COL_AVG_FLEDGLING_CALLS_DAY,
-                COL_COMMENT,
-            }
+        ~full_results_df[COL_HATCH_DATE].astype(str).str.strip().isin(
+            {ARI_STATUS_NHD, STATUS_ND, "inf", "missed", "n/a", "na", ""}
         )
-    ]
+        & ~full_results_df.get(COL_OUTCOME, pd.Series(dtype=str)).astype(str).isin({OUTCOME_UNKNOWN})
+        & full_results_df.get(COL_BREEDING_TYPE, pd.Series(dtype=str))
+            .astype(str)
+            .str.strip()
+            .isin({BREEDING_TYPE_SIMPLE, BREEDING_TYPE_SEQUENTIAL})
+    )
+    save_csv_with_retry(
+        publication_df.loc[comparison_mask].reset_index(drop=True),
+        OUT_ARI_FILE,
+    )
 
-    save_csv_with_retry(results_df[diagnostic_cols], OUT_DIAGNOSTIC_FILE)
+    DIAGNOSTIC_COLUMNS = (
+        PUBLICATION_COLUMNS
+        + METRIC_DIAGNOSTIC_COLUMNS
+        + SOURCE_AUDIT_COLUMNS
+    )
+    diagnostic_cols = [c for c in DIAGNOSTIC_COLUMNS if c in full_results_df.columns]
+    diagnostic_df = full_results_df[diagnostic_cols].copy()
+    save_csv_with_retry(diagnostic_df, OUT_DIAGNOSTIC_FILE)
 
     daily_diagnostic_rows: list[dict[str, Any]] = []
     for metric in active_metrics:
@@ -1075,13 +1124,17 @@ def main() -> None:
         daily_remainder = [c for c in daily_diagnostics_df.columns if c not in existing_daily_cols]
         daily_diagnostics_df = daily_diagnostics_df[existing_daily_cols + daily_remainder]
 
-        save_csv_with_retry(daily_diagnostics_df, OUT_DAILY_DIAGNOSTIC_FILE)
-
-        if SHARING_OUTPUT_DIR.exists():
-            shutil.copy2(
-                OUT_DAILY_DIAGNOSTIC_FILE,
-                SHARING_OUTPUT_DIR / OUT_DAILY_DIAGNOSTIC_FILE.name,
-            )
+        save_csv_with_retry(daily_diagnostics_df, OUT_DAILY_DIAGNOSTIC_FILE, share=True)
+    
+    log_text = (
+        f"Processing Complete\n===================\n"
+        f"Rows processed: {len(full_results_df)}\n"
+        f"Outcomes:\n---------------------------\n"
+        f"{full_results_df[COL_OUTCOME].value_counts().to_string()}\n\n"
+        f"ARI classes:\n------------\n{full_results_df[COL_ARI_CLASS].value_counts().to_string()}\n"
+    )
+    RESULTS_TXT.write_text(log_text, encoding="utf-8")
+    print(f"\nProcessing Complete. Metrics updated successfully.\n{log_text}")
 
 
 if __name__ == "__main__":
