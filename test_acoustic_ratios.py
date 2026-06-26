@@ -1067,5 +1067,61 @@ class TestFemaleDenominatorConfidence(unittest.TestCase):
                 self.assertEqual(classify_female_denominator_confidence(value), expected)
 
 
+class TestDailyDetectionDiagnostics(unittest.TestCase):
+    @patch("acoustic_ratios.get_daily_recordings_by_date")
+    def test_build_daily_detection_rows_distinguishes_zero_detections_from_no_recordings(
+        self,
+        mock_daily_recordings,
+    ) -> None:
+        from acoustic_ratios import build_daily_detection_rows
+
+        start = date(2024, 5, 1)
+        end = date(2024, 5, 3)
+
+        mock_daily_recordings.return_value = {
+            date(2024, 5, 1): 10,
+            date(2024, 5, 2): 10,
+            # May 3 intentionally has no recordings.
+        }
+
+        detections = pd.DataFrame(
+            {
+                "date": [date(2024, 5, 1), date(2024, 5, 1), date(2024, 5, 3)],
+                "hour": [12, 13, 12],
+            }
+        )
+
+        rows = build_daily_detection_rows(
+            source_row={"Site ID": "S1", "Pulse Name": "p1", "Outcome": "Successful"},
+            site_name="Test Site",
+            hatch_date=date(2024, 5, 10),
+            window_type="Female_Incubation",
+            call_type="Female",
+            start_date=start,
+            end_date=end,
+            detections_df=detections,
+        )
+
+        self.assertEqual(len(rows), 3)
+
+        self.assertEqual(rows[0]["Total_Recordings"], 10)
+        self.assertEqual(rows[0]["Detection_Recordings"], 2)
+        self.assertEqual(rows[0]["Detection_Rate"], 0.2)
+        self.assertEqual(rows[0]["Had_Recordings"], "Yes")
+        self.assertEqual(rows[0]["Had_Detections"], "Yes")
+
+        self.assertEqual(rows[1]["Total_Recordings"], 10)
+        self.assertEqual(rows[1]["Detection_Recordings"], 0)
+        self.assertEqual(rows[1]["Detection_Rate"], 0.0)
+        self.assertEqual(rows[1]["Had_Recordings"], "Yes")
+        self.assertEqual(rows[1]["Had_Detections"], "No")
+
+        self.assertEqual(rows[2]["Total_Recordings"], 0)
+        self.assertTrue(pd.isna(rows[2]["Detection_Recordings"]))
+        self.assertTrue(pd.isna(rows[2]["Detection_Rate"]))
+        self.assertEqual(rows[2]["Had_Recordings"], "No")
+
+
+
 if __name__ == "__main__":
     unittest.main()
