@@ -22,10 +22,14 @@ from acoustic_ratios import (
     ARI_STATUS_NHD,
     ARI_STATUS_NO_FEMALE_CALLS,
     ARI_STATUS_OK,
+    COL_APPROX_COLONY_SIZE,
     COL_ARI,
     COL_ARI_CLASS,
+    COL_ARI_CLASS_THRESHOLD,
     COL_ARI_FEMALE_DENOMINATOR_CONFIDENCE,
+    COL_ARI_REVIEW_BECAUSE,
     COL_ARI_STATUS,
+    COL_BREEDING_TYPE,
     COL_COMMENT,
     COL_FEMALE_DETECTION_RATE,
     COL_FEMALE_DETECTION_RECORDINGS,
@@ -33,10 +37,16 @@ from acoustic_ratios import (
     COL_FLEDGLING_DETECTION_RATE,
     COL_FLEDGLING_DETECTION_RECORDINGS,
     COL_FLEDGLINGS_PRESENT,
+    COL_HATCH_DATE,
     COL_INCUBATION_DAYS,
     COL_NESTLING_DAYS,
     COL_NESTLING_DETECTION_RATE,
     COL_NESTLING_DETECTION_RECORDINGS,
+    COL_OUTCOME,
+    COL_PULSE_NAME,
+    COL_SITE_ID,
+    COL_SITE_NAME,
+    PUBLICATION_COLUMNS,
     AcousticReproductiveIndex,
     FledglingMetrics,
     classify_female_denominator_confidence,
@@ -627,13 +637,19 @@ class TestAcousticReproductiveIndex(unittest.TestCase):
         self.assertEqual(result[COL_NESTLING_DETECTION_RATE], 0.03)
 
 
-
 class TestAcousticReproductiveIndexPostProcess(unittest.TestCase):
     def test_post_process_assigns_publication_facing_ari_status_and_class(self) -> None:
         metric = AcousticReproductiveIndex()
         df = pd.DataFrame(
             {
-                COL_ARI: [0.0, 0.0, 0.25, 0.5, 0.501, ARI_STATUS_NO_FEMALE_CALLS],
+                COL_ARI: [0.0, 0.0, 0.25, 0.5, 0.501, ""],
+                COL_ARI_STATUS: [
+                    ARI_STATUS_OK, 
+                    ARI_STATUS_OK, 
+                    ARI_STATUS_OK, 
+                    ARI_STATUS_OK, 
+                    ARI_STATUS_OK, 
+                    ARI_STATUS_NO_FEMALE_CALLS],
                 COL_FLEDGLING_DETECTION_RECORDINGS: [0, 2, 0, 0, 0, 0],
                 COL_FEMALE_DETECTION_RECORDINGS: [20, 20, 20, 20, 20, 0],
             }
@@ -654,11 +670,18 @@ class TestAcousticReproductiveIndexPostProcess(unittest.TestCase):
         df = pd.DataFrame(
             {
                 COL_ARI: [
+                    "",
+                    "",
+                    0.25,
+                    0.25,
+                    0.25,
+                ],
+                COL_ARI_STATUS: [
                     ARI_STATUS_NHD,
                     ARI_STATUS_NO_FEMALE_CALLS,
-                    0.25,
-                    0.25,
-                    0.25,
+                    ARI_STATUS_OK,
+                    ARI_STATUS_OK,
+                    ARI_STATUS_OK,
                 ],
                 COL_FLEDGLING_DETECTION_RECORDINGS: [0, 0, 0, 0, 0],
                 COL_FEMALE_DETECTION_RECORDINGS: [pd.NA, 0, 5, 6, 21],
@@ -693,7 +716,8 @@ class TestAcousticReproductiveIndexPostProcess(unittest.TestCase):
         metric = AcousticReproductiveIndex()
         df = pd.DataFrame(
             {
-                COL_ARI: [0.0, 0.25, ARI_STATUS_NHD],
+                COL_ARI: [0.0, 0.25, ""],
+                COL_ARI_STATUS: [ARI_STATUS_OK, ARI_STATUS_OK, ARI_STATUS_NHD],
                 COL_FLEDGLING_DETECTION_RECORDINGS: [0, 0, 0],
             }
         )
@@ -1055,6 +1079,52 @@ class TestDailyDetectionDiagnostics(unittest.TestCase):
         self.assertTrue(pd.isna(rows[2]["Detection_Rate"]))
         self.assertEqual(rows[2]["Had_Recordings"], "No")
 
+
+class TestPublicationOutputSchema(unittest.TestCase):
+    def test_publication_columns_exclude_diagnostics_and_source_audit_fields(self) -> None:
+        forbidden_columns = {
+            "Calculated_Outcome",
+            "ARI_Cutoff",
+            "ARI_Margin_To_Cutoff",
+            "Outcome_Mismatch",
+            "Outcome_Mismatch_Type",
+            "Outcome_Diagnostic",
+            "ARI_Diagnostic",
+            "Comment",
+            "Source Row",
+            "Review Status",
+            "Review Notes",
+            "mcstart",
+            "incstart",
+            "fledgestart",
+            "fledgedisp",
+            "abandon",
+            "partial abandon",
+            COL_ARI_REVIEW_BECAUSE,
+        }
+
+        self.assertTrue(forbidden_columns.isdisjoint(set(PUBLICATION_COLUMNS)))
+    
+    def test_publication_columns_include_required_metric_fields(self) -> None:
+        required_columns = {
+            COL_SITE_ID,
+            COL_SITE_NAME,
+            COL_PULSE_NAME,
+            COL_OUTCOME,
+            COL_ARI_STATUS,
+            COL_ARI_CLASS,
+            COL_ARI_CLASS_THRESHOLD,
+            COL_ARI_FEMALE_DENOMINATOR_CONFIDENCE,
+            COL_BREEDING_TYPE,
+            COL_HATCH_DATE,
+            COL_APPROX_COLONY_SIZE,
+            COL_ARI,
+            COL_FEMALE_DETECTION_RECORDINGS,
+            COL_NESTLING_DETECTION_RECORDINGS,
+            COL_FLEDGLING_DETECTION_RECORDINGS,
+        }
+
+        self.assertTrue(required_columns.issubset(set(PUBLICATION_COLUMNS)))
 
 
 if __name__ == "__main__":

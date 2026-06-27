@@ -61,6 +61,8 @@ ARI_CONFIDENCE_LOW_FEMALE_DENOMINATOR = "Low female denominator"
 ARI_CONFIDENCE_MODERATE_FEMALE_DENOMINATOR = "Moderate female denominator"
 ARI_CONFIDENCE_STABLE_FEMALE_DENOMINATOR = "Stable female denominator"
 
+COL_ARI_REVIEW_BECAUSE = "ARI_Review_Because"
+
 LOW_FEMALE_DENOMINATOR_MAX = 5
 MODERATE_FEMALE_DENOMINATOR_MAX = 20
 
@@ -234,6 +236,7 @@ SOURCE_AUDIT_COLUMNS = [
 
 METRIC_DIAGNOSTIC_COLUMNS = [
     COL_COMMENT,
+    COL_ARI_REVIEW_BECAUSE,
     COL_ARI_DIAGNOSTIC,
     COL_ARI_RECORDING_START,
     COL_ARI_RECORDING_STOP,
@@ -569,6 +572,14 @@ def get_raw_validated_detections(site_name: str, call_type: str) -> pd.DataFrame
         return pd.DataFrame()
 
 
+def append_review_reason(existing: Any, reason: str) -> str:
+    """Appends a semicolon-separated review reason."""
+    existing_text = "" if pd.isna(existing) else str(existing).strip()
+    if not existing_text:
+        return reason
+    return f"{existing_text}; {reason}"
+
+
 # ==============================================================================
 # EXTENSIBLE METRIC FRAMEWORK
 # ==============================================================================
@@ -585,7 +596,7 @@ class AcousticMetric:
 
 class AcousticReproductiveIndex(AcousticMetric):
     DAYS_TO_COUNT = 7
-    NESTLING_OFFSET_DAYS = 4
+    NESTLING_OFFSET_DAYS = 5
     FEMALE_OFFSET_DAYS = 3
     def calculate_row(self, row: dict[str, Any], hatch_date: date | None, site_name: str) -> dict[str, Any]:
         result = {
@@ -882,6 +893,95 @@ class AcousticReproductiveIndex(AcousticMetric):
             classify_female_denominator_confidence
         )
 
+        #Check for cases that need human review
+        df[COL_ARI_REVIEW_BECAUSE] = ""
+#TODO Are these the same as above?
+        numeric_ari = pd.to_numeric(df[COL_ARI], errors="coerce")
+        numeric_mask = numeric_ari.notna()
+
+        fledgling_detection_recordings = pd.Series(0, index=df.index, dtype="float64")
+        if COL_FLEDGLING_DETECTION_RECORDINGS in df.columns:
+            fledgling_detection_recordings = pd.to_numeric(
+                df[COL_FLEDGLING_DETECTION_RECORDINGS],
+                errors="coerce",
+            ).fillna(0)
+
+        female_detection_recordings = pd.Series(pd.NA, index=df.index)
+        if COL_FEMALE_DETECTION_RECORDINGS in df.columns:
+            female_detection_recordings = pd.to_numeric(
+                df[COL_FEMALE_DETECTION_RECORDINGS],
+                errors="coerce",
+            )
+
+        # 1. ARI zero but fledglings are present.
+        mask = numeric_mask & (numeric_ari == 0) & (fledgling_detection_recordings > 0)
+        df.loc[mask, COL_ARI_REVIEW_BECAUSE] = df.loc[mask, COL_ARI_REVIEW_BECAUSE].apply(
+            append_review_reason,
+            reason="ARI is zero but fledgling detections are present",
+        )
+
+        # 2. Low female denominator.
+        mask = df[COL_ARI_FEMALE_DENOMINATOR_CONFIDENCE].isin(
+            {
+                ARI_CONFIDENCE_NO_FEMALE_DENOMINATOR,
+                ARI_CONFIDENCE_LOW_FEMALE_DENOMINATOR,
+            }
+        )
+        df.loc[mask, COL_ARI_REVIEW_BECAUSE] = df.loc[mask, COL_ARI_REVIEW_BECAUSE].apply(
+            append_review_reason,
+            reason="Female denominator is absent or low",
+        )
+
+        # 3. Very high ARI, often caused by a tiny female denominator.
+        mask = numeric_mask & (numeric_ari > 5)
+        df.loc[mask, COL_ARI_REVIEW_BECAUSE] = df.loc[mask, COL_ARI_REVIEW_BECAUSE].apply(
+            append_review_reason,
+            reason="ARI is very high; inspect female denominator and detection rates",
+        )
+
+        # 4. No female denominator but nestling or fledgling detections exist.
+        nestling_detection_recordings = pd.Series(0, index=df.index, dtype="float64")
+        if COL_NESTLING_DETECTION_RECORDINGS in df.columns:
+            nestling_detection_recordings = pd.to_numeric(
+                df[COL_NESTLING_DETECTION_RECORDINGS],
+                errors="coerce",
+            ).fillna(0)
+
+        mask = (
+            df[COL_ARI_STATUS].eq(ARI_STATUS_NO_FEMALE_CALLS)
+            & (
+                (nestling_detection_recordings > 0)
+                | (fledgling_detection_recordings > 0)
+            )
+        )
+        df.loc[mask, COL_ARI_REVIEW_BECAUSE] = df.loc[mask, COL_ARI_REVIEW_BECAUSE].apply(
+            append_review_reason,
+            reason="ARI not scorable because female denominator is zero, but offspring detections are present",
+        )
+
+        # 5. Manual outcome successful but ARI class says no offspring acoustic evidence.
+        if COL_OUTCOME in df.columns:
+            outcome = df[COL_OUTCOME].astype(str).str.strip()
+
+            mask = (
+                outcome.eq(OUTCOME_SUCCESSFUL)
+                & df[COL_ARI_CLASS].eq(ARI_CLASS_NO_OFFSPRING_EVIDENCE)
+            )
+            df.loc[mask, COL_ARI_REVIEW_BECAUSE] = df.loc[mask, COL_ARI_REVIEW_BECAUSE].apply(
+                append_review_reason,
+                reason="Manual outcome is Successful but ARI class indicates no detected offspring acoustic evidence",
+            )
+
+            # 6. Manual outcome abandoned but ARI class says high offspring activity.
+            mask = (
+                outcome.eq(OUTCOME_ABANDONED)
+                & df[COL_ARI_CLASS].eq(ARI_CLASS_HIGH_OFFSPRING_ACTIVITY)
+            )
+            df.loc[mask, COL_ARI_REVIEW_BECAUSE] = df.loc[mask, COL_ARI_REVIEW_BECAUSE].apply(
+                append_review_reason,
+                reason="Manual outcome is Abandoned but ARI class indicates high offspring acoustic activity",
+            )
+
         return df
 
 
@@ -1099,16 +1199,51 @@ def main() -> None:
         daily_diagnostics_df = daily_diagnostics_df[existing_daily_cols + daily_remainder]
 
         save_csv_with_retry(daily_diagnostics_df, OUT_DAILY_DIAGNOSTIC_FILE, share=True)
-    
+
+    # Outcome reports    
+    status_counts = full_results_df[COL_ARI_STATUS].value_counts(dropna=False)
+    class_counts = full_results_df[COL_ARI_CLASS].value_counts(dropna=False)
+
+    status_by_outcome = pd.crosstab(
+        full_results_df[COL_OUTCOME],
+        full_results_df[COL_ARI_STATUS],
+        margins=True,
+    )
+
+    status_by_breeding_type = pd.crosstab(
+        full_results_df[COL_BREEDING_TYPE],
+        full_results_df[COL_ARI_STATUS],
+        margins=True,
+    )
+
+    class_by_outcome = pd.crosstab(
+        full_results_df[COL_OUTCOME],
+        full_results_df[COL_ARI_CLASS],
+        margins=True,
+    )
+
     log_text = (
-        f"Processing Complete\n===================\n"
-        f"Rows processed: {len(full_results_df)}\n"
-        f"Outcomes:\n---------------------------\n"
-        f"{full_results_df[COL_OUTCOME].value_counts().to_string()}\n\n"
-        f"ARI classes:\n------------\n{full_results_df[COL_ARI_CLASS].value_counts().to_string()}\n"
+        "Processing Complete\n"
+        "===================\n"
+        f"Rows processed: {len(full_results_df)}\n\n"
+        "ARI_Status counts:\n"
+        "------------------\n"
+        f"{status_counts.to_string()}\n\n"
+        "ARI_Class counts:\n"
+        "-----------------\n"
+        f"{class_counts.to_string()}\n\n"
+        "ARI_Status by Outcome:\n"
+        "----------------------\n"
+        f"{status_by_outcome.to_string()}\n\n"
+        "ARI_Status by Breeding Type:\n"
+        "----------------------------\n"
+        f"{status_by_breeding_type.to_string()}\n\n"
+        "ARI_Class by Outcome:\n"
+        "---------------------\n"
+        f"{class_by_outcome.to_string()}\n"
     )
     RESULTS_TXT.write_text(log_text, encoding="utf-8")
-    print(f"\nProcessing Complete. Metrics updated successfully.\n{log_text}")
+    print(f"\nProcessing Complete. Metrics updated successfully.\n\n{log_text}")
 
 
 if __name__ == "__main__":
