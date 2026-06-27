@@ -23,7 +23,6 @@ SHARING_OUTPUT_DIR = Path(r"G:\My Drive\TRBL for Wendy GDrive")
 
 BREEDING_DATES_CSV = BASE_DIR / "breeding dates.csv"
 OUT_FILE = BASE_DIR / "nestling-to-female-ratios.csv"
-OUT_FILTERED_FILE = BASE_DIR / "nestling-to-female-ratios-filtered.csv"
 OUT_ARI_FILE = BASE_DIR / "nestling-to-female-ratios-for-comparison.csv"
 RESULTS_TXT = BASE_DIR / "ratios_results.txt"
 OUT_DIAGNOSTIC_FILE = BASE_DIR / "nestling-to-female-ratios-diagnostics.csv"
@@ -792,7 +791,9 @@ class AcousticReproductiveIndex(AcousticMetric):
                 result[COL_ARI_LATEST_WINDOW_NESTLING_DATE] = format_date_for_output(latest_n)
 
                 if total_recs_during_nestling > 0:
-                    result[COL_NESTLING_DETECTION_RATE] = round(result[COL_NESTLING_DETECTION_RECORDINGS] / total_recs_during_nestling, DECIMALS)
+                    result[COL_NESTLING_DETECTION_RATE] = round(
+                        result[COL_NESTLING_DETECTION_RECORDINGS] / total_recs_during_nestling, DECIMALS
+                    )
 
         # ----------------------------------------------------------------------
         # 4. Biological Quality Guardrails & Outcome Scoring
@@ -812,7 +813,9 @@ class AcousticReproductiveIndex(AcousticMetric):
             if result[COL_FEMALE_DETECTION_RATE] == 0:
                 result[COL_ARI_STATUS] = ARI_STATUS_NO_FEMALE_CALLS
             else:
-                result[COL_ARI] = round(result[COL_NESTLING_DETECTION_RATE] / result[COL_FEMALE_DETECTION_RATE], DECIMALS)
+                result[COL_ARI] = round(
+                    result[COL_NESTLING_DETECTION_RATE] / result[COL_FEMALE_DETECTION_RATE], DECIMALS
+                )
                 result[COL_ARI_STATUS] = ARI_STATUS_OK
         #diagnostics
         if result[COL_ARI_STATUS] == ARI_STATUS_NHD:
@@ -895,10 +898,7 @@ class AcousticReproductiveIndex(AcousticMetric):
 
         #Check for cases that need human review
         df[COL_ARI_REVIEW_BECAUSE] = ""
-#TODO Are these the same as above?
-        numeric_ari = pd.to_numeric(df[COL_ARI], errors="coerce")
-        numeric_mask = numeric_ari.notna()
-
+        
         fledgling_detection_recordings = pd.Series(0, index=df.index, dtype="float64")
         if COL_FLEDGLING_DETECTION_RECORDINGS in df.columns:
             fledgling_detection_recordings = pd.to_numeric(
@@ -1139,24 +1139,6 @@ def main() -> None:
     publication_df = full_results_df[publication_cols].copy()
     save_csv_with_retry(publication_df, OUT_FILE, share=True)
  
-    numeric_mask = pd.to_numeric(full_results_df[COL_ARI], errors="coerce").notna()
-    save_csv_with_retry(full_results_df[numeric_mask], OUT_FILTERED_FILE)
-
-    comparison_mask = (
-        ~full_results_df[COL_HATCH_DATE].astype(str).str.strip().isin(
-            {ARI_STATUS_NHD, STATUS_ND, "inf", "missed", "n/a", "na", ""}
-        )
-        & ~full_results_df.get(COL_OUTCOME, pd.Series(dtype=str)).astype(str).isin({OUTCOME_UNKNOWN})
-        & full_results_df.get(COL_BREEDING_TYPE, pd.Series(dtype=str))
-            .astype(str)
-            .str.strip()
-            .isin({BREEDING_TYPE_SIMPLE, BREEDING_TYPE_SEQUENTIAL})
-    )
-    save_csv_with_retry(
-        publication_df.loc[comparison_mask].reset_index(drop=True),
-        OUT_ARI_FILE,
-    )
-
     DIAGNOSTIC_COLUMNS = (
         PUBLICATION_COLUMNS
         + METRIC_DIAGNOSTIC_COLUMNS
