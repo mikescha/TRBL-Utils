@@ -292,8 +292,58 @@ def inclusive_day_span(start_date: date, end_date: date) -> int:
 def format_date_for_output(value: date | None, missing: str = STATUS_ND) -> str:
     """Formats date values consistently for CSV output."""
     if isinstance(value, date):
-        return value.strftime("%m/%d/%Y")
+        return value.isoformat()
     return missing
+
+
+def normalize_output_date_columns(df: pd.DataFrame, date_columns: list[str]) -> pd.DataFrame:
+    """Normalizes selected date-like output columns to YYYY-MM-DD.
+
+    Non-date status values such as NHD, ND, inf, missed, and blanks are preserved.
+    Leading ~ markers are preserved while the date itself is normalized.
+    """
+    normalized = df.copy()
+
+    preserve_values = {
+        "",
+        "ND",
+        "NHD",
+        "inf",
+        "missed",
+        "n/a",
+        "na",
+        "nan",
+        "None",
+    }
+
+    for col in date_columns:
+        if col not in normalized.columns:
+            continue
+
+        def normalize_one(value: Any) -> Any:
+            if pd.isna(value):
+                return value
+
+            if isinstance(value, date):
+                return value.isoformat()
+
+            text = str(value).strip()
+            has_tilde = text.startswith("~")
+            cleaned = text.removeprefix("~").strip()
+
+            if cleaned in preserve_values:
+                return f"~{cleaned}" if has_tilde else cleaned
+
+            parsed = pd.to_datetime(cleaned, errors="coerce")
+            if pd.isna(parsed):
+                return value
+
+            iso_date = parsed.date().isoformat()
+            return f"~{iso_date}" if has_tilde else iso_date
+
+        normalized[col] = normalized[col].apply(normalize_one)
+
+    return normalized
 
 
 def summarize_unique_dates(df: pd.DataFrame, date_col: str = "date", max_dates: int = 12) -> str:
@@ -305,7 +355,7 @@ def summarize_unique_dates(df: pd.DataFrame, date_col: str = "date", max_dates: 
     if not dates:
         return ""
 
-    formatted = [d.strftime("%m/%d/%Y") for d in dates]
+    formatted = [d.isoformat() for d in dates]
     if len(formatted) <= max_dates:
         return ", ".join(formatted)
 
@@ -315,8 +365,13 @@ def summarize_unique_dates(df: pd.DataFrame, date_col: str = "date", max_dates: 
 
 def normalize_hatch_date_value(value: Any) -> str:
     """Normalizes no-hatch-date values to NHD while preserving usable date strings."""
-    cleaned = str(value).replace("~", "").strip()
-    return ARI_STATUS_NHD if cleaned in NO_HATCH_VALUES else cleaned
+    cleaned = str(value).strip()
+    cleaned_without_tilde = cleaned.removeprefix("~").strip()
+
+    if cleaned_without_tilde in NO_HATCH_VALUES:
+        return ARI_STATUS_NHD
+
+    return cleaned
 
 
 def classify_female_denominator_confidence(value: Any) -> str:
@@ -898,7 +953,7 @@ class AcousticReproductiveIndex(AcousticMetric):
 
         #Check for cases that need human review
         df[COL_ARI_REVIEW_BECAUSE] = ""
-        
+
         fledgling_detection_recordings = pd.Series(0, index=df.index, dtype="float64")
         if COL_FLEDGLING_DETECTION_RECORDINGS in df.columns:
             fledgling_detection_recordings = pd.to_numeric(
@@ -1098,7 +1153,6 @@ def main() -> None:
     if "hatch" in source_df.columns:
         source_df.rename(columns={"hatch": COL_HATCH_DATE}, inplace=True)
     
-    # Clean and normalize Hatch_Date values for output and downstream datetime parsing.
     source_df[COL_HATCH_DATE] = source_df[COL_HATCH_DATE].apply(normalize_hatch_date_value)
 
     processed_records = []
@@ -1113,24 +1167,40 @@ def main() -> None:
         out_row: dict[str, Any] = row.copy()
         
         site_name = str(row.get(COL_SITE_NAME, "")).strip()
+
+        #The hatch date may be preceeded by a ~ if it's estimated, so strip that if needed
         hatch_str = str(row.get(COL_HATCH_DATE, "")).strip()
 
         if hatch_str == ARI_STATUS_NHD:
             hatch_date = None
         else:
             try:
-                hatch_date = pd.to_datetime(hatch_str).date()
+                hatch_date = pd.to_datetime(hatch_str.removeprefix("~").strip()).date()
             except Exception:
                 hatch_date = None
 
         for metric in active_metrics:
-            out_row.update(metric.calculate_row(row, hatch_date, site_name))
-                
+            out_row.update(metric.calculate_row(row, hatch_date, site_name))                
         processed_records.append(out_row)
 
     full_results_df = pd.DataFrame(processed_records)
     for metric in active_metrics:
         full_results_df = metric.post_process(full_results_df)
+
+    source_df = normalize_output_date_columns(
+        source_df,
+        [
+            COL_HATCH_DATE,
+            COL_DEPLOYMENT_START,
+            COL_DEPLOYMENT_END,
+            "mcstart",
+            "incstart",
+            "fledgestart",
+            "fledgedisp",
+            "abandon",
+            "partial abandon"
+        ],
+    )
 
     print(" done.")
 

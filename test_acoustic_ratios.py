@@ -56,6 +56,7 @@ from acoustic_ratios import (
     get_total_recordings,
     inclusive_day_span,
     normalize_hatch_date_value,
+    normalize_output_date_columns,
 )
 
 
@@ -993,7 +994,7 @@ class TestRawValidatedDetectionsLoader(unittest.TestCase):
         mock_print.assert_called_once()
 
 
-class TestHatchDateNormalization(unittest.TestCase):
+class TestDateNormalization(unittest.TestCase):
     def test_no_hatch_values_normalize_to_nhd(self) -> None:
         values = ["ND", ARI_STATUS_NHD, "", "nan", "n/a", "NA", "inf", "missed", " ~ND "]
 
@@ -1001,10 +1002,23 @@ class TestHatchDateNormalization(unittest.TestCase):
             with self.subTest(value=value):
                 self.assertEqual(normalize_hatch_date_value(value), ARI_STATUS_NHD)
 
-    def test_valid_hatch_date_is_preserved_and_tilde_removed(self) -> None:
-        self.assertEqual(normalize_hatch_date_value("~05/15/2024"), "05/15/2024")
-        self.assertEqual(normalize_hatch_date_value(" 2024-05-15 "), "2024-05-15")
+    def test_hatch_date_normalization_preserves_approximate_marker(self) -> None:
+        self.assertEqual(normalize_hatch_date_value("~5/12/2017"), "~5/12/2017")
+        self.assertEqual(normalize_hatch_date_value("~ND"), ARI_STATUS_NHD)
 
+    def test_normalize_output_date_columns_preserves_tilde_and_uses_iso_format(self) -> None:
+        df = pd.DataFrame(
+            {
+                COL_HATCH_DATE: ["~5/12/2017", "5/13/2017", ARI_STATUS_NHD],
+            }
+        )
+
+        result = normalize_output_date_columns(df, [COL_HATCH_DATE])
+
+        self.assertEqual(
+            result[COL_HATCH_DATE].tolist(),
+            ["~2017-05-12", "2017-05-13", ARI_STATUS_NHD],
+        )
 
 class TestFemaleDenominatorConfidence(unittest.TestCase):
     def test_female_denominator_confidence_tiers(self) -> None:
