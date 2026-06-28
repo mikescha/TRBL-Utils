@@ -34,12 +34,17 @@ Notes:
 
 from __future__ import annotations
 
-from pathlib import Path
 import argparse
 import re
-from typing import Dict, Tuple
-import pyarrow.parquet as pq
+from pathlib import Path
+
 import pandas as pd
+import pyarrow.parquet as pq
+
+from constants import (
+    DATA_DIR,
+    HOURLY_PARQUET_FILES,
+)
 
 
 def discover_year_files(raw_dir: Path) -> list[Path]:
@@ -64,10 +69,9 @@ def build_counts(raw_dir: Path, chunksize: int = 2_000_000) -> pd.DataFrame:
     year_files = discover_year_files(raw_dir)
 
     # Aggregate counts across all years: (site, date, hour) -> int
-    counts: Dict[Tuple[str, pd.Timestamp, int], int] = {}
+    counts: dict[tuple[str, pd.Timestamp, int], int] = {}
 
     usecols = ["site", "date", "hour"]
-    dtypes = {"site": "string", "date": "string", "hour": "string"}
 
     for fpath in year_files:
         print(f"[READ] {fpath}")
@@ -135,18 +139,17 @@ def build_recordings_per_day_per_hour_file() -> None:
     ap.add_argument(
         "--raw-dir",
         type=Path,
-        default=Path(
-            "C:/Users/mikes/OneDrive/Documents/GitHub/TRBLSummarizer/TRBLSummarizer/Data"
-        ),
+        default=DATA_DIR,
         help="Directory containing 'data YYYY.parquet' files.",
     )
 
     ap.add_argument(
         "--out-parquet",
         type=Path,
-        default=Path("C:/Users/mikes/OneDrive/Documents/GitHub/TRBLSummarizer/TRBLSummarizer/Data/recordings_per_day_hour.parquet"),
+        default=HOURLY_PARQUET_FILES,
         help="Write output to this Parquet file (recommended).",
     )
+    
 
     ap.add_argument(
         "--chunksize",

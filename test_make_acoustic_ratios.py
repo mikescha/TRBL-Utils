@@ -6,7 +6,21 @@ from unittest.mock import call, patch
 
 import pandas as pd
 
-from acoustic_ratios import (
+from constants import (
+    COL_BREEDING_TYPE,
+    COL_COMMENT,
+    COL_COMPLEX_TYPES,
+    COL_HATCH_DATE,
+    COL_OUTCOME,
+    OUTCOME_ABANDONED,
+    OUTCOME_NO_COLONY,
+    OUTCOME_NO_TRBL,
+    OUTCOME_PARTIALLY_ABANDONED,
+    OUTCOME_SUCCESSFUL,
+    OUTCOME_UNKNOWN,
+    STATUS_ND,
+)
+from make_acoustic_ratios import (
     ARI_CLASS_HIGH_OFFSPRING_ACTIVITY,
     ARI_CLASS_NO_OFFSPRING_EVIDENCE,
     ARI_CLASS_NOT_SCORABLE,
@@ -58,20 +72,6 @@ from acoustic_ratios import (
     inclusive_day_span,
     normalize_hatch_date_value,
     normalize_output_date_columns,
-)
-from constants import (
-    COL_BREEDING_TYPE,
-    COL_COMMENT,
-    COL_COMPLEX_TYPES,
-    COL_HATCH_DATE,
-    COL_OUTCOME,
-    OUTCOME_ABANDONED,
-    OUTCOME_NO_COLONY,
-    OUTCOME_NO_TRBL,
-    OUTCOME_PARTIALLY_ABANDONED,
-    OUTCOME_SUCCESSFUL,
-    OUTCOME_UNKNOWN,
-    STATUS_ND,
 )
 
 
@@ -206,10 +206,10 @@ class TestAcousticReproductiveIndex(unittest.TestCase):
             }
         )
 
-    @patch("acoustic_ratios.get_raw_validated_detections")
-    @patch("acoustic_ratios.get_recording_days_count")
-    @patch("acoustic_ratios.get_total_recordings")
-    @patch("acoustic_ratios.get_site_recording_bounds")
+    @patch("make_acoustic_ratios.get_raw_validated_detections")
+    @patch("make_acoustic_ratios.get_recording_days_count")
+    @patch("make_acoustic_ratios.get_total_recordings")
+    @patch("make_acoustic_ratios.get_site_recording_bounds")
     def test_calculate_row_success(
         self,
         mock_bounds,
@@ -245,10 +245,10 @@ class TestAcousticReproductiveIndex(unittest.TestCase):
         self.assertEqual(result[COL_ARI], 0.714)
         self.assertEqual(result[COL_ARI_STATUS], ARI_STATUS_OK)
 
-    @patch("acoustic_ratios.get_raw_validated_detections")
-    @patch("acoustic_ratios.get_recording_days_count")
-    @patch("acoustic_ratios.get_total_recordings")
-    @patch("acoustic_ratios.get_site_recording_bounds")
+    @patch("make_acoustic_ratios.get_raw_validated_detections")
+    @patch("make_acoustic_ratios.get_recording_days_count")
+    @patch("make_acoustic_ratios.get_total_recordings")
+    @patch("make_acoustic_ratios.get_site_recording_bounds")
     def test_nestling_window_is_hatch_plus_5_through_hatch_plus_11(
         self,
         mock_bounds,
@@ -295,10 +295,10 @@ class TestAcousticReproductiveIndex(unittest.TestCase):
             mock_totals.call_args_list,
         )
 
-    @patch("acoustic_ratios.get_raw_validated_detections")
-    @patch("acoustic_ratios.get_recording_days_count")
-    @patch("acoustic_ratios.get_total_recordings")
-    @patch("acoustic_ratios.get_site_recording_bounds")
+    @patch("make_acoustic_ratios.get_raw_validated_detections")
+    @patch("make_acoustic_ratios.get_recording_days_count")
+    @patch("make_acoustic_ratios.get_total_recordings")
+    @patch("make_acoustic_ratios.get_site_recording_bounds")
     def test_nestling_window_is_clipped_by_recording_stop(
         self,
         mock_bounds,
@@ -339,10 +339,10 @@ class TestAcousticReproductiveIndex(unittest.TestCase):
             mock_totals.call_args_list,
         )
 
-    @patch("acoustic_ratios.get_raw_validated_detections")
-    @patch("acoustic_ratios.get_recording_days_count")
-    @patch("acoustic_ratios.get_total_recordings")
-    @patch("acoustic_ratios.get_site_recording_bounds")
+    @patch("make_acoustic_ratios.get_raw_validated_detections")
+    @patch("make_acoustic_ratios.get_recording_days_count")
+    @patch("make_acoustic_ratios.get_total_recordings")
+    @patch("make_acoustic_ratios.get_site_recording_bounds")
     def test_span_days_do_not_depend_on_latest_detection(
         self,
         mock_bounds,
@@ -369,10 +369,10 @@ class TestAcousticReproductiveIndex(unittest.TestCase):
         self.assertEqual(result[COL_NESTLING_DAYS], 7)
         self.assertEqual(result[COL_NESTLING_DETECTION_RECORDINGS], 1)
 
-    @patch("acoustic_ratios.get_raw_validated_detections")
-    @patch("acoustic_ratios.get_recording_days_count")
-    @patch("acoustic_ratios.get_total_recordings")
-    @patch("acoustic_ratios.get_site_recording_bounds")
+    @patch("make_acoustic_ratios.get_raw_validated_detections")
+    @patch("make_acoustic_ratios.get_recording_days_count")
+    @patch("make_acoustic_ratios.get_total_recordings")
+    @patch("make_acoustic_ratios.get_site_recording_bounds")
     def test_window_boundary_leakage(
         self,
         mock_bounds,
@@ -421,10 +421,10 @@ class TestAcousticReproductiveIndex(unittest.TestCase):
         self.assertEqual(result[COL_ARI], 0.714)
         self.assertEqual(result[COL_ARI_STATUS], ARI_STATUS_OK)
 
-    @patch("acoustic_ratios.get_raw_validated_detections")
-    @patch("acoustic_ratios.get_recording_days_count")
-    @patch("acoustic_ratios.get_total_recordings")
-    @patch("acoustic_ratios.get_site_recording_bounds")
+    @patch("make_acoustic_ratios.get_raw_validated_detections")
+    @patch("make_acoustic_ratios.get_recording_days_count")
+    @patch("make_acoustic_ratios.get_total_recordings")
+    @patch("make_acoustic_ratios.get_site_recording_bounds")
     def test_true_abandonment_math(
         self,
         mock_bounds,
@@ -449,10 +449,10 @@ class TestAcousticReproductiveIndex(unittest.TestCase):
         self.assertEqual(result[COL_ARI], 0.0)
         self.assertEqual(result[COL_ARI_STATUS], ARI_STATUS_OK)        
 
-    @patch("acoustic_ratios.get_raw_validated_detections")
-    @patch("acoustic_ratios.get_recording_days_count")
-    @patch("acoustic_ratios.get_total_recordings")
-    @patch("acoustic_ratios.get_site_recording_bounds")
+    @patch("make_acoustic_ratios.get_raw_validated_detections")
+    @patch("make_acoustic_ratios.get_recording_days_count")
+    @patch("make_acoustic_ratios.get_total_recordings")
+    @patch("make_acoustic_ratios.get_site_recording_bounds")
     def test_no_female_calls_with_nestling_calls_returns_nd_no_female_calls(
         self,
         mock_bounds,
@@ -478,10 +478,10 @@ class TestAcousticReproductiveIndex(unittest.TestCase):
         self.assertEqual(result[COL_FEMALE_DETECTION_RECORDINGS], 0)
         self.assertEqual(result[COL_NESTLING_DETECTION_RECORDINGS], 3)
 
-    @patch("acoustic_ratios.get_raw_validated_detections")
-    @patch("acoustic_ratios.get_recording_days_count")
-    @patch("acoustic_ratios.get_total_recordings")
-    @patch("acoustic_ratios.get_site_recording_bounds")
+    @patch("make_acoustic_ratios.get_raw_validated_detections")
+    @patch("make_acoustic_ratios.get_recording_days_count")
+    @patch("make_acoustic_ratios.get_total_recordings")
+    @patch("make_acoustic_ratios.get_site_recording_bounds")
     def test_no_female_calls_and_no_nestling_calls_returns_nd_no_female_calls(
         self,
         mock_bounds,
@@ -500,9 +500,9 @@ class TestAcousticReproductiveIndex(unittest.TestCase):
         self.assertEqual(result[COL_ARI_STATUS], ARI_STATUS_NO_FEMALE_CALLS)
 
 
-    @patch("acoustic_ratios.get_raw_validated_detections")
-    @patch("acoustic_ratios.get_total_recordings")
-    @patch("acoustic_ratios.get_site_recording_bounds")
+    @patch("make_acoustic_ratios.get_raw_validated_detections")
+    @patch("make_acoustic_ratios.get_total_recordings")
+    @patch("make_acoustic_ratios.get_site_recording_bounds")
     def test_breeding_types_with_no_hatch_date_return_zero_metrics(
         self,
         mock_bounds,
@@ -532,9 +532,9 @@ class TestAcousticReproductiveIndex(unittest.TestCase):
         mock_detections.assert_not_called()
 
 
-    @patch("acoustic_ratios.get_raw_validated_detections")
-    @patch("acoustic_ratios.get_total_recordings")
-    @patch("acoustic_ratios.get_site_recording_bounds")
+    @patch("make_acoustic_ratios.get_raw_validated_detections")
+    @patch("make_acoustic_ratios.get_total_recordings")
+    @patch("make_acoustic_ratios.get_site_recording_bounds")
     def test_no_colony_and_no_trbl_outcomes_return_zero_metrics(
         self,
         mock_bounds,
@@ -567,10 +567,10 @@ class TestAcousticReproductiveIndex(unittest.TestCase):
         mock_detections.assert_not_called()
 
 
-    @patch("acoustic_ratios.get_raw_validated_detections")
-    @patch("acoustic_ratios.get_recording_days_count")
-    @patch("acoustic_ratios.get_total_recordings")
-    @patch("acoustic_ratios.get_site_recording_bounds")
+    @patch("make_acoustic_ratios.get_raw_validated_detections")
+    @patch("make_acoustic_ratios.get_recording_days_count")
+    @patch("make_acoustic_ratios.get_total_recordings")
+    @patch("make_acoustic_ratios.get_site_recording_bounds")
     def test_standard_outcomes_with_hatch_date_do_not_suppress_metric_calculation(
         self,
         mock_bounds,
@@ -629,10 +629,10 @@ class TestAcousticReproductiveIndex(unittest.TestCase):
         self.assertIn("No valid hatch date", result[COL_COMMENT])
 
 
-    @patch("acoustic_ratios.get_raw_validated_detections")
-    @patch("acoustic_ratios.get_recording_days_count")
-    @patch("acoustic_ratios.get_total_recordings")
-    @patch("acoustic_ratios.get_site_recording_bounds")
+    @patch("make_acoustic_ratios.get_raw_validated_detections")
+    @patch("make_acoustic_ratios.get_recording_days_count")
+    @patch("make_acoustic_ratios.get_total_recordings")
+    @patch("make_acoustic_ratios.get_site_recording_bounds")
     def test_non_simple_breeding_types_with_hatch_date_calculate_metrics_but_not_numeric_ari(
         self,
         mock_bounds,
@@ -708,7 +708,7 @@ class TestAcousticReproductiveIndex(unittest.TestCase):
                 self.assertEqual(result[COL_NESTLING_DETECTION_RATE], 0.05)
 
 
-    @patch("acoustic_ratios.get_site_recording_bounds")
+    @patch("make_acoustic_ratios.get_site_recording_bounds")
     def test_missing_deployment_logs_returns_missing_dates_status(self, mock_bounds) -> None:
         mock_bounds.return_value = (None, None)
 
@@ -719,10 +719,10 @@ class TestAcousticReproductiveIndex(unittest.TestCase):
         self.assertIn("No recording deployment logs found in parquet", result[COL_COMMENT])
 
 
-    @patch("acoustic_ratios.get_raw_validated_detections")
-    @patch("acoustic_ratios.get_recording_days_count")
-    @patch("acoustic_ratios.get_total_recordings")
-    @patch("acoustic_ratios.get_site_recording_bounds")
+    @patch("make_acoustic_ratios.get_raw_validated_detections")
+    @patch("make_acoustic_ratios.get_recording_days_count")
+    @patch("make_acoustic_ratios.get_total_recordings")
+    @patch("make_acoustic_ratios.get_site_recording_bounds")
     def test_insufficient_incubation_span_returns_nd_insufficient_days(
         self,
         mock_bounds,
@@ -757,10 +757,10 @@ class TestAcousticReproductiveIndex(unittest.TestCase):
         self.assertIn("Incubation days less than 4", result[COL_COMMENT])
 
 
-    @patch("acoustic_ratios.get_raw_validated_detections")
-    @patch("acoustic_ratios.get_recording_days_count")
-    @patch("acoustic_ratios.get_total_recordings")
-    @patch("acoustic_ratios.get_site_recording_bounds")
+    @patch("make_acoustic_ratios.get_raw_validated_detections")
+    @patch("make_acoustic_ratios.get_recording_days_count")
+    @patch("make_acoustic_ratios.get_total_recordings")
+    @patch("make_acoustic_ratios.get_site_recording_bounds")
     def test_insufficient_nestling_span_returns_nd_insufficient_days(
         self,
         mock_bounds,
@@ -790,10 +790,10 @@ class TestAcousticReproductiveIndex(unittest.TestCase):
         self.assertIn("Nestling days less than 4", result[COL_COMMENT])
 
 
-    @patch("acoustic_ratios.get_raw_validated_detections")
-    @patch("acoustic_ratios.get_recording_days_count")
-    @patch("acoustic_ratios.get_total_recordings")
-    @patch("acoustic_ratios.get_site_recording_bounds")
+    @patch("make_acoustic_ratios.get_raw_validated_detections")
+    @patch("make_acoustic_ratios.get_recording_days_count")
+    @patch("make_acoustic_ratios.get_total_recordings")
+    @patch("make_acoustic_ratios.get_site_recording_bounds")
     def test_invalid_breeding_type_with_no_female_calls_does_not_divide_by_zero(
         self,
         mock_bounds,
@@ -936,9 +936,9 @@ class TestFledglingMetrics(unittest.TestCase):
         self.fledge_start = self.hatch_date + timedelta(days=self.metric.FLEDGLING_OFFSET_DAYS)
         self.fledge_end = self.hatch_date + timedelta(days=self.metric.FLEDGLING_LATEST_DAY_OFFSET)
 
-    @patch("acoustic_ratios.get_raw_validated_detections")
-    @patch("acoustic_ratios.get_total_recordings")
-    @patch("acoustic_ratios.get_site_recording_bounds")
+    @patch("make_acoustic_ratios.get_raw_validated_detections")
+    @patch("make_acoustic_ratios.get_total_recordings")
+    @patch("make_acoustic_ratios.get_site_recording_bounds")
     def test_fledglings_success(self, mock_bounds, mock_totals, mock_detections) -> None:
         """Fledgling detections summarize as recording-level proportions."""
         mock_bounds.return_value = (date(2024, 5, 1), date(2024, 5, 30))
@@ -954,9 +954,9 @@ class TestFledglingMetrics(unittest.TestCase):
         self.assertEqual(result[COL_FLEDGLING_DAYS], 7)
         self.assertEqual(result[COL_FLEDGLING_DETECTION_RATE], 0.02)
 
-    @patch("acoustic_ratios.get_raw_validated_detections")
-    @patch("acoustic_ratios.get_total_recordings")
-    @patch("acoustic_ratios.get_site_recording_bounds")
+    @patch("make_acoustic_ratios.get_raw_validated_detections")
+    @patch("make_acoustic_ratios.get_total_recordings")
+    @patch("make_acoustic_ratios.get_site_recording_bounds")
     def test_fledgling_window_is_clipped_by_recording_stop(
         self,
         mock_bounds,
@@ -987,9 +987,9 @@ class TestFledglingMetrics(unittest.TestCase):
         self.assertEqual(result[COL_FLEDGLING_DETECTION_RATE], 0.02)
         mock_totals.assert_called_once_with(self.site_name, self.fledge_start, rec_stop)
 
-    @patch("acoustic_ratios.get_raw_validated_detections")
-    @patch("acoustic_ratios.get_total_recordings")
-    @patch("acoustic_ratios.get_site_recording_bounds")
+    @patch("make_acoustic_ratios.get_raw_validated_detections")
+    @patch("make_acoustic_ratios.get_total_recordings")
+    @patch("make_acoustic_ratios.get_site_recording_bounds")
     def test_no_fledgling_detections_still_reports_window_span(
         self,
         mock_bounds,
@@ -1013,7 +1013,7 @@ class TestFledglingMetrics(unittest.TestCase):
         self.assertEqual(result[COL_FLEDGLING_DAYS], 0)
         self.assertEqual(result[COL_FLEDGLING_DETECTION_RECORDINGS], 0)
 
-    @patch("acoustic_ratios.get_site_recording_bounds")
+    @patch("make_acoustic_ratios.get_site_recording_bounds")
     def test_missing_deployment_logs_returns_default_fledgling_result(self, mock_bounds) -> None:
         mock_bounds.return_value = (None, None)
 
@@ -1025,7 +1025,7 @@ class TestFledglingMetrics(unittest.TestCase):
 
 
 class TestDataLoader(unittest.TestCase):
-    @patch("acoustic_ratios.load_recordings_parquet")
+    @patch("make_acoustic_ratios.load_recordings_parquet")
     def test_get_total_recordings(self, mock_load) -> None:
         """get_total_recordings respects site matching and daylight-hour filters."""
         mock_load.return_value = pd.DataFrame(
@@ -1046,7 +1046,7 @@ class TestDataLoader(unittest.TestCase):
 
         self.assertEqual(total, 8)
 
-    @patch("acoustic_ratios.load_recordings_parquet")
+    @patch("make_acoustic_ratios.load_recordings_parquet")
     def test_get_total_recordings_returns_zero_for_missing_site(self, mock_load) -> None:
         mock_load.return_value = pd.DataFrame(
             {
@@ -1061,7 +1061,7 @@ class TestDataLoader(unittest.TestCase):
 
         self.assertEqual(total, 0)
 
-    @patch("acoustic_ratios.load_recordings_parquet")
+    @patch("make_acoustic_ratios.load_recordings_parquet")
     def test_get_site_recording_bounds_case_insensitive_site_match(self, mock_load) -> None:
         mock_load.return_value = pd.DataFrame(
             {
@@ -1078,7 +1078,7 @@ class TestDataLoader(unittest.TestCase):
 
         self.assertEqual(bounds, (date(2024, 5, 1), date(2024, 5, 3)))
 
-    @patch("acoustic_ratios.load_recordings_parquet")
+    @patch("make_acoustic_ratios.load_recordings_parquet")
     def test_get_site_recording_bounds_missing_site(self, mock_load) -> None:
         mock_load.return_value = pd.DataFrame(
             {
@@ -1116,7 +1116,7 @@ class TestRawValidatedDetectionsLoader(unittest.TestCase):
                 }
             ).to_csv(csv_path, index=False)
 
-            with patch("acoustic_ratios.PMJ_DIR", tmp_path):
+            with patch("make_acoustic_ratios.PMJ_DIR", tmp_path):
                 result = get_raw_validated_detections("Test Site", "Female")
 
         self.assertEqual(len(result), 2)
@@ -1129,7 +1129,7 @@ class TestRawValidatedDetectionsLoader(unittest.TestCase):
             tmp_path = Path(tmp)
             (tmp_path / "Test Site").mkdir()
 
-            with patch("acoustic_ratios.PMJ_DIR", tmp_path):
+            with patch("make_acoustic_ratios.PMJ_DIR", tmp_path):
                 result = get_raw_validated_detections("Test Site", "Female")
 
         self.assertTrue(result.empty)
@@ -1153,7 +1153,7 @@ class TestRawValidatedDetectionsLoader(unittest.TestCase):
                     }
                 ).to_csv(site_dir / f"Female detections {idx}.csv", index=False)
 
-            with patch("acoustic_ratios.PMJ_DIR", tmp_path):
+            with patch("make_acoustic_ratios.PMJ_DIR", tmp_path):
                 result = get_raw_validated_detections("Test Site", "Female")
 
         self.assertTrue(result.empty)
@@ -1176,7 +1176,7 @@ class TestRawValidatedDetectionsLoader(unittest.TestCase):
                 }
             ).to_csv(site_dir / "Female detections.csv", index=False)
 
-            with patch("acoustic_ratios.PMJ_DIR", tmp_path):
+            with patch("make_acoustic_ratios.PMJ_DIR", tmp_path):
                 result = get_raw_validated_detections("Test Site", "Female")
 
         self.assertTrue(result.empty)
@@ -1229,12 +1229,12 @@ class TestFemaleDenominatorConfidence(unittest.TestCase):
 
 
 class TestDailyDetectionDiagnostics(unittest.TestCase):
-    @patch("acoustic_ratios.get_daily_recordings_by_date")
+    @patch("make_acoustic_ratios.get_daily_recordings_by_date")
     def test_build_daily_detection_rows_distinguishes_zero_detections_from_no_recordings(
         self,
         mock_daily_recordings,
     ) -> None:
-        from acoustic_ratios import build_daily_detection_rows
+        from make_acoustic_ratios import build_daily_detection_rows
 
         start = date(2024, 5, 1)
         end = date(2024, 5, 3)

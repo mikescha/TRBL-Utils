@@ -33,12 +33,14 @@ Dependencies:
 from __future__ import annotations
 
 import argparse
+import builtins
 import re
 from pathlib import Path
-from typing import Dict, Tuple
 
 import pandas as pd
 import pyarrow.parquet as pq
+
+from constants import DATA_DIR
 
 
 def discover_year_files(raw_dir: Path) -> list[Path]:
@@ -63,7 +65,7 @@ def build_counts(raw_dir: Path, chunksize: int = 2_000_000) -> pd.DataFrame:
     year_files = discover_year_files(raw_dir)
 
     # Aggregate counts across all years: (site, date) -> int
-    counts: Dict[Tuple[str, pd.Timestamp], int] = {}
+    counts: builtins.dict[builtins.tuple[str, pd.Timestamp], int] = {}
 
     usecols = ["site", "date"]
 
@@ -120,9 +122,7 @@ def build_recordings_per_day_file() -> None:
     ap.add_argument(
         "--raw-dir",
         type=Path,
-        default=Path(
-            "C:/Users/mikes/OneDrive/Documents/GitHub/TRBLSummarizer/TRBLSummarizer/Data"
-        ),
+        default=DATA_DIR,
         help="Directory containing 'data YYYY.parquet' files.",
     )
     ap.add_argument(

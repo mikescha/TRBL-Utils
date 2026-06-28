@@ -22,10 +22,13 @@ from constants import (
     COL_SITE_ID,
     COL_SITE_NAME,
     COL_SUBSTRATE,
+    DATA_DIR,
+    HOURLY_PARQUET_FILES,
     OUTCOME_ABANDONED,
     OUTCOME_NO_COLONY,
     OUTCOME_NO_TRBL,
     OUTCOME_SUCCESSFUL,
+    PMJ_DIR,
     STATUS_ND,
 )
 
@@ -37,8 +40,6 @@ START_HOUR = 7
 END_HOUR = 20
 
 BASE_DIR = Path(".")
-DATA_DIR = Path(r"C:\Users\mikes\OneDrive\Documents\GitHub\TRBLSummarizer\TRBLSummarizer")
-PMJ_DIR = DATA_DIR / "PMJ Data"
 SHARING_OUTPUT_DIR = Path(r"G:\My Drive\TRBL for Wendy GDrive")
 
 BREEDING_DATES_CSV = BASE_DIR / "breeding_dates.csv"
@@ -259,6 +260,24 @@ METRIC_DIAGNOSTIC_COLUMNS = [
     COL_FLEDGLING_DETECTION_DATES_IN_WINDOW,
 ]
 
+OUTPUT_DATE_COLUMNS = [
+    COL_HATCH_DATE,
+    COL_DEPLOYMENT_START,
+    COL_DEPLOYMENT_END,
+    COL_ARI_WINDOW_FEMALE_START,
+    COL_ARI_WINDOW_FEMALE_END,
+    COL_ARI_WINDOW_NESTLING_START,
+    COL_ARI_WINDOW_NESTLING_END,
+    COL_FLEDGLING_WINDOW_START,
+    COL_FLEDGLING_WINDOW_END,
+    COL_LATEST_FLEDGLING_REC,
+    "mcstart",
+    "incstart",
+    "fledgestart",
+    "fledgedisp",
+    "abandon",
+    "partial abandon",
+]
 
 # ==============================================================================
 # DATA LOADING UTILITIES & FILTER HELPERS
@@ -399,12 +418,12 @@ def load_recordings_parquet() -> pd.DataFrame:
     """Loads and caches the entire parquet file once at startup to optimize
     row-by-row processing speed. Standardizes column names and index structures.
     """
-    if not RECORDINGS_PARQUET.exists():
-        print(f"Warning: Parquet file not found at {RECORDINGS_PARQUET}")
+    if not HOURLY_PARQUET_FILES.exists():
+        print(f"Warning: Parquet file not found at {HOURLY_PARQUET_FILES}")
         return pd.DataFrame()
     
     try:
-        df = pd.read_parquet(RECORDINGS_PARQUET)
+        df = pd.read_parquet(HOURLY_PARQUET_FILES)
         df.columns = df.columns.str.lower().str.strip()
         
         # Determine the site column dynamically
@@ -1142,7 +1161,7 @@ def save_csv_with_retry(df: pd.DataFrame, path: Path, share = False) -> None:
             shutil.copy2(path, SHARING_OUTPUT_DIR / path.name)
 
 
-def main() -> None:
+def make_ratios() -> None:
     if not BREEDING_DATES_CSV.exists():
         print(f"Error: Required file missing: {BREEDING_DATES_CSV}")
         return
@@ -1189,22 +1208,8 @@ def main() -> None:
     for metric in active_metrics:
         full_results_df = metric.post_process(full_results_df)
 
-    source_df = normalize_output_date_columns(
-        source_df,
-        [
-            COL_HATCH_DATE,
-            COL_DEPLOYMENT_START,
-            COL_DEPLOYMENT_END,
-            "mcstart",
-            "incstart",
-            "fledgestart",
-            "fledgedisp",
-            "abandon",
-            "partial abandon"
-        ],
-    )
-
-    print(" done.")
+    #Convert dates is ISO format, including retaining ~ as appropriate
+    full_results_df = normalize_output_date_columns(full_results_df, OUTPUT_DATE_COLUMNS)
 
     print("Saving files...")
     publication_cols = [c for c in PUBLICATION_COLUMNS if c in full_results_df.columns]
@@ -1301,4 +1306,4 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    make_ratios()

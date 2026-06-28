@@ -1,3 +1,5 @@
+from pathlib import Path
+
 COL_SITE_ID = "Site_ID"
 COL_SITE_NAME = "Site_Name"
 COL_DEPLOYMENT_START = "Deployment_Start"
@@ -25,3 +27,12 @@ OUTCOME_SUCCESSFUL = "Successful"
 OUTCOME_UNKNOWN = "Unknown"
 OUTCOME_NO_COLONY = "No Colony"
 OUTCOME_NO_TRBL = "No TRBL"
+
+# File locations
+INPUT_CSV = Path(
+    r"C:\Users\mikes\OneDrive\Documents\GitHub\TRBLSummarizer\TRBLSummarizer\Data\TRBL Analysis tracking - All.csv"
+)
+DATA_ROOT = Path(r"C:\Users\mikes\OneDrive\Documents\GitHub\TRBLSummarizer\TRBLSummarizer")
+PMJ_DIR = DATA_ROOT / "PMJ Data"
+DATA_DIR = DATA_ROOT / "Data"
+HOURLY_PARQUET_FILES = DATA_DIR / Path("recordings_per_day_hour.parquet")

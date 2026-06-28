@@ -23,6 +23,7 @@ from constants import (
     COL_SITE_ID,
     COL_SITE_NAME,
     COL_SUBSTRATE,
+    INPUT_CSV,
     OUTCOME_ABANDONED,
     OUTCOME_NO_COLONY,
     OUTCOME_NO_TRBL,
@@ -35,9 +36,6 @@ from constants import (
 # ==============================================================================
 # CONFIGURATION CONSTANTS (Edit these directly for your VS Code workflow)
 # ==============================================================================
-INPUT_CSV = Path(
-    r"C:\Users\mikes\OneDrive\Documents\GitHub\TRBLSummarizer\TRBLSummarizer\Data\TRBL Analysis tracking - All.csv"
-)
 OUTPUT_CSV = Path("breeding_dates.csv")
 REVIEW_CSV = Path("breeding_dates_review.csv")
 ISSUES_CSV = Path("breeding_dates_source_issues.csv")
