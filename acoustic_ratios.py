@@ -9,6 +9,26 @@ from typing import Any, cast
 
 import pandas as pd
 
+from constants import (
+    COL_BREEDING_TYPE,
+    COL_COLONY_SIZE,
+    COL_COMMENT,
+    COL_COMPLEX_TYPES,
+    COL_DEPLOYMENT_END,
+    COL_DEPLOYMENT_START,
+    COL_HATCH_DATE,
+    COL_OUTCOME,
+    COL_PULSE_NAME,
+    COL_SITE_ID,
+    COL_SITE_NAME,
+    COL_SUBSTRATE,
+    OUTCOME_ABANDONED,
+    OUTCOME_NO_COLONY,
+    OUTCOME_NO_TRBL,
+    OUTCOME_SUCCESSFUL,
+    STATUS_ND,
+)
+
 # ==============================================================================
 # CONFIGURATION CONSTANTS
 # ==============================================================================
@@ -21,12 +41,11 @@ DATA_DIR = Path(r"C:\Users\mikes\OneDrive\Documents\GitHub\TRBLSummarizer\TRBLSu
 PMJ_DIR = DATA_DIR / "PMJ Data"
 SHARING_OUTPUT_DIR = Path(r"G:\My Drive\TRBL for Wendy GDrive")
 
-BREEDING_DATES_CSV = BASE_DIR / "breeding dates.csv"
-OUT_FILE = BASE_DIR / "nestling-to-female-ratios.csv"
-OUT_ARI_FILE = BASE_DIR / "nestling-to-female-ratios-for-comparison.csv"
+BREEDING_DATES_CSV = BASE_DIR / "breeding_dates.csv"
+OUT_FILE = BASE_DIR / "nestling_to_female_ratios.csv"
 RESULTS_TXT = BASE_DIR / "ratios_results.txt"
-OUT_DIAGNOSTIC_FILE = BASE_DIR / "nestling-to-female-ratios-diagnostics.csv"
-OUT_DAILY_DIAGNOSTIC_FILE = BASE_DIR / "nestling-to-female-ratios-daily-diagnostics.csv"
+OUT_DIAGNOSTIC_FILE = BASE_DIR / "nestling_to_female_ratios_diagnostics.csv"
+OUT_DAILY_DIAGNOSTIC_FILE = BASE_DIR / "nestling_to_female_ratios_daily_diagnostics.csv"
 
 # Path to the specified parquet database for total recordings
 RECORDINGS_PARQUET = DATA_DIR / "Data" / "recordings_per_day_hour.parquet"
@@ -38,7 +57,6 @@ ARI_HIGH_THRESHOLD = 0.5
 LOW_FEMALE_DENOMINATOR_THRESHOLD = 5
 
 # ARI status values
-STATUS_ND = "ND"
 ARI_STATUS_OK = "OK"
 ARI_STATUS_NHD = "NHD"
 ARI_STATUS_MISSING_DATES = "ND_MISSING_DATES"
@@ -65,18 +83,13 @@ COL_ARI_REVIEW_BECAUSE = "ARI_Review_Because"
 LOW_FEMALE_DENOMINATOR_MAX = 5
 MODERATE_FEMALE_DENOMINATOR_MAX = 20
 
-# Manual / legacy outcome labels
-OUTCOME_ABANDONED = "Abandoned"
-OUTCOME_PARTIALLY_ABANDONED = "Partially Abandoned"
-OUTCOME_SUCCESSFUL = "Successful"
-OUTCOME_UNKNOWN = "Unknown"
-
 # Breeding type labels
 BREEDING_TYPE_SIMPLE = "Simple"
 BREEDING_TYPE_SEQUENTIAL = "Sequential"
 BREEDING_TYPE_COMPLEX = "Complex"
 BREEDING_TYPE_UNKNOWN = "Unknown"
 BREEDING_TYPE_ASYNCHRONOUS = "Asynchronous"
+BREEDING_TYPE_ADDITIONS = "Additions"
 
 # Call type labels used for source-file discovery
 CALL_TYPE_FEMALE = "Female"
@@ -84,20 +97,14 @@ CALL_TYPE_NESTLING = "Nestling"
 CALL_TYPE_FLEDGLING = "Fledgling"
 VALIDATED_PRESENT = "present"
 
-# Common CSV column names
-COL_APPROX_COLONY_SIZE = "Approx Colony Size"
+# CSV column names
 COL_ARI = "ARI"
 COL_ARI_CLASS = "ARI_Class"
 COL_ARI_CLASS_THRESHOLD = "ARI_Class_Threshold"
 COL_ARI_STATUS = "ARI_Status"
 COL_FLEDGLING_DETECTION_RATE = "Fledgling_Detection_Rate"
-COL_BREEDING_TYPE = "Breeding Type"
 COL_CALL_TYPE = "Call_Type"
-COL_COMMENT = "Comment"
-COL_COMPLEX_TYPES = "Complex Types"
 COL_DATE = "Date"
-COL_DEPLOYMENT_END = "Deployment End"
-COL_DEPLOYMENT_START = "Deployment Start"
 COL_DETECTION_RATE = "Detection_Rate"
 COL_DETECTION_RECORDINGS = "Detection_Recordings"
 COL_FEMALE_DETECTION_RATE = "Female_Detection_Rate"
@@ -113,17 +120,11 @@ COL_FLEDGLING_WINDOW_END = "Fledgling_Window_End"
 COL_FLEDGLING_WINDOW_START = "Fledgling_Window_Start"
 COL_HAD_DETECTIONS = "Had_Detections"
 COL_HAD_RECORDINGS = "Had_Recordings"
-COL_HATCH_DATE = "Hatch_Date"
 COL_INCUBATION_DAYS = "Incubation_Days"
 COL_LATEST_FLEDGLING_REC = "Latest_Fledgling_Rec"
 COL_NESTLING_DAYS = "Nestling_Days"
 COL_NESTLING_DETECTION_RATE = "Nestling_Detection_Rate"
 COL_NESTLING_DETECTION_RECORDINGS = "Nestling_Detection_Recordings"
-COL_OUTCOME = "Outcome"
-COL_PULSE_NAME = "Pulse Name"
-COL_SITE_ID = "Site ID"
-COL_SITE_NAME = "Site_Name"
-COL_SUBSTRATE = "Substrate"
 COL_TOTAL_RECORDINGS = "Total_Recordings"
 COL_WINDOW_DAY = "Window_Day"
 COL_WINDOW_END = "Window_End"
@@ -188,7 +189,7 @@ PUBLICATION_COLUMNS = [
     COL_COMPLEX_TYPES,
     COL_HATCH_DATE,
     COL_SUBSTRATE,
-    COL_APPROX_COLONY_SIZE,
+    COL_COLONY_SIZE,
     COL_DEPLOYMENT_START,
     COL_DEPLOYMENT_END,
 
@@ -691,21 +692,27 @@ class AcousticReproductiveIndex(AcousticMetric):
         }
         comments = []
 
-        # Validate descriptive tracking variables
-        breeding_type = str(row.get(COL_BREEDING_TYPE, "")).strip()
-        complex_types = str(row.get(COL_COMPLEX_TYPES, "")).strip()
-        
-        invalid_breeding_type = False
-        if breeding_type.lower() == "unknown":
-            comments.append("Breeding Type is not valid: Unknown")
-            invalid_breeding_type = True
-        if breeding_type.lower() == "complex":
-            comments.append("Breeding Type is not valid: Complex")
-            invalid_breeding_type = True
-        if "asynchronous" in complex_types.lower() or "asynchronous" in breeding_type.lower():
-            comments.append("Breeding Type is not valid: Asynchronous")
-            invalid_breeding_type = True
+        outcome = str(row.get(COL_OUTCOME, "")).strip()
+        if outcome in {OUTCOME_NO_COLONY, OUTCOME_NO_TRBL}:
+            comments.append(f"Outcome is {outcome}; ARI metrics not applicable")
+            result[COL_ARI] = ""
+            result[COL_ARI_STATUS] = ARI_STATUS_NHD
+            result[COL_COMMENT] = "; ".join(comments)
+            return result
 
+        # Validate descriptive tracking variables
+        breeding_type = str(row.get(COL_BREEDING_TYPE, "")).strip()        
+        invalid_breeding_type = False
+        invalid_breeding_types = [
+            BREEDING_TYPE_UNKNOWN,
+            BREEDING_TYPE_COMPLEX,
+            BREEDING_TYPE_ADDITIONS,
+            BREEDING_TYPE_ASYNCHRONOUS,
+        ]
+        if breeding_type in invalid_breeding_types:
+            comments.append(f"Breeding Type does not have ARI score calculated: {breeding_type}")
+            invalid_breeding_type = True
+        
         if not hatch_date:
             comments.append("No valid hatch date")
             result[COL_ARI] = ""
@@ -1147,12 +1154,7 @@ def main() -> None:
 
     source_df = pd.read_csv(BREEDING_DATES_CSV)
     source_df.columns = source_df.columns.astype(str).str.strip()
-    
-    if "Name" in source_df.columns:
-        source_df.rename(columns={"Name": COL_SITE_NAME}, inplace=True)
-    if "hatch" in source_df.columns:
-        source_df.rename(columns={"hatch": COL_HATCH_DATE}, inplace=True)
-    
+
     source_df[COL_HATCH_DATE] = source_df[COL_HATCH_DATE].apply(normalize_hatch_date_value)
 
     processed_records = []

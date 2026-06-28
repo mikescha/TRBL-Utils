@@ -22,30 +22,31 @@ from acoustic_ratios import (
     ARI_STATUS_NHD,
     ARI_STATUS_NO_FEMALE_CALLS,
     ARI_STATUS_OK,
-    COL_APPROX_COLONY_SIZE,
+    BREEDING_TYPE_ADDITIONS,
+    BREEDING_TYPE_ASYNCHRONOUS,
+    BREEDING_TYPE_COMPLEX,
+    BREEDING_TYPE_SEQUENTIAL,
+    BREEDING_TYPE_SIMPLE,
+    BREEDING_TYPE_UNKNOWN,
     COL_ARI,
     COL_ARI_CLASS,
-    COL_ARI_CLASS_THRESHOLD,
     COL_ARI_FEMALE_DENOMINATOR_CONFIDENCE,
     COL_ARI_REVIEW_BECAUSE,
     COL_ARI_STATUS,
-    COL_BREEDING_TYPE,
-    COL_COMMENT,
+    COL_ARI_WINDOW_FEMALE_END,
+    COL_ARI_WINDOW_FEMALE_START,
+    COL_ARI_WINDOW_NESTLING_END,
+    COL_ARI_WINDOW_NESTLING_START,
     COL_FEMALE_DETECTION_RATE,
     COL_FEMALE_DETECTION_RECORDINGS,
     COL_FLEDGLING_DAYS,
     COL_FLEDGLING_DETECTION_RATE,
     COL_FLEDGLING_DETECTION_RECORDINGS,
     COL_FLEDGLINGS_PRESENT,
-    COL_HATCH_DATE,
     COL_INCUBATION_DAYS,
     COL_NESTLING_DAYS,
     COL_NESTLING_DETECTION_RATE,
     COL_NESTLING_DETECTION_RECORDINGS,
-    COL_OUTCOME,
-    COL_PULSE_NAME,
-    COL_SITE_ID,
-    COL_SITE_NAME,
     PUBLICATION_COLUMNS,
     AcousticReproductiveIndex,
     FledglingMetrics,
@@ -57,6 +58,20 @@ from acoustic_ratios import (
     inclusive_day_span,
     normalize_hatch_date_value,
     normalize_output_date_columns,
+)
+from constants import (
+    COL_BREEDING_TYPE,
+    COL_COMMENT,
+    COL_COMPLEX_TYPES,
+    COL_HATCH_DATE,
+    COL_OUTCOME,
+    OUTCOME_ABANDONED,
+    OUTCOME_NO_COLONY,
+    OUTCOME_NO_TRBL,
+    OUTCOME_PARTIALLY_ABANDONED,
+    OUTCOME_SUCCESSFUL,
+    OUTCOME_UNKNOWN,
+    STATUS_ND,
 )
 
 
@@ -157,6 +172,24 @@ class TestAcousticReproductiveIndex(unittest.TestCase):
         self.n_start = self.hatch_date + timedelta(days=self.metric.NESTLING_OFFSET_DAYS)
         self.n_end = self.n_start + timedelta(days=self.metric.DAYS_TO_COUNT - 1)
 
+    def assert_zero_ari_metrics(self, result: dict[str, object]) -> None:
+        self.assertEqual(result[COL_ARI], "")
+        #self.assertEqual(result[COL_ARI_STATUS], )
+
+        self.assertEqual(result[COL_ARI_WINDOW_FEMALE_START], STATUS_ND)
+        self.assertEqual(result[COL_ARI_WINDOW_FEMALE_END], STATUS_ND)
+        self.assertEqual(result[COL_ARI_WINDOW_NESTLING_START], STATUS_ND)
+        self.assertEqual(result[COL_ARI_WINDOW_NESTLING_END], STATUS_ND)
+
+        self.assertEqual(result[COL_INCUBATION_DAYS], 0)
+        self.assertEqual(result[COL_NESTLING_DAYS], 0)
+
+        self.assertEqual(result[COL_FEMALE_DETECTION_RECORDINGS], 0)
+        self.assertEqual(result[COL_FEMALE_DETECTION_RATE], 0.0)
+
+        self.assertEqual(result[COL_NESTLING_DETECTION_RECORDINGS], 0)
+        self.assertEqual(result[COL_NESTLING_DETECTION_RATE], 0.0)
+
     def female_df(self, day_offsets: list[int], hour: int = 12) -> pd.DataFrame:
         return pd.DataFrame(
             {
@@ -198,7 +231,7 @@ class TestAcousticReproductiveIndex(unittest.TestCase):
 
         mock_detections.side_effect = side_effect_detections
 
-        row = {"Breeding Type": "Simple"}
+        row = {COL_BREEDING_TYPE: "Simple"}
         result = self.metric.calculate_row(row, self.hatch_date, self.site_name)
 
         self.assertEqual(result[COL_INCUBATION_DAYS], self.metric.DAYS_TO_COUNT)
@@ -466,18 +499,86 @@ class TestAcousticReproductiveIndex(unittest.TestCase):
 
         self.assertEqual(result[COL_ARI_STATUS], ARI_STATUS_NO_FEMALE_CALLS)
 
+
+    @patch("acoustic_ratios.get_raw_validated_detections")
+    @patch("acoustic_ratios.get_total_recordings")
+    @patch("acoustic_ratios.get_site_recording_bounds")
+    def test_breeding_types_with_no_hatch_date_return_zero_metrics(
+        self,
+        mock_bounds,
+        mock_totals,
+        mock_detections,
+    ) -> None:
+        """If hatch date is NHD, all breeding types should return empty/zero ARI metrics."""
+        cases = [
+            {COL_BREEDING_TYPE: BREEDING_TYPE_SIMPLE, COL_COMPLEX_TYPES: ""},
+            {COL_BREEDING_TYPE: BREEDING_TYPE_SEQUENTIAL, COL_COMPLEX_TYPES: ""},
+            {COL_BREEDING_TYPE: BREEDING_TYPE_ADDITIONS, COL_COMPLEX_TYPES: ""},
+            {COL_BREEDING_TYPE: BREEDING_TYPE_ASYNCHRONOUS, COL_COMPLEX_TYPES: ""},
+            {
+                COL_BREEDING_TYPE: BREEDING_TYPE_COMPLEX,
+                COL_COMPLEX_TYPES: "Asynchronous, Sequential",
+            },
+            {COL_BREEDING_TYPE: BREEDING_TYPE_UNKNOWN, COL_COMPLEX_TYPES: ""},
+        ]
+
+        for row in cases:
+            with self.subTest(row=row):
+                result = self.metric.calculate_row(row, None, self.site_name)
+                self.assert_zero_ari_metrics(result)
+
+        mock_bounds.assert_not_called()
+        mock_totals.assert_not_called()
+        mock_detections.assert_not_called()
+
+
+    @patch("acoustic_ratios.get_raw_validated_detections")
+    @patch("acoustic_ratios.get_total_recordings")
+    @patch("acoustic_ratios.get_site_recording_bounds")
+    def test_no_colony_and_no_trbl_outcomes_return_zero_metrics(
+        self,
+        mock_bounds,
+        mock_totals,
+        mock_detections,
+    ) -> None:
+        """No Colony and No TRBL rows should not calculate ARI metrics."""
+        cases = [
+            {
+                COL_OUTCOME: OUTCOME_NO_COLONY,
+                COL_BREEDING_TYPE: BREEDING_TYPE_SIMPLE,
+                COL_COMPLEX_TYPES: "",
+                COL_HATCH_DATE: "2024-05-15",
+            },
+            {
+                COL_OUTCOME: OUTCOME_NO_TRBL,
+                COL_BREEDING_TYPE: BREEDING_TYPE_SIMPLE,
+                COL_COMPLEX_TYPES: "",
+                COL_HATCH_DATE: "2024-05-15",
+            },
+        ]
+
+        for row in cases:
+            with self.subTest(row=row):
+                result = self.metric.calculate_row(row, self.hatch_date, self.site_name)
+                self.assert_zero_ari_metrics(result)
+
+        mock_bounds.assert_not_called()
+        mock_totals.assert_not_called()
+        mock_detections.assert_not_called()
+
+
     @patch("acoustic_ratios.get_raw_validated_detections")
     @patch("acoustic_ratios.get_recording_days_count")
     @patch("acoustic_ratios.get_total_recordings")
     @patch("acoustic_ratios.get_site_recording_bounds")
-    def test_invalid_breeding_types_calculate_diagnostics_but_not_numeric_ari(
+    def test_standard_outcomes_with_hatch_date_do_not_suppress_metric_calculation(
         self,
         mock_bounds,
         mock_totals,
         mock_days_count,
         mock_detections,
     ) -> None:
-        """Invalid breeding types should keep call metrics but suppress numeric ARI."""
+        """Standard manual outcomes should not prevent ARI metric calculation."""
         mock_bounds.return_value = (date(2024, 5, 1), date(2024, 5, 30))
         mock_totals.return_value = 100
         mock_days_count.return_value = 10
@@ -491,14 +592,100 @@ class TestAcousticReproductiveIndex(unittest.TestCase):
 
         mock_detections.side_effect = side_effect_detections
 
-        rows = [
-            ({"Breeding Type": "Unknown"}, "Unknown"),
-            ({"Breeding Type": "Complex"}, "Complex"),
-            ({"Breeding Type": "Simple", "Complex Types": "Asynchronous"}, "Asynchronous"),
-            ({"Breeding Type": "Asynchronous"}, "Asynchronous"),
+        for outcome in [
+            OUTCOME_ABANDONED,
+            OUTCOME_PARTIALLY_ABANDONED,
+            OUTCOME_SUCCESSFUL,
+            OUTCOME_UNKNOWN,
+        ]:
+            with self.subTest(outcome=outcome):
+                result = self.metric.calculate_row(
+                    {
+                        COL_OUTCOME: outcome,
+                        COL_BREEDING_TYPE: BREEDING_TYPE_SIMPLE,
+                        COL_COMPLEX_TYPES: "",
+                    },
+                    self.hatch_date,
+                    self.site_name,
+                )
+
+                self.assertEqual(result[COL_ARI_WINDOW_FEMALE_START], "2024-05-06")
+                self.assertEqual(result[COL_ARI_WINDOW_FEMALE_END], "2024-05-12")
+                self.assertEqual(result[COL_ARI_WINDOW_NESTLING_START], "2024-05-20")
+                self.assertEqual(result[COL_ARI_WINDOW_NESTLING_END], "2024-05-26")
+
+                self.assertEqual(result[COL_INCUBATION_DAYS], 7)
+                self.assertEqual(result[COL_NESTLING_DAYS], 7)
+                self.assertEqual(result[COL_FEMALE_DETECTION_RECORDINGS], 7)
+                self.assertEqual(result[COL_NESTLING_DETECTION_RECORDINGS], 5)
+                self.assertEqual(result[COL_ARI], 0.714)
+                
+
+    def test_missing_hatch_date_returns_missing_dates_status(self) -> None:
+        result = self.metric.calculate_row({COL_BREEDING_TYPE: "Simple"}, None, self.site_name)
+
+        self.assertEqual(result[COL_ARI], "")
+        self.assertEqual(result[COL_ARI_STATUS], ARI_STATUS_NHD)
+        self.assertIn("No valid hatch date", result[COL_COMMENT])
+
+
+    @patch("acoustic_ratios.get_raw_validated_detections")
+    @patch("acoustic_ratios.get_recording_days_count")
+    @patch("acoustic_ratios.get_total_recordings")
+    @patch("acoustic_ratios.get_site_recording_bounds")
+    def test_non_simple_breeding_types_with_hatch_date_calculate_metrics_but_not_numeric_ari(
+        self,
+        mock_bounds,
+        mock_totals,
+        mock_days_count,
+        mock_detections,
+    ) -> None:
+        """Non-simple breeding types calculate diagnostics but suppress numeric ARI."""
+        mock_bounds.return_value = (date(2024, 5, 1), date(2024, 5, 30))
+        mock_totals.return_value = 100
+        mock_days_count.return_value = 10
+
+        def side_effect_detections(site, call_type):
+            if call_type == "Female":
+                return self.female_df(list(range(10)))
+            if call_type == "Nestling":
+                return self.nestling_df(list(range(5)))
+            return pd.DataFrame()
+
+        mock_detections.side_effect = side_effect_detections
+
+        cases = [
+            (
+                {
+                    COL_BREEDING_TYPE: BREEDING_TYPE_ADDITIONS,
+                    COL_COMPLEX_TYPES: "",
+                },
+                BREEDING_TYPE_ADDITIONS,
+            ),
+            (
+                {
+                    COL_BREEDING_TYPE: BREEDING_TYPE_ASYNCHRONOUS,
+                    COL_COMPLEX_TYPES: "",
+                },
+                BREEDING_TYPE_ASYNCHRONOUS,
+            ),
+            (
+                {
+                    COL_BREEDING_TYPE: BREEDING_TYPE_COMPLEX,
+                    COL_COMPLEX_TYPES: "Asynchronous, Sequential",
+                },
+                BREEDING_TYPE_COMPLEX,
+            ),
+            (
+                {
+                    COL_BREEDING_TYPE: BREEDING_TYPE_UNKNOWN,
+                    COL_COMPLEX_TYPES: "",
+                },
+                BREEDING_TYPE_UNKNOWN,
+            ),
         ]
 
-        for row, expected_comment in rows:
+        for row, expected_comment in cases:
             with self.subTest(row=row):
                 result = self.metric.calculate_row(row, self.hatch_date, self.site_name)
 
@@ -506,30 +693,31 @@ class TestAcousticReproductiveIndex(unittest.TestCase):
                 self.assertEqual(result[COL_ARI_STATUS], ARI_STATUS_INVALID_BREEDING_TYPE)
                 self.assertIn(expected_comment, result[COL_COMMENT])
 
-                # These should still be populated even though numeric ARI is suppressed.
+                self.assertEqual(result[COL_ARI_WINDOW_FEMALE_START], "2024-05-06")
+                self.assertEqual(result[COL_ARI_WINDOW_FEMALE_END], "2024-05-12")
+                self.assertEqual(result[COL_ARI_WINDOW_NESTLING_START], "2024-05-20")
+                self.assertEqual(result[COL_ARI_WINDOW_NESTLING_END], "2024-05-26")
+
                 self.assertEqual(result[COL_INCUBATION_DAYS], 7)
                 self.assertEqual(result[COL_NESTLING_DAYS], 7)
+
                 self.assertEqual(result[COL_FEMALE_DETECTION_RECORDINGS], 7)
                 self.assertEqual(result[COL_FEMALE_DETECTION_RATE], 0.07)
+
                 self.assertEqual(result[COL_NESTLING_DETECTION_RECORDINGS], 5)
                 self.assertEqual(result[COL_NESTLING_DETECTION_RATE], 0.05)
 
-    def test_missing_hatch_date_returns_missing_dates_status(self) -> None:
-        result = self.metric.calculate_row({"Breeding Type": "Simple"}, None, self.site_name)
-
-        self.assertEqual(result[COL_ARI], "")
-        self.assertEqual(result[COL_ARI_STATUS], ARI_STATUS_NHD)
-        self.assertIn("No valid hatch date", result[COL_COMMENT])
 
     @patch("acoustic_ratios.get_site_recording_bounds")
     def test_missing_deployment_logs_returns_missing_dates_status(self, mock_bounds) -> None:
         mock_bounds.return_value = (None, None)
 
-        result = self.metric.calculate_row({"Breeding Type": "Simple"}, self.hatch_date, self.site_name)
+        result = self.metric.calculate_row({COL_BREEDING_TYPE: "Simple"}, self.hatch_date, self.site_name)
 
         self.assertEqual(result[COL_ARI], "")
         self.assertEqual(result[COL_ARI_STATUS], ARI_STATUS_MISSING_DATES)
         self.assertIn("No recording deployment logs found in parquet", result[COL_COMMENT])
+
 
     @patch("acoustic_ratios.get_raw_validated_detections")
     @patch("acoustic_ratios.get_recording_days_count")
@@ -567,6 +755,7 @@ class TestAcousticReproductiveIndex(unittest.TestCase):
         self.assertEqual(result[COL_ARI], "")
         self.assertEqual(result[COL_ARI_STATUS], ARI_STATUS_INSUFFICIENT_DAYS)
         self.assertIn("Incubation days less than 4", result[COL_COMMENT])
+
 
     @patch("acoustic_ratios.get_raw_validated_detections")
     @patch("acoustic_ratios.get_recording_days_count")
@@ -625,7 +814,7 @@ class TestAcousticReproductiveIndex(unittest.TestCase):
         mock_detections.side_effect = side_effect_detections
 
         result = self.metric.calculate_row(
-            {"Breeding Type": "Complex"},
+            {COL_BREEDING_TYPE: "Complex"},
             self.hatch_date,
             self.site_name,
         )
@@ -1095,6 +1284,13 @@ class TestDailyDetectionDiagnostics(unittest.TestCase):
 
 
 class TestPublicationOutputSchema(unittest.TestCase):
+    def test_outcome_constants_match_expected_values(self) -> None:
+        self.assertEqual(OUTCOME_ABANDONED, "Abandoned")
+        self.assertEqual(OUTCOME_PARTIALLY_ABANDONED, "Partially Abandoned")
+        self.assertEqual(OUTCOME_SUCCESSFUL, "Successful")
+        self.assertEqual(OUTCOME_UNKNOWN, "Unknown")
+
+
     def test_publication_columns_exclude_diagnostics_and_source_audit_fields(self) -> None:
         forbidden_columns = {
             "Calculated_Outcome",
@@ -1119,26 +1315,49 @@ class TestPublicationOutputSchema(unittest.TestCase):
 
         self.assertTrue(forbidden_columns.isdisjoint(set(PUBLICATION_COLUMNS)))
     
-    def test_publication_columns_include_required_metric_fields(self) -> None:
-        required_columns = {
-            COL_SITE_ID,
-            COL_SITE_NAME,
-            COL_PULSE_NAME,
-            COL_OUTCOME,
-            COL_ARI_STATUS,
-            COL_ARI_CLASS,
-            COL_ARI_CLASS_THRESHOLD,
-            COL_ARI_FEMALE_DENOMINATOR_CONFIDENCE,
-            COL_BREEDING_TYPE,
-            COL_HATCH_DATE,
-            COL_APPROX_COLONY_SIZE,
-            COL_ARI,
-            COL_FEMALE_DETECTION_RECORDINGS,
-            COL_NESTLING_DETECTION_RECORDINGS,
-            COL_FLEDGLING_DETECTION_RECORDINGS,
-        }
+        
+    def test_publication_columns_match_expected_schema(self) -> None:
+        expected_columns = [
+            "Site_ID",
+            "Site_Name",
+            "Pulse_Name",
+            "Outcome",
+            "ARI_Status",
+            "ARI_Class",
+            "ARI_Class_Threshold",
+            "ARI_Female_Denominator_Confidence",
+            "Breeding_Type",
+            "Complex_Types",
+            "Hatch_Date",
+            "Substrate",
+            "Colony_Size",
+            "Deployment_Start",
+            "Deployment_End",
+            "ARI_Window_Female_Start",
+            "ARI_Window_Female_End",
+            "Incubation_Days",
+            "ARI_Total_Female_Recordings",
+            "Female_Detection_Recordings",
+            "Female_Detection_Rate",
+            "ARI_Window_Nestling_Start",
+            "ARI_Window_Nestling_End",
+            "Nestling_Days",
+            "ARI_Total_Nestling_Recordings",
+            "Nestling_Detection_Recordings",
+            "Nestling_Detection_Rate",
+            "ARI",
+            "Fledgling_Window_Start",
+            "Fledgling_Window_End",
+            "Fledgling_Days",
+            "Fledgling_Total_Recordings",
+            "Fledgling_Detection_Recordings",
+            "Fledgling_Detection_Rate",
+            "Fledglings_Present",
+            "Latest_Fledgling_Rec",
+        ]
 
-        self.assertTrue(required_columns.issubset(set(PUBLICATION_COLUMNS)))
+
+        self.assertEqual(PUBLICATION_COLUMNS, expected_columns)
 
 
 if __name__ == "__main__":

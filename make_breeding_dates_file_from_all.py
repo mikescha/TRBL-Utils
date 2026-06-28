@@ -6,13 +6,39 @@ from collections import Counter
 from datetime import date, datetime
 from pathlib import Path
 
+from constants import (
+    COL_ABANDON_DATE,
+    COL_APPROX_COLONY_SIZE,
+    COL_BREEDING_TYPE,
+    COL_COLONY_SIZE,
+    COL_COMMENT,
+    COL_COMPLEX_TYPES,
+    COL_DEPLOYMENT_END,
+    COL_DEPLOYMENT_START,
+    COL_GROUP,
+    COL_HATCH_DATE,
+    COL_OUTCOME,
+    COL_PARTIAL_ABANDON_DATE,
+    COL_PULSE_NAME,
+    COL_SITE_ID,
+    COL_SITE_NAME,
+    COL_SUBSTRATE,
+    OUTCOME_ABANDONED,
+    OUTCOME_NO_COLONY,
+    OUTCOME_NO_TRBL,
+    OUTCOME_PARTIALLY_ABANDONED,
+    OUTCOME_SUCCESSFUL,
+    OUTCOME_UNKNOWN,
+    STATUS_ND,
+)
+
 # ==============================================================================
 # CONFIGURATION CONSTANTS (Edit these directly for your VS Code workflow)
 # ==============================================================================
 INPUT_CSV = Path(
     r"C:\Users\mikes\OneDrive\Documents\GitHub\TRBLSummarizer\TRBLSummarizer\Data\TRBL Analysis tracking - All.csv"
 )
-OUTPUT_CSV = Path("breeding dates.csv")
+OUTPUT_CSV = Path("breeding_dates.csv")
 REVIEW_CSV = Path("breeding_dates_review.csv")
 ISSUES_CSV = Path("breeding_dates_source_issues.csv")
 SUMMARY_TXT = Path("results.txt")
@@ -27,10 +53,11 @@ OUTPUT_DATE_FIELDS = ("mcstart", "incstart", "hatch", "fledgestart", "fledgedisp
 VALIDATE_DATE_FIELDS = ("mcstart", "mcend", "incstart", "hatch", "fledgestart", "fledgedisp", "abandon")
 NO_COLONY_PROHIBITED_DATE_FIELDS = ("incstart", "hatch", "fledgestart", "fledgedisp", "abandon")
 
-NO_OUTCOME_VALUES = {"", "n/a", "na"}
-MISSING_DATE_VALUES = {"", "nd", "n/a", "na"}
-KNOWN_OUTCOMES = {"successful", "partially abandoned", "abandoned", "unknown", "no colony", "no trbl"}
-NO_DATE_OK_OUTCOMES = {"no colony", "no trbl"}
+NO_OUTCOME_VALUES = {"n/a"}
+MISSING_DATE_VALUES = {STATUS_ND}
+KNOWN_OUTCOMES = {OUTCOME_SUCCESSFUL, OUTCOME_PARTIALLY_ABANDONED, OUTCOME_ABANDONED, 
+                  OUTCOME_UNKNOWN, OUTCOME_NO_COLONY, OUTCOME_NO_TRBL}
+NO_DATE_OK_OUTCOMES = {OUTCOME_NO_COLONY, OUTCOME_NO_TRBL}
 
 REVIEW_OK = "OK"
 REVIEW_NEEDED = "REVIEW"
@@ -44,21 +71,23 @@ EXCEL_DATE_CORRUPTION_RE = re.compile(r"\d{2,4}[-/]\d{1,2}[-/]\d{2,4}")
 # Regex patterns for parsing Colony Size numbers and ranges (applied after commas are stripped)
 INT_RE = re.compile(r"^\d+$")
 RANGE_RE = re.compile(r"^(\d+)\s*[-–—]\s*(\d+)$")  # Handles hyphen, en-dash, em-dash
-COLONY_SIZE_PASSTHROUGH = {"", "need", "nd", "no colony", "unknown"}
-
+COLONY_SIZE_PASSTHROUGH = {"NEED", STATUS_ND, OUTCOME_NO_COLONY, OUTCOME_UNKNOWN}
+#Fields for final breeding_dates file
 OUTPUT_FIELDS = [
-    "Site ID", "Group", "Name", "Pretty Name", "Comment", "Deployment Start", "Deployment End",
-    "Breeding Type", "Complex Types", "Pulse Name", "Outcome", "Substrate", 
-    "Approx Colony Size", "Colony Size",  
-    "mcstart", "incstart", "hatch", "fledgestart", "fledgedisp", "abandon", "partial abandon",
-    "Source Row", "Review Status", "Review Notes"
+    COL_SITE_ID, COL_GROUP, COL_SITE_NAME, COL_PULSE_NAME, COL_DEPLOYMENT_START, 
+    COL_DEPLOYMENT_END, COL_BREEDING_TYPE, COL_COMPLEX_TYPES, COL_OUTCOME, COL_SUBSTRATE, 
+    COL_APPROX_COLONY_SIZE, COL_COLONY_SIZE,  
+    "mcstart", "incstart", COL_HATCH_DATE, "fledgestart", "fledgedisp", COL_ABANDON_DATE, COL_PARTIAL_ABANDON_DATE,
+    COL_COMMENT,
+    "Source Row", "Review Status", "Review Notes", 
 ]
-
+#Only for diagnostics
 ISSUE_FIELDS = [
-    "Source Row", "Site ID", "Name", "Pulse", "Column", "Issue Type", "Severity", 
+    "Source Row", COL_SITE_ID, COL_SITE_NAME, "Pulse", "Column", "Issue Type", "Severity", 
     "Value", "Suggested Value", "Message", "Skip Site", "Included In Main Output"
 ]
 
+#Required in All file, after this they will be mapped to constants so don't need to make constants here
 REQUIRED_COLUMNS = {
     "Site ID", "Name", "First Recording", "Last Recording", "Breeding Type", 
     "Complex Types", "Approx Colony Size", "Substrate", "Group", "Pretty Site Name", 
@@ -70,14 +99,10 @@ REQUIRED_COLUMNS.update(f"{pulse}{field}" for pulse in PULSES for field in VALID
 # ==============================================================================
 # HELPER FUNCTIONS
 # ==============================================================================
+
 def clean(value: object) -> str:
     """Return a stripped string, treating None as blank."""
     return "" if value is None else str(value).strip()
-
-
-def normalized(value: object) -> str:
-    """Return a stripped, case-normalized string for comparisons."""
-    return clean(value).casefold()
 
 
 def is_ai_placeholder(value: object) -> bool:
@@ -98,7 +123,7 @@ def cleaned_output_value(value: object) -> str:
 
 
 def has_real_outcome(value: object) -> bool:
-    return normalized(value) not in NO_OUTCOME_VALUES
+    return clean(value) not in NO_OUTCOME_VALUES
 
 
 def field_has_value(row: dict[str, str], pulse: str, field: str) -> bool:
@@ -121,8 +146,8 @@ def make_issue(
     """Create a normalized source-issue row."""
     return {
         "Source Row": str(row_num),
-        "Site ID": clean(row.get("Site ID")),
-        "Name": clean(row.get("Name")),
+        COL_SITE_ID: clean(row.get("Site ID")),
+        COL_SITE_NAME: clean(row.get("Name")),
         "Pulse": pulse,
         "Column": column,
         "Issue Type": issue_type,
@@ -139,18 +164,20 @@ def make_issue(
 # ==============================================================================
 def parse_date_token(value: object, field: str) -> tuple[str, date | None, bool]:
     text = clean(value)
-    low = normalized(text)
 
     if is_ai_placeholder(text):
         return "invalid_formula_placeholder", None, False
-    if low in MISSING_DATE_VALUES:
+    if text in MISSING_DATE_VALUES:
         return "missing", None, False
-    if low.startswith("before"):
+    if text.startswith("before"):
         return ("valid", None, False) if field == "hatch" else ("invalid_before_non_hatch", None, False)
-    if low in {"inf", "missed"}:
+    if text in {"inf", "missed"}:
         return "valid", None, False
-    if low == "continuous":
-        return ("valid", None, False) if field in {"fledgestart", "fledgedisp"} else ("invalid_continuous_field", None, False)
+    if text == "Continuous":
+        if field in {"fledgestart", "fledgedisp"}:
+            return ("valid", None, False) 
+        else:
+            return ("invalid_continuous_field", None, False)
 
     match = DATE_RE.match(text)
     if not match:
@@ -169,13 +196,17 @@ def parse_date_token(value: object, field: str) -> tuple[str, date | None, bool]
 
 
 def split_partial_abandon(row: dict[str, str], pulse: str, outcome: str) -> tuple[str, str]:
+    #First return is Abandon date, second is Partial Abandon date
     raw_abandon = cleaned_output_value(row.get(f"{pulse}abandon", ""))
-    if normalized(outcome) != "partially abandoned" or not raw_abandon or normalized(raw_abandon) in MISSING_DATE_VALUES:
-        return (raw_abandon, "ND") if normalized(outcome) != "partially abandoned" else ("ND", "ND")
+    if (clean(outcome) != OUTCOME_PARTIALLY_ABANDONED or 
+        not raw_abandon or 
+        clean(raw_abandon) in MISSING_DATE_VALUES):
+        return (raw_abandon, STATUS_ND) if clean(outcome) != OUTCOME_PARTIALLY_ABANDONED else (STATUS_ND, STATUS_ND)
     
     if raw_abandon.endswith(("P", "p")):
-        return "ND", raw_abandon[:-1]
-    return "ND", raw_abandon
+        return STATUS_ND, raw_abandon[:-1]
+    
+    return STATUS_ND, raw_abandon
 
 
 def parse_colony_size_metric(val: str) -> tuple[str, str | None]:
@@ -184,8 +215,8 @@ def parse_colony_size_metric(val: str) -> tuple[str, str | None]:
     Strips out visual comma separators before validation logic executes.
     Returns a tuple: (calculated_value_string, error_message_or_None)
     """
-    norm = normalized(val)
-    if norm in COLONY_SIZE_PASSTHROUGH:
+    cleaned = clean(val)
+    if cleaned in COLONY_SIZE_PASSTHROUGH:
         return val, None
     
     # Strip thousands separators so numbers like 10,000 become 10000
@@ -200,6 +231,7 @@ def parse_colony_size_metric(val: str) -> tuple[str, str | None]:
         return str(midpoint), None
         
     return "error", f"Approx Colony Size '{val}' could not be parsed into a number, range, or accepted keyword."
+
 
 # ==============================================================================
 # VALIDATION ENGINES
@@ -217,7 +249,11 @@ def validate_deployment_dates(row: dict[str, str], row_num: int) -> list[dict[st
                 value=row.get(column, ""), message=f"{column} has an invalid date value."
             ))
 
-    if "First Recording" in parsed and "Last Recording" in parsed and parsed["First Recording"] > parsed["Last Recording"]:
+    if (
+        "First Recording" in parsed and 
+        "Last Recording" in parsed and 
+        parsed["First Recording"] > parsed["Last Recording"]
+        ):
         issues.append(make_issue(
             row_num=row_num, row=row, pulse="", column="First Recording / Last Recording",
             issue_type="deployment_date_order_error", severity="ERROR",
@@ -230,7 +266,6 @@ def validate_deployment_dates(row: dict[str, str], row_num: int) -> list[dict[st
 def validate_pulse(row: dict[str, str], pulse: str, row_num: int) -> list[dict[str, str]]:
     issues = []
     source_outcome = clean(row.get(f"{pulse}Outcome", ""))
-    source_outcome_norm = normalized(source_outcome)
     has_outcome = has_real_outcome(source_outcome)
     has_exported_dates = has_any_exported_date_value(row, pulse)
     has_validated_dates = has_any_validated_date_value(row, pulse)
@@ -244,13 +279,16 @@ def validate_pulse(row: dict[str, str], pulse: str, row_num: int) -> list[dict[s
         if status == "valid" and parsed_date is not None:
             parsed_dates[field] = parsed_date
         elif status.startswith("invalid"):
-            msg = f"{column} contains an AI/formula placeholder. Delete it." if status == "invalid_formula_placeholder" else f"{column} has invalid value type: {status}."
+            if status == "invalid_formula_placeholder":
+                msg = f"{column} contains an AI/formula placeholder. Delete it."
+            else:
+                msg = f"{column} has invalid value type: {status}."
             issues.append(make_issue(
                 row_num=row_num, row=row, pulse=pulse, column=column,
                 issue_type="invalid_date_value", severity="ERROR", value=value, message=msg
             ))
 
-    if source_outcome_norm and source_outcome_norm not in KNOWN_OUTCOMES:
+    if source_outcome and source_outcome not in KNOWN_OUTCOMES:
         issues.append(make_issue(
             row_num=row_num, row=row, pulse=pulse, column=f"{pulse}Outcome",
             issue_type="invalid_outcome_value", severity="ERROR", value=source_outcome,
@@ -264,21 +302,21 @@ def validate_pulse(row: dict[str, str], pulse: str, row_num: int) -> list[dict[s
             message=f"{pulse} has exported pulse date fields but {pulse}Outcome is blank or n/a."
         ))
 
-    if has_outcome and not has_exported_dates and source_outcome_norm not in NO_DATE_OK_OUTCOMES:
+    if has_outcome and not has_exported_dates and source_outcome not in NO_DATE_OK_OUTCOMES:
         issues.append(make_issue(
             row_num=row_num, row=row, pulse=pulse, column=f"{pulse}Outcome",
             issue_type="outcome_without_dates", severity="REVIEW", value=source_outcome,
             message=f"{pulse}Outcome is '{source_outcome}', but all exported date fields are blank or ND."
         ))
 
-    if source_outcome_norm == "no trbl" and has_validated_dates:
+    if source_outcome == OUTCOME_NO_TRBL and has_validated_dates:
         issues.append(make_issue(
             row_num=row_num, row=row, pulse=pulse, column=f"{pulse}Outcome",
             issue_type="no_trbl_with_dates", severity="ERROR", value=source_outcome,
             message="Outcome is No TRBL, but one or more pulse date fields has a value."
         ))
 
-    if source_outcome_norm == "no colony":
+    if source_outcome == OUTCOME_NO_COLONY:
         for field in NO_COLONY_PROHIBITED_DATE_FIELDS:
             if field_has_value(row, pulse, field):
                 issues.append(make_issue(
@@ -291,28 +329,28 @@ def validate_pulse(row: dict[str, str], pulse: str, row_num: int) -> list[dict[s
     abandon_has_value = field_has_value(row, pulse, "abandon")
     abandon_has_p_suffix = raw_abandon.endswith(("P", "p"))
 
-    if source_outcome_norm == "partially abandoned" and not abandon_has_p_suffix:
+    if source_outcome == OUTCOME_PARTIALLY_ABANDONED and not abandon_has_p_suffix:
         issues.append(make_issue(
             row_num=row_num, row=row, pulse=pulse, column=f"{pulse}abandon",
             issue_type="partial_outcome_missing_p_suffix", severity="REVIEW", value=raw_abandon,
             message="Outcome is Partially Abandoned, but abandon date does not end with P/p."
         ))
 
-    if abandon_has_p_suffix and source_outcome_norm != "partially abandoned":
+    if abandon_has_p_suffix and source_outcome != OUTCOME_PARTIALLY_ABANDONED:
         issues.append(make_issue(
             row_num=row_num, row=row, pulse=pulse, column=f"{pulse}abandon",
             issue_type="p_suffix_without_partial_outcome", severity="REVIEW", value=raw_abandon,
             message="Abandon date ends with P/p, but outcome is not Partially Abandoned."
         ))
 
-    if source_outcome_norm == "abandoned" and not abandon_has_value:
+    if source_outcome == OUTCOME_ABANDONED and not abandon_has_value:
         issues.append(make_issue(
             row_num=row_num, row=row, pulse=pulse, column=f"{pulse}abandon",
             issue_type="abandoned_outcome_missing_abandon_date", severity="REVIEW", value=raw_abandon,
             message="Outcome is Abandoned, but abandon date is blank or ND."
         ))
 
-    if source_outcome_norm == "successful" and abandon_has_value:
+    if source_outcome == OUTCOME_SUCCESSFUL and abandon_has_value:
         issues.append(make_issue(
             row_num=row_num, row=row, pulse=pulse, column=f"{pulse}abandon",
             issue_type="successful_outcome_with_abandon_date", severity="REVIEW", value=raw_abandon,
@@ -320,7 +358,7 @@ def validate_pulse(row: dict[str, str], pulse: str, row_num: int) -> list[dict[s
         ))
 
     ordered_fields = ["mcstart", "incstart", "hatch", "fledgestart", "fledgedisp"]
-    for earlier, later in zip(ordered_fields, ordered_fields[1:]):
+    for earlier, later in zip(ordered_fields, ordered_fields[1:], strict=False):
         if earlier in parsed_dates and later in parsed_dates and parsed_dates[earlier] > parsed_dates[later]:
             issues.append(make_issue(
                 row_num=row_num, row=row, pulse=pulse, column=f"{pulse}{later}",
@@ -340,19 +378,21 @@ def validate_pulse(row: dict[str, str], pulse: str, row_num: int) -> list[dict[s
                 ))
     return issues
 
+
 # ==============================================================================
 # CSV WRITERS & MAIN EXECUTION
 # ==============================================================================
 def write_summary(output_rows: list[dict[str, str]], source_issues: list[dict[str, str]]) -> None:
-    outcome_counts = Counter(row["Outcome"] for row in output_rows)
-    breeding_type_counts = Counter(row["Breeding Type"] for row in output_rows)
+    outcome_counts = Counter(row[COL_OUTCOME] for row in output_rows)
+    breeding_type_counts = Counter(row[COL_BREEDING_TYPE] for row in output_rows)
     review_status_counts = Counter(row["Review Status"] for row in output_rows)
     issue_type_counts = Counter(issue["Issue Type"] for issue in source_issues)
     issue_severity_counts = Counter(issue["Severity"] for issue in source_issues)
 
     with SUMMARY_TXT.open("w", encoding="utf-8") as s:
         s.write("Breeding Dates Extraction Summary\n=================================\n\n")
-        s.write(f"Output rows: {len(output_rows)}\nOutput rows needing review: {review_status_counts[REVIEW_NEEDED]}\nSource issues: {len(source_issues)}\n\n")
+        s.write(f"Output rows: {len(output_rows)}\nOutput rows needing review: "\
+                f"{review_status_counts[REVIEW_NEEDED]}\nSource issues: {len(source_issues)}\n\n")
         
         s.write("Output Review Status Counts\n---------------------------\n")
         for k, v in review_status_counts.most_common(): 
@@ -384,17 +424,17 @@ def make_breeding_dates_file() -> None:
             raise ValueError(f"Input file is missing required columns: {', '.join(missing_columns)}")
 
         for r_num, values in enumerate(reader, start=HEADER_ROWS_TO_SKIP + 2):
-            source_rows.append((r_num, {h: v for h, v in zip(headers, values)}))
+            source_rows.append((r_num, {h: v for h, v in zip(headers, values, strict=True)}))
 
     # 2. Extract, Validate, and Transform
     output_rows, source_issues = [], []
 
     for row_num, row in source_rows:
-        skip_site_norm = normalized(row.get("Skip Site"))
-        if skip_site_norm == "y":
+        skip_site = clean(row.get("Skip Site"))
+        if skip_site == "Y":
             continue
 
-        if skip_site_norm not in {"", "dupe"}:
+        if skip_site not in {"", "Dupe"}:
             source_issues.append(make_issue(
                 row_num=row_num, row=row, pulse="", column="Skip Site",
                 issue_type="invalid_skip_site_value", severity="ERROR",
@@ -409,12 +449,12 @@ def make_breeding_dates_file() -> None:
             source_issues.append(make_issue(
                 row_num=row_num, row=row, pulse="", column="Approx Colony Size",
                 issue_type="corrupted_colony_size_date", severity="ERROR",
-                value=colony_size_raw, message="Approx Colony Size was corrupted into a date string by Excel. Fix the source row data."
+                value=colony_size_raw, message="Approx Colony Size was corrupted. Fix the source row data."
             ))
 
         for pulse in PULSES:
             pulse_issues = validate_pulse(row, pulse, row_num)
-
+            
             source_outcome = clean(row.get(f"{pulse}Outcome", ""))
             has_outcome = has_real_outcome(source_outcome)
             has_exported_dates = has_any_exported_date_value(row, pulse)
@@ -443,29 +483,28 @@ def make_breeding_dates_file() -> None:
 
             # Map the flat row out to long form pulse output
             out_row = {
-                "Site ID": clean(row.get("Site ID")),
-                "Group": clean(row.get("Group")),
-                "Name": clean(row.get("Name")),
-                "Pretty Name": clean(row.get("Pretty Site Name")),
-                "Comment": clean(row.get("Comment for Skip Site")),
-                "Deployment Start": clean(row.get("First Recording")),
-                "Deployment End": clean(row.get("Last Recording")),
-                "Breeding Type": clean(row.get("Breeding Type")),
-                "Complex Types": clean(row.get("Complex Types")),
-                "Pulse Name": f"{clean(row.get('Pretty Site Name'))} {pulse}",
-                "Outcome": output_outcome,
-                "Substrate": clean(row.get("Substrate")),
-                "Approx Colony Size": colony_size_raw,       
-                "Colony Size": colony_size_metric,          
+                COL_SITE_ID: clean(row.get("Site ID")),
+                COL_GROUP: clean(row.get("Group")),
+                COL_SITE_NAME: clean(row.get("Name")),
+                COL_PULSE_NAME: f"{clean(row.get('Pretty Site Name'))} {pulse}",
+                COL_DEPLOYMENT_START: clean(row.get("First Recording")),
+                COL_DEPLOYMENT_END: clean(row.get("Last Recording")),
+                COL_BREEDING_TYPE: clean(row.get("Breeding Type")),
+                COL_COMPLEX_TYPES: clean(row.get("Complex Types")),
+                COL_OUTCOME: output_outcome,
+                COL_SUBSTRATE: clean(row.get("Substrate")),
+                COL_APPROX_COLONY_SIZE: colony_size_raw,       
+                COL_COLONY_SIZE: colony_size_metric,          
+                COL_COMMENT: clean(row.get("Comment for Skip Site")),
             }
 
             for field in OUTPUT_DATE_FIELDS:
                 val = cleaned_output_value(row.get(f"{pulse}{field}", ""))
                 if field == "hatch":
-                    out_row[field] = "inf" if normalized(val).startswith("before") else val
+                    out_row[COL_HATCH_DATE] = "inf" if val.startswith("before") else val
                 elif field == "abandon":
                     abandon, partial_abandon = split_partial_abandon(row, pulse, output_outcome)
-                    out_row["abandon"], out_row["partial abandon"] = abandon, partial_abandon
+                    out_row[COL_ABANDON_DATE], out_row[COL_PARTIAL_ABANDON_DATE] = abandon, partial_abandon
                 else:
                     out_row[field] = val
 

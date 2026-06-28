@@ -339,8 +339,6 @@ Source Row,Site_ID,Site_Name,Pulse,Column,Issue Type,Severity,Value,Suggested Va
 132,48465,2023 Laguna Fry Confluence - Site 1,p2,p2Outcome,invalid_outcome_value,ERROR,n/a,n/a,p2Outcome has an unexpected outcome value.,,No
 132,48465,2023 Laguna Fry Confluence - Site 1,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,,No
 132,48465,2023 Laguna Fry Confluence - Site 1,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
-133,48747,2023 Weagell Property 1,p1,p1fledgedisp,invalid_date_value,ERROR,continuous,continuous,p1fledgedisp has invalid value type: invalid_characters.,,Yes
-133,48747,2023 Weagell Property 1,p2,p2fledgestart,invalid_date_value,ERROR,continuous,continuous,p2fledgestart has invalid value type: invalid_characters.,,Yes
 133,48747,2023 Weagell Property 1,p2,p2incstart,date_order_error,REVIEW,5/16/2023 > 5/12/2023,5/16/2023 > 5/12/2023,p2mcstart is after p2incstart.,,Yes
 133,48747,2023 Weagell Property 1,p4,p4Outcome,invalid_outcome_value,ERROR,n/a,n/a,p4Outcome has an unexpected outcome value.,,No
 134,48458,2023 Weagell Property 2,p3,p3Outcome,invalid_outcome_value,ERROR,n/a,n/a,p3Outcome has an unexpected outcome value.,Dupe,No
