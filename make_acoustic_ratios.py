@@ -30,6 +30,7 @@ from constants import (
     OUTCOME_SUCCESSFUL,
     PMJ_DIR,
     STATUS_ND,
+    format_date_for_output,
 )
 
 # ==============================================================================
@@ -307,63 +308,6 @@ def inclusive_day_span(start_date: date, end_date: date) -> int:
     if end_date < start_date:
         return 0
     return (end_date - start_date).days + 1
-
-
-def format_date_for_output(value: date | None, missing: str = STATUS_ND) -> str:
-    """Formats date values consistently for CSV output."""
-    if isinstance(value, date):
-        return value.isoformat()
-    return missing
-
-
-def normalize_output_date_columns(df: pd.DataFrame, date_columns: list[str]) -> pd.DataFrame:
-    """Normalizes selected date-like output columns to YYYY-MM-DD.
-
-    Non-date status values such as NHD, ND, inf, missed, and blanks are preserved.
-    Leading ~ markers are preserved while the date itself is normalized.
-    """
-    normalized = df.copy()
-
-    preserve_values = {
-        "",
-        "ND",
-        "NHD",
-        "inf",
-        "missed",
-        "n/a",
-        "na",
-        "nan",
-        "None",
-    }
-
-    for col in date_columns:
-        if col not in normalized.columns:
-            continue
-
-        def normalize_one(value: Any) -> Any:
-            if pd.isna(value):
-                return value
-
-            if isinstance(value, date):
-                return value.isoformat()
-
-            text = str(value).strip()
-            has_tilde = text.startswith("~")
-            cleaned = text.removeprefix("~").strip()
-
-            if cleaned in preserve_values:
-                return f"~{cleaned}" if has_tilde else cleaned
-
-            parsed = pd.to_datetime(cleaned, errors="coerce")
-            if pd.isna(parsed):
-                return value
-
-            iso_date = parsed.date().isoformat()
-            return f"~{iso_date}" if has_tilde else iso_date
-
-        normalized[col] = normalized[col].apply(normalize_one)
-
-    return normalized
 
 
 def summarize_unique_dates(df: pd.DataFrame, date_col: str = "date", max_dates: int = 12) -> str:
@@ -1208,8 +1152,8 @@ def make_ratios() -> None:
     for metric in active_metrics:
         full_results_df = metric.post_process(full_results_df)
 
-    #Convert dates is ISO format, including retaining ~ as appropriate
-    full_results_df = normalize_output_date_columns(full_results_df, OUTPUT_DATE_COLUMNS)
+    # #Convert dates is ISO format, including retaining ~ as appropriate
+    # full_results_df = normalize_output_date_columns(full_results_df, OUTPUT_DATE_COLUMNS)
 
     print("Saving files...")
     publication_cols = [c for c in PUBLICATION_COLUMNS if c in full_results_df.columns]

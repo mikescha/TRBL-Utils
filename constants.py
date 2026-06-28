@@ -1,4 +1,8 @@
+from datetime import date
 from pathlib import Path
+from typing import Any
+
+import pandas as pd
 
 COL_SITE_ID = "Site_ID"
 COL_SITE_NAME = "Site_Name"
@@ -36,3 +40,64 @@ DATA_ROOT = Path(r"C:\Users\mikes\OneDrive\Documents\GitHub\TRBLSummarizer\TRBLS
 PMJ_DIR = DATA_ROOT / "PMJ Data"
 DATA_DIR = DATA_ROOT / "Data"
 HOURLY_PARQUET_FILES = DATA_DIR / Path("recordings_per_day_hour.parquet")
+
+
+def format_date_for_output(value: date | None, missing: str = STATUS_ND) -> str:
+    """Formats date values consistently for CSV output."""
+    if isinstance(value, date):
+        return value.isoformat()
+    return missing
+
+
+def normalize_one_date(value: Any) -> Any:
+    preserve_values = {
+        "",
+        "ND",
+        "NHD",
+        "inf",
+        "missed",
+        "n/a",
+        "na",
+        "nan",
+        "None",
+        "Continuous",
+    }
+
+    if pd.isna(value):
+        return value
+
+    if isinstance(value, date):
+        return value.isoformat()
+
+    text = str(value).strip()
+    has_tilde = text.startswith("~")
+    cleaned = text.removeprefix("~").strip()
+
+    if cleaned.startswith("before"):
+        return cleaned
+    
+    if cleaned in preserve_values:
+        return f"~{cleaned}" if has_tilde else cleaned
+
+    parsed = pd.to_datetime(cleaned, errors="coerce")
+    if pd.isna(parsed):
+        return value
+
+    iso_date = parsed.date().isoformat()
+    return f"~{iso_date}" if has_tilde else iso_date
+
+
+def normalize_output_date_columns(df: pd.DataFrame, date_columns: list[str]) -> pd.DataFrame:
+    """Normalizes selected date-like output columns to YYYY-MM-DD.
+
+    Non-date status values such as NHD, ND, inf, missed, and blanks are preserved.
+    Leading ~ markers are preserved while the date itself is normalized.
+    """
+    normalized = df.copy()
+
+    for col in date_columns:
+        if col not in normalized.columns:
+            continue
+        normalized[col] = normalized[col].apply(normalize_one_date)
+
+    return normalized

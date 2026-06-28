@@ -31,6 +31,7 @@ from constants import (
     OUTCOME_SUCCESSFUL,
     OUTCOME_UNKNOWN,
     STATUS_ND,
+    normalize_one_date,
 )
 
 # ==============================================================================
@@ -54,7 +55,7 @@ NO_COLONY_PROHIBITED_DATE_FIELDS = ("incstart", "hatch", "fledgestart", "fledged
 NO_OUTCOME_VALUES = {"n/a"}
 MISSING_DATE_VALUES = {STATUS_ND}
 KNOWN_OUTCOMES = {OUTCOME_SUCCESSFUL, OUTCOME_PARTIALLY_ABANDONED, OUTCOME_ABANDONED, 
-                  OUTCOME_UNKNOWN, OUTCOME_NO_COLONY, OUTCOME_NO_TRBL}
+                  OUTCOME_UNKNOWN, OUTCOME_NO_COLONY, OUTCOME_NO_TRBL, "n/a"}
 NO_DATE_OK_OUTCOMES = {OUTCOME_NO_COLONY, OUTCOME_NO_TRBL}
 
 REVIEW_OK = "OK"
@@ -485,8 +486,8 @@ def make_breeding_dates_file() -> None:
                 COL_GROUP: clean(row.get("Group")),
                 COL_SITE_NAME: clean(row.get("Name")),
                 COL_PULSE_NAME: f"{clean(row.get('Pretty Site Name'))} {pulse}",
-                COL_DEPLOYMENT_START: clean(row.get("First Recording")),
-                COL_DEPLOYMENT_END: clean(row.get("Last Recording")),
+                COL_DEPLOYMENT_START: normalize_one_date(clean(row.get("First Recording"))),
+                COL_DEPLOYMENT_END: normalize_one_date(clean(row.get("Last Recording"))),
                 COL_BREEDING_TYPE: clean(row.get("Breeding Type")),
                 COL_COMPLEX_TYPES: clean(row.get("Complex Types")),
                 COL_OUTCOME: output_outcome,
@@ -497,7 +498,8 @@ def make_breeding_dates_file() -> None:
             }
 
             for field in OUTPUT_DATE_FIELDS:
-                val = cleaned_output_value(row.get(f"{pulse}{field}", ""))
+                clean_val = cleaned_output_value(row.get(f"{pulse}{field}", ""))
+                val = normalize_one_date(clean_val)
                 if field == "hatch":
                     out_row[COL_HATCH_DATE] = "inf" if val.startswith("before") else val
                 elif field == "abandon":
@@ -505,7 +507,7 @@ def make_breeding_dates_file() -> None:
                     out_row[COL_ABANDON_DATE], out_row[COL_PARTIAL_ABANDON_DATE] = abandon, partial_abandon
                 else:
                     out_row[field] = val
-
+            
             out_row["Source Row"] = str(row_num)
             out_row["Review Status"] = REVIEW_NEEDED if pulse_issues else REVIEW_OK
             out_row["Review Notes"] = "; ".join(review_notes)
