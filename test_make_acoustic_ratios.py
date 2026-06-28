@@ -6,7 +6,7 @@ from unittest.mock import call, patch
 
 import pandas as pd
 
-from constants import (
+from common import (
     COL_BREEDING_TYPE,
     COL_COMMENT,
     COL_COMPLEX_TYPES,
@@ -19,6 +19,7 @@ from constants import (
     OUTCOME_SUCCESSFUL,
     OUTCOME_UNKNOWN,
     STATUS_ND,
+    normalize_output_date_columns,
 )
 from make_acoustic_ratios import (
     ARI_CLASS_HIGH_OFFSPRING_ACTIVITY,
@@ -71,7 +72,6 @@ from make_acoustic_ratios import (
     get_total_recordings,
     inclusive_day_span,
     normalize_hatch_date_value,
-    normalize_output_date_columns,
 )
 
 
@@ -174,7 +174,7 @@ class TestAcousticReproductiveIndex(unittest.TestCase):
 
     def assert_zero_ari_metrics(self, result: dict[str, object]) -> None:
         self.assertEqual(result[COL_ARI], "")
-        #self.assertEqual(result[COL_ARI_STATUS], )
+        self.assertEqual(result[COL_ARI_STATUS], ARI_STATUS_NHD)
 
         self.assertEqual(result[COL_ARI_WINDOW_FEMALE_START], STATUS_ND)
         self.assertEqual(result[COL_ARI_WINDOW_FEMALE_END], STATUS_ND)
@@ -925,6 +925,60 @@ class TestAcousticReproductiveIndexPostProcess(unittest.TestCase):
         self.assertEqual(
             result.loc[2, COL_ARI_FEMALE_DENOMINATOR_CONFIDENCE],
             ARI_CONFIDENCE_NOT_EVALUATED,
+        )
+
+    def test_post_process_keeps_denominator_confidence_for_invalid_breeding_type_rows(
+        self,
+    ) -> None:
+        """Invalid breeding type rows can still have meaningful denominator diagnostics."""
+        metric = AcousticReproductiveIndex()
+        df = pd.DataFrame(
+            {
+                COL_ARI: [""],
+                COL_ARI_STATUS: [ARI_STATUS_INVALID_BREEDING_TYPE],
+                COL_FEMALE_DETECTION_RECORDINGS: [5],
+                COL_FLEDGLING_DETECTION_RECORDINGS: [0],
+            }
+        )
+
+        result = metric.post_process(df.copy())
+
+        self.assertEqual(
+            result.loc[0, COL_ARI_FEMALE_DENOMINATOR_CONFIDENCE],
+            ARI_CONFIDENCE_LOW_FEMALE_DENOMINATOR,
+        )
+        
+    def test_post_process_marks_denominator_confidence_not_evaluated_when_ari_windows_unavailable(
+        self,
+    ) -> None:
+        """Rows without ARI windows should not report female denominator confidence as evaluated."""
+        metric = AcousticReproductiveIndex()
+        df = pd.DataFrame(
+            {
+                COL_ARI: ["", "", ""],
+                COL_ARI_STATUS: [
+                    ARI_STATUS_NHD,
+                    ARI_STATUS_MISSING_DATES,
+                    ARI_STATUS_NO_FEMALE_CALLS,
+                ],
+                COL_FEMALE_DETECTION_RECORDINGS: [0, 0, 0],
+                COL_FLEDGLING_DETECTION_RECORDINGS: [0, 0, 0],
+            }
+        )
+
+        result = metric.post_process(df.copy())
+
+        self.assertEqual(
+            result.loc[0, COL_ARI_FEMALE_DENOMINATOR_CONFIDENCE],
+            ARI_CONFIDENCE_NOT_EVALUATED,
+        )
+        self.assertEqual(
+            result.loc[1, COL_ARI_FEMALE_DENOMINATOR_CONFIDENCE],
+            ARI_CONFIDENCE_NOT_EVALUATED,
+        )
+        self.assertEqual(
+            result.loc[2, COL_ARI_FEMALE_DENOMINATOR_CONFIDENCE],
+            ARI_CONFIDENCE_NO_FEMALE_DENOMINATOR,
         )
 
 

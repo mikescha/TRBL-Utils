@@ -41,7 +41,7 @@ from pathlib import Path
 import pandas as pd
 import pyarrow.parquet as pq
 
-from constants import (
+from common import (
     DATA_DIR,
     HOURLY_PARQUET_FILES,
 )
@@ -76,7 +76,6 @@ def build_counts(raw_dir: Path, chunksize: int = 2_000_000) -> pd.DataFrame:
     for fpath in year_files:
         print(f"[READ] {fpath}")
         pf = pq.ParquetFile(fpath)
-        pf.iter_batches(batch_size=chunksize, columns=usecols)
 
         for batch in pf.iter_batches(batch_size=chunksize, columns=usecols):
             chunk = batch.to_pandas()
@@ -164,8 +163,8 @@ def build_recordings_per_day_per_hour_file() -> None:
     if not raw_dir.exists():
         raise FileNotFoundError(f"raw-dir does not exist: {raw_dir}")
 
-    if args.out_parquet is None and args.out_csv is None:
-        raise ValueError("Specify at least one of --out-parquet or --out-csv")
+    if args.out_parquet is None:
+        raise ValueError("Specify at least one of --out-parquet")
 
     df = build_counts(raw_dir=raw_dir, chunksize=args.chunksize)
 

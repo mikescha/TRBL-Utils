@@ -40,7 +40,7 @@ from pathlib import Path
 import pandas as pd
 import pyarrow.parquet as pq
 
-from constants import DATA_DIR
+from common import DATA_DIR
 
 
 def discover_year_files(raw_dir: Path) -> list[Path]:

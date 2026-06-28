@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import shutil
 from datetime import date, timedelta
 from functools import lru_cache
 from glob import escape
@@ -9,7 +8,7 @@ from typing import Any, cast
 
 import pandas as pd
 
-from constants import (
+from common import (
     COL_BREEDING_TYPE,
     COL_COLONY_SIZE,
     COL_COMMENT,
@@ -31,6 +30,7 @@ from constants import (
     PMJ_DIR,
     STATUS_ND,
     format_date_for_output,
+    save_csv_with_retry,
 )
 
 # ==============================================================================
@@ -41,7 +41,6 @@ START_HOUR = 7
 END_HOUR = 20
 
 BASE_DIR = Path(".")
-SHARING_OUTPUT_DIR = Path(r"G:\My Drive\TRBL for Wendy GDrive")
 
 BREEDING_DATES_CSV = BASE_DIR / "breeding_dates.csv"
 OUT_FILE = BASE_DIR / "nestling_to_female_ratios.csv"
@@ -259,25 +258,6 @@ METRIC_DIAGNOSTIC_COLUMNS = [
     COL_FLEDGLING_RAW_DETECTION_ROWS,
     COL_FLEDGLING_WINDOW_DETECTION_ROWS,
     COL_FLEDGLING_DETECTION_DATES_IN_WINDOW,
-]
-
-OUTPUT_DATE_COLUMNS = [
-    COL_HATCH_DATE,
-    COL_DEPLOYMENT_START,
-    COL_DEPLOYMENT_END,
-    COL_ARI_WINDOW_FEMALE_START,
-    COL_ARI_WINDOW_FEMALE_END,
-    COL_ARI_WINDOW_NESTLING_START,
-    COL_ARI_WINDOW_NESTLING_END,
-    COL_FLEDGLING_WINDOW_START,
-    COL_FLEDGLING_WINDOW_END,
-    COL_LATEST_FLEDGLING_REC,
-    "mcstart",
-    "incstart",
-    "fledgestart",
-    "fledgedisp",
-    "abandon",
-    "partial abandon",
 ]
 
 # ==============================================================================
@@ -920,6 +900,15 @@ class AcousticReproductiveIndex(AcousticMetric):
         df[COL_ARI_FEMALE_DENOMINATOR_CONFIDENCE] = female_detection_recordings.apply(
             classify_female_denominator_confidence
         )
+        # If there was no evaluation, say that it was not evaluated instead of no denominator
+        not_evaluated_statuses = {
+            ARI_STATUS_NHD,
+            ARI_STATUS_MISSING_DATES,
+        }
+        df.loc[
+            df[COL_ARI_STATUS].isin(not_evaluated_statuses),
+            COL_ARI_FEMALE_DENOMINATOR_CONFIDENCE,
+        ] = ARI_CONFIDENCE_NOT_EVALUATED
 
         #Check for cases that need human review
         df[COL_ARI_REVIEW_BECAUSE] = ""
@@ -1092,19 +1081,6 @@ class FledglingMetrics(AcousticMetric):
 # ==============================================================================
 # MAIN RUNTIME PIPELINE
 # ==============================================================================
-def save_csv_with_retry(df: pd.DataFrame, path: Path, share = False) -> None:
-    while True:
-        try:
-            df.to_csv(path, index=False)
-            break
-        except PermissionError:
-            input(f"\n[!] Output file is locked in Excel: {path.name}\nClose it and press Enter to retry...")
-
-    if False: #DEBUG turn this on later
-        if SHARING_OUTPUT_DIR.exists():
-            shutil.copy2(path, SHARING_OUTPUT_DIR / path.name)
-
-
 def make_ratios() -> None:
     if not BREEDING_DATES_CSV.exists():
         print(f"Error: Required file missing: {BREEDING_DATES_CSV}")
@@ -1151,9 +1127,6 @@ def make_ratios() -> None:
     full_results_df = pd.DataFrame(processed_records)
     for metric in active_metrics:
         full_results_df = metric.post_process(full_results_df)
-
-    # #Convert dates is ISO format, including retaining ~ as appropriate
-    # full_results_df = normalize_output_date_columns(full_results_df, OUTPUT_DATE_COLUMNS)
 
     print("Saving files...")
     publication_cols = [c for c in PUBLICATION_COLUMNS if c in full_results_df.columns]

@@ -6,7 +6,7 @@ from collections import Counter
 from datetime import date, datetime
 from pathlib import Path
 
-from constants import (
+from common import (
     COL_ABANDON_DATE,
     COL_APPROX_COLONY_SIZE,
     COL_BREEDING_TYPE,
@@ -40,7 +40,7 @@ from constants import (
 OUTPUT_CSV = Path("breeding_dates.csv")
 REVIEW_CSV = Path("breeding_dates_review.csv")
 ISSUES_CSV = Path("breeding_dates_source_issues.csv")
-SUMMARY_TXT = Path("results.txt")
+SUMMARY_TXT = Path("breeding_date_extraction_results.txt")
 
 # ==============================================================================
 # DOMAIN VALIDATION RULES & SCHEMA
@@ -504,7 +504,8 @@ def make_breeding_dates_file() -> None:
                     out_row[COL_HATCH_DATE] = "inf" if val.startswith("before") else val
                 elif field == "abandon":
                     abandon, partial_abandon = split_partial_abandon(row, pulse, output_outcome)
-                    out_row[COL_ABANDON_DATE], out_row[COL_PARTIAL_ABANDON_DATE] = abandon, partial_abandon
+                    out_row[COL_ABANDON_DATE] = normalize_one_date(abandon)
+                    out_row[COL_PARTIAL_ABANDON_DATE] = normalize_one_date(partial_abandon)
                 else:
                     out_row[field] = val
             

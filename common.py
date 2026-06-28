@@ -1,3 +1,4 @@
+import shutil
 from datetime import date
 from pathlib import Path
 from typing import Any
@@ -40,6 +41,7 @@ DATA_ROOT = Path(r"C:\Users\mikes\OneDrive\Documents\GitHub\TRBLSummarizer\TRBLS
 PMJ_DIR = DATA_ROOT / "PMJ Data"
 DATA_DIR = DATA_ROOT / "Data"
 HOURLY_PARQUET_FILES = DATA_DIR / Path("recordings_per_day_hour.parquet")
+SHARING_OUTPUT_DIR = Path(r"G:\My Drive\TRBL for Wendy GDrive")
 
 
 def format_date_for_output(value: date | None, missing: str = STATUS_ND) -> str:
@@ -101,3 +103,16 @@ def normalize_output_date_columns(df: pd.DataFrame, date_columns: list[str]) -> 
         normalized[col] = normalized[col].apply(normalize_one_date)
 
     return normalized
+
+
+def save_csv_with_retry(df: pd.DataFrame, path: Path, share = False) -> None:
+    while True:
+        try:
+            df.to_csv(path, index=False)
+            break
+        except PermissionError:
+            input(f"\n[!] Output file is locked in Excel: {path.name}\nClose it and press Enter to retry...")
+
+    if share and SHARING_OUTPUT_DIR.exists():
+        shutil.copy2(path, SHARING_OUTPUT_DIR / path.name)
+
