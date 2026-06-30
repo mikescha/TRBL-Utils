@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from datetime import date, timedelta
 from functools import lru_cache
-from glob import escape
 from pathlib import Path
 from typing import Any, cast
 
@@ -27,9 +26,9 @@ from common import (
     OUTCOME_NO_COLONY,
     OUTCOME_NO_TRBL,
     OUTCOME_SUCCESSFUL,
-    PMJ_DIR,
     STATUS_ND,
     format_date_for_output,
+    load_pmj_subset_from_parquet,
     save_csv_with_retry,
 )
 
@@ -536,38 +535,79 @@ def get_recording_days_count(site_name: str, start_date: date, end_date: date) -
     return int(df_filtered["date_parsed"].nunique())
 
 
-@lru_cache(maxsize=128)
-def get_raw_validated_detections(site_name: str, call_type: str) -> pd.DataFrame:
-    """Finds the raw recording detection log file for a site/call_type, filters
-    for validated presence, cleans hour boundaries, and returns a sanitized
-    DataFrame.
+def clear_raw_validated_detections_cache() -> None:
+    """Clear cached raw validated detection lookups.
+
+    This is mainly useful for tests and repeated interactive runs.
     """
-    site_dir = PMJ_DIR / site_name
-    pattern = f"*{escape(call_type)}*.csv"
-    matching_files = list(site_dir.glob(pattern))
+    _get_raw_validated_detections_cached.cache_clear()
 
-    if len(matching_files) != 1:
-        print(f"Error for {site_name} {call_type}: {len(matching_files)} matching files were found.")
-        return pd.DataFrame()
 
+@lru_cache(maxsize=128)
+def _get_raw_validated_detections_cached(site_name: str, call_type: str) -> pd.DataFrame:
+    """Cached internal loader for raw validated detections.
+
+    Do not call this directly unless the returned DataFrame will not be mutated.
+    Use get_raw_validated_detections(), which returns a defensive copy.
+    """
+    RAW_DETECTION_COLUMNS = ["year", "month", "day", "hour", "validated"]
     try:
-        df = pd.read_csv(matching_files[0])
-        df.columns = df.columns.str.lower().str.strip()
-        
-        # Filter for validated present detections
-        df = df[df["validated"].astype(str).str.strip().str.lower() == VALIDATED_PRESENT].copy()
+        df = load_pmj_subset_from_parquet(
+            site=site_name,
+            call_type=call_type,
+            columns=RAW_DETECTION_COLUMNS,
+        )
+
         if df.empty:
-            return pd.DataFrame()
-            
-        df["date"] = pd.to_datetime(df[["year", "month", "day"]], errors="coerce").dt.date
-        
-        # Safe hour type casting - simplified since column is guaranteed to exist
+            return pd.DataFrame(columns=["date", "hour"])
+
+        df.columns = df.columns.str.lower().str.strip()
+
+        required = {"year", "month", "day", "hour", "validated"}
+        missing = required - set(df.columns)
+        if missing:
+            print(
+                f"Error for {site_name} {call_type}: "
+                f"missing columns in PMJ Parquet subset: {sorted(missing)}"
+            )
+            return pd.DataFrame(columns=["date", "hour"])
+
+        # Harmless if the Parquet dataset is already present-only; useful if it
+        # was built from legacy full PMJ CSVs.
+        df = df[
+            df["validated"].astype(str).str.strip().str.lower() == VALIDATED_PRESENT
+        ].copy()
+
+        if df.empty:
+            return pd.DataFrame(columns=["date", "hour"])
+
+        df["date"] = pd.to_datetime(
+            df[["year", "month", "day"]],
+            errors="coerce",
+        ).dt.date
+
+        df["hour"] = pd.to_numeric(df["hour"], errors="coerce")
+
+        df = df[df["date"].notna() & df["hour"].notna()].copy()
+        if df.empty:
+            return pd.DataFrame(columns=["date", "hour"])
+
         df["hour"] = df["hour"].astype(int)
-            
+
         return df[["date", "hour"]].copy()
+
     except Exception as e:
         print(f"Error reading detections for {site_name} ({call_type}): {e}")
-        return pd.DataFrame()
+        return pd.DataFrame(columns=["date", "hour"])
+
+
+def get_raw_validated_detections(site_name: str, call_type: str) -> pd.DataFrame:
+    """Return raw validated present detections for one site/call type.
+
+    The public wrapper returns a copy so callers cannot accidentally mutate the
+    cached DataFrame.
+    """
+    return _get_raw_validated_detections_cached(site_name, call_type).copy()
 
 
 def append_review_reason(existing: Any, reason: str) -> str:

@@ -1,7 +1,5 @@
-import tempfile
 import unittest
 from datetime import date, timedelta
-from pathlib import Path
 from unittest.mock import call, patch
 
 import pandas as pd
@@ -66,6 +64,7 @@ from make_acoustic_ratios import (
     AcousticReproductiveIndex,
     FledglingMetrics,
     classify_female_denominator_confidence,
+    clear_raw_validated_detections_cache,
     filter_by_datetime_bounds,
     get_raw_validated_detections,
     get_site_recording_bounds,
@@ -1148,93 +1147,129 @@ class TestDataLoader(unittest.TestCase):
 
 class TestRawValidatedDetectionsLoader(unittest.TestCase):
     def setUp(self) -> None:
-        get_raw_validated_detections.cache_clear()
+        clear_raw_validated_detections_cache()
 
     def tearDown(self) -> None:
-        get_raw_validated_detections.cache_clear()
+        clear_raw_validated_detections_cache()
 
     def test_loader_keeps_only_validated_present_rows(self) -> None:
-        with tempfile.TemporaryDirectory() as tmp:
-            tmp_path = Path(tmp)
-            site_dir = tmp_path / "Test Site"
-            site_dir.mkdir()
+        source_df = pd.DataFrame(
+            {
+                "year": [2024, 2024, 2024],
+                "month": [5, 5, 5],
+                "day": [1, 2, 3],
+                "hour": [7, 12, 19],
+                "validated": [" Present ", "absent", "PRESENT"],
+            }
+        )
 
-            csv_path = site_dir / "Test Site Female detections.csv"
-            pd.DataFrame(
-                {
-                    "Year": [2024, 2024, 2024],
-                    "Month": [5, 5, 5],
-                    "Day": [1, 2, 3],
-                    "Hour": [7, 12, 19],
-                    "Validated": [" Present ", "absent", "PRESENT"],
-                }
-            ).to_csv(csv_path, index=False)
-
-            with patch("make_acoustic_ratios.PMJ_DIR", tmp_path):
-                result = get_raw_validated_detections("Test Site", "Female")
+        with patch(
+            "make_acoustic_ratios.load_pmj_subset_from_parquet",
+            return_value=source_df,
+        ):
+            result = get_raw_validated_detections("Test Site", "Female")
 
         self.assertEqual(len(result), 2)
         self.assertEqual(result["date"].tolist(), [date(2024, 5, 1), date(2024, 5, 3)])
         self.assertEqual(result["hour"].tolist(), [7, 19])
 
-    @patch("builtins.print")
-    def test_loader_returns_empty_when_no_matching_file(self, mock_print) -> None:
-        with tempfile.TemporaryDirectory() as tmp:
-            tmp_path = Path(tmp)
-            (tmp_path / "Test Site").mkdir()
+    def test_loader_returns_empty_when_parquet_subset_is_empty(self) -> None:
+        source_df = pd.DataFrame(
+            columns=["year", "month", "day", "hour", "validated"]
+        )
 
-            with patch("make_acoustic_ratios.PMJ_DIR", tmp_path):
-                result = get_raw_validated_detections("Test Site", "Female")
-
-        self.assertTrue(result.empty)
-        mock_print.assert_called_once()
-
-    @patch("builtins.print")
-    def test_loader_returns_empty_when_multiple_matching_files(self, mock_print) -> None:
-        with tempfile.TemporaryDirectory() as tmp:
-            tmp_path = Path(tmp)
-            site_dir = tmp_path / "Test Site"
-            site_dir.mkdir()
-
-            for idx in [1, 2]:
-                pd.DataFrame(
-                    {
-                        "Year": [2024],
-                        "Month": [5],
-                        "Day": [1],
-                        "Hour": [12],
-                        "Validated": ["Present"],
-                    }
-                ).to_csv(site_dir / f"Female detections {idx}.csv", index=False)
-
-            with patch("make_acoustic_ratios.PMJ_DIR", tmp_path):
-                result = get_raw_validated_detections("Test Site", "Female")
+        with patch(
+            "make_acoustic_ratios.load_pmj_subset_from_parquet",
+            return_value=source_df,
+        ):
+            result = get_raw_validated_detections("Test Site", "Female")
 
         self.assertTrue(result.empty)
-        mock_print.assert_called_once()
-    
-    @patch("builtins.print")
-    def test_loader_returns_empty_for_invalid_hour_value(self, mock_print) -> None:
-        with tempfile.TemporaryDirectory() as tmp:
-            tmp_path = Path(tmp)
-            site_dir = tmp_path / "Test Site"
-            site_dir.mkdir()
+        self.assertEqual(result.columns.tolist(), ["date", "hour"])
 
-            pd.DataFrame(
-                {
-                    "Year": [2024],
-                    "Month": [5],
-                    "Day": [1],
-                    "Hour": ["not_an_hour"],
-                    "Validated": ["Present"],
-                }
-            ).to_csv(site_dir / "Female detections.csv", index=False)
+    def test_loader_returns_empty_when_no_present_rows(self) -> None:
+        source_df = pd.DataFrame(
+            {
+                "year": [2024, 2024],
+                "month": [5, 5],
+                "day": [1, 2],
+                "hour": [7, 12],
+                "validated": ["absent", "(not validated)"],
+            }
+        )
 
-            with patch("make_acoustic_ratios.PMJ_DIR", tmp_path):
-                result = get_raw_validated_detections("Test Site", "Female")
+        with patch(
+            "make_acoustic_ratios.load_pmj_subset_from_parquet",
+            return_value=source_df,
+        ):
+            result = get_raw_validated_detections("Test Site", "Female")
 
         self.assertTrue(result.empty)
+        self.assertEqual(result.columns.tolist(), ["date", "hour"])
+
+    @patch("builtins.print")
+    def test_loader_returns_empty_for_missing_required_column(self, mock_print) -> None:
+        source_df = pd.DataFrame(
+            {
+                "year": [2024],
+                "month": [5],
+                "day": [1],
+                # Missing hour
+                "validated": ["present"],
+            }
+        )
+
+        with patch(
+            "make_acoustic_ratios.load_pmj_subset_from_parquet",
+            return_value=source_df,
+        ):
+            result = get_raw_validated_detections("Test Site", "Female")
+
+        self.assertTrue(result.empty)
+        self.assertEqual(result.columns.tolist(), ["date", "hour"])
         mock_print.assert_called_once()
+
+    def test_loader_returns_empty_for_invalid_hour_value(self) -> None:
+        source_df = pd.DataFrame(
+            {
+                "year": [2024],
+                "month": [5],
+                "day": [1],
+                "hour": ["not_an_hour"],
+                "validated": ["present"],
+            }
+        )
+
+        with patch(
+            "make_acoustic_ratios.load_pmj_subset_from_parquet",
+            return_value=source_df,
+        ):
+            result = get_raw_validated_detections("Test Site", "Female")
+
+        self.assertTrue(result.empty)
+        self.assertEqual(result.columns.tolist(), ["date", "hour"])
+
+    def test_loader_returns_defensive_copy_from_cache(self) -> None:
+        source_df = pd.DataFrame(
+            {
+                "year": [2024],
+                "month": [5],
+                "day": [1],
+                "hour": [7],
+                "validated": ["present"],
+            }
+        )
+
+        with patch(
+            "make_acoustic_ratios.load_pmj_subset_from_parquet",
+            return_value=source_df,
+        ):
+            first = get_raw_validated_detections("Test Site", "Female")
+            first["hour"] = 99
+
+            second = get_raw_validated_detections("Test Site", "Female")
+
+        self.assertEqual(second["hour"].tolist(), [7])
 
 
 class TestDateNormalization(unittest.TestCase):

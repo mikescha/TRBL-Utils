@@ -38,8 +38,8 @@ INPUT_CSV = Path(
     r"C:\Users\mikes\OneDrive\Documents\GitHub\TRBLSummarizer\TRBLSummarizer\Data\TRBL Analysis tracking - All.csv"
 )
 DATA_ROOT = Path(r"C:\Users\mikes\OneDrive\Documents\GitHub\TRBLSummarizer\TRBLSummarizer")
-PMJ_DIR = DATA_ROOT / "PMJ Data"
 DATA_DIR = DATA_ROOT / "Data"
+PMJ_DIR = DATA_DIR / "PMJ Data"
 HOURLY_PARQUET_FILES = DATA_DIR / Path("recordings_per_day_hour.parquet")
 SHARING_OUTPUT_DIR = Path(r"G:\My Drive\TRBL for Wendy GDrive")
 
@@ -116,3 +116,41 @@ def save_csv_with_retry(df: pd.DataFrame, path: Path, share = False) -> None:
     if share and SHARING_OUTPUT_DIR.exists():
         shutil.copy2(path, SHARING_OUTPUT_DIR / path.name)
 
+
+def load_pmj_subset_from_parquet(
+    site: str,
+    call_type: str,
+    columns: list[str],
+) -> pd.DataFrame:
+    """Load one site/call-type subset from the partitioned PMJ Parquet dataset."""
+    if not PMJ_DIR.exists():
+        return pd.DataFrame(columns=columns)
+
+    # site and call_type are partition columns. They may be represented as
+    # partition metadata rather than physical columns, so do not request them
+    # as physical columns from the Parquet files.
+    physical_columns = [
+        col for col in columns
+        if col not in {"site", "call_type"}
+    ]
+
+    df = pd.read_parquet(
+        PMJ_DIR,
+        columns=physical_columns,
+        filters=[
+            ("site", "==", site),
+            ("call_type", "==", call_type),
+        ],
+    )
+
+    if "site" in columns:
+        df["site"] = site
+
+    if "call_type" in columns:
+        df["call_type"] = call_type
+
+    for col in columns:
+        if col not in df.columns:
+            df[col] = pd.NA
+
+    return df[columns]
