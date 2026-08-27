@@ -26,19 +26,21 @@ For each breeding attempt, validate dates as follows
 
 
 from __future__ import annotations
-import pandas as pd
-import numpy as np
-from pathlib import Path
-from enum import Enum, auto
-from typing import Optional, Union
-import time
+
 import math
+import time
+from enum import Enum
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
+
 DAYS=5 #The number of days on either side of the target day to check
 threshold=4  #The target number of recordings per day that must match. We're starting with this and will update it.
 
 
 BASE_DIR = Path(".")
-DATA_DIR = Path("C:\\Users\\mikes\\OneDrive\\Documents\\GitHub\\TRBLSummarizer\\TRBLSummarizer\\")
+DATA_DIR = Path("C:\\Users\\mikes\\GitHub\\TRBLSummarizer\\TRBLSummarizer\\")
 BREEDING_DATES_CSV = BASE_DIR / "breeding dates.csv"
 PMJ_DIR = DATA_DIR / "PMJ Data"
 EDGE_DIR = DATA_DIR / "Data"
@@ -616,7 +618,7 @@ def check_if_dispersal_dates_match(date_vectors:dict,
 def check_dispersal_model2(
     detections_per_day_norm: pd.Series,
     detections_per_day_raw: pd.Series,
-    orig_dispersal_date: Union[str, pd.Timestamp, None],
+    orig_dispersal_date: str | pd.Timestamp | None,
     median_window: int = 3,
     moving_median_window: int = 3,
     drop_reqd: float = 0.1,
@@ -728,7 +730,7 @@ def check_dispersal_model2(
 
     # ---------- scan candidates (sliding 7-day blocks) ----------
     max_scan = min(max_window_days, len(forward_med) - 1)
-    best_date: Optional[pd.Timestamp] = None
+    best_date: pd.Timestamp | None = None
     debug_rows = []
 
     for day_offset in range(0, max_scan + 1):
@@ -825,9 +827,9 @@ def check_dispersal_model2(
 
 
 def _delta_days_safe(
-    orig_dispersal_date: Union[str, pd.Timestamp, None],
-    computed_date: Optional[pd.Timestamp],
-) -> Optional[int]:
+    orig_dispersal_date: str | pd.Timestamp | None,
+    computed_date: pd.Timestamp | None,
+) -> int | None:
     if orig_dispersal_date is None or computed_date is None:
         return None
     try:
@@ -913,7 +915,7 @@ def validate_hatch(row:pd.Series)->dict:
     hatch_date = row[HATCH_COL]
     orig_hatch_date = parse_date_for_index(hatch_date)
     if orig_hatch_date is None:
-        results_dict["Hatch_Comment"] = f"Hatch date was not a date"
+        results_dict["Hatch_Comment"] = "Hatch date was not a date"
 
     else:
         # Get the appropriate site data
@@ -1071,14 +1073,14 @@ def validate_male_chorus(row:pd.Series, recs_per_day:pd.DataFrame)->dict:
 
         #Calculate the earliest possible date for data and see if this is the same
         if last_bout_start == mc_per_day.index.min():
-            results[f"Calc_MC_Date"] = "pre"
-            results[f"MC_msg"] = "Last bout started on day 1"
+            results["Calc_MC_Date"] = "pre"
+            results["MC_msg"] = "Last bout started on day 1"
         else:
-            results[f"Calc_MC_Date"] = (last_bout_start + pd.Timedelta(days=0)).strftime("%Y-%m-%d")
-            results[f"MC_msg"] = "OK"
+            results["Calc_MC_Date"] = (last_bout_start + pd.Timedelta(days=0)).strftime("%Y-%m-%d")
+            results["MC_msg"] = "OK"
             orig_mc = row[MC_START_COL]
             orig_mc_date = date_str_to_date(orig_mc)
-            if not orig_mc_date is None:
+            if orig_mc_date is not None:
                 results["Calc_MC_Delta"] = str((orig_mc_date - last_bout_start).days)
     else:
         results["MC_msg"] = "No qualifying bouts found"
@@ -1097,13 +1099,13 @@ def validate_fledge(row:pd.Series, recs_per_day:pd.DataFrame)->dict:
     fledge_date = row[FLEDGE_START_COL]
     orig_fledge_date = parse_date_for_index(fledge_date)
     if orig_fledge_date is None:
-        results_dict["Fledge_Comment"] = f"Fledge date was not a date"
+        results_dict["Fledge_Comment"] = "Fledge date was not a date"
         check_fledge = False
 
     dispersal_date = row[FLEDGE_DISP_COL]
     orig_dispersal_date = parse_date_for_index(dispersal_date)
     if orig_dispersal_date is None:
-        results_dict["Dispersal_Comment"] = f"Dispersal date was not a date"
+        results_dict["Dispersal_Comment"] = "Dispersal date was not a date"
         check_dispersal = False
 
     site_name = row["Name"]
@@ -1112,7 +1114,7 @@ def validate_fledge(row:pd.Series, recs_per_day:pd.DataFrame)->dict:
     daily_counts = count_present_per_day(df)
     v = get_recording_vectors(daily_counts, recs_per_day)
     sc = {"is_small": False}
-    if not v["detections_per_day"] is None and not v["recordings_per_day"] is None:
+    if v["detections_per_day"] is not None and v["recordings_per_day"] is not None:
         sc = is_small_colony(v)
         results_dict["log"] = sc["log"]
         results_dict["rec_count"] = sc["recordings"]
@@ -1129,7 +1131,7 @@ def validate_fledge(row:pd.Series, recs_per_day:pd.DataFrame)->dict:
 
         if check_dispersal:
             type_list = []
-            if not orig_fledge_date is None:
+            if orig_fledge_date is not None:
                 target_date = orig_fledge_date
                 window = daily_counts.loc[daily_counts.index >= target_date] 
                 v = get_recording_vectors(window, recs_per_day)
@@ -1151,9 +1153,9 @@ def validate_fledge(row:pd.Series, recs_per_day:pd.DataFrame)->dict:
 
                     last_date = s.loc[start:end_cap].loc[s != 0].index.max()
                     last_date = last_date + pd.Timedelta(days=1)  #Need the first unoccupied day, that will be the one after the last one with a detection
-                    results_dict[f"Calc_Dispersal_Date"] = last_date.strftime("%Y-%m-%d")
+                    results_dict["Calc_Dispersal_Date"] = last_date.strftime("%Y-%m-%d")
                     delta = fill_date_delta(orig_dispersal_date, last_date, "small")
-                    results_dict[f"Dispersal_Delta"] = "0" if delta == "equal" else delta
+                    results_dict["Dispersal_Delta"] = "0" if delta == "equal" else delta
 
                 else:
                     if "Asynchronous" in breeding_type:
@@ -1172,11 +1174,11 @@ def validate_fledge(row:pd.Series, recs_per_day:pd.DataFrame)->dict:
                                                         days_absent_per_week=6,
                                                         max_window_days=window)
 
-                    results_dict[f"Calc_Dispersal_Date"] = results["dispersal_date"]
-                    results_dict[f"Dispersal_Comment"] = results["message"]
-                    results_dict[f"Dispersal_Delta"] = results["delta_days_vs_orig"]           
+                    results_dict["Calc_Dispersal_Date"] = results["dispersal_date"]
+                    results_dict["Dispersal_Comment"] = results["message"]
+                    results_dict["Dispersal_Delta"] = results["delta_days_vs_orig"]           
             else:
-                results_dict["Dispersal_Comment"] = f"Couldn't check, no fledge start date"
+                results_dict["Dispersal_Comment"] = "Couldn't check, no fledge start date"
 
             results_dict["type"] = ";".join(type_list)
     return results_dict

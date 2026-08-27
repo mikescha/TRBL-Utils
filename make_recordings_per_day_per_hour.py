@@ -17,7 +17,7 @@ Schema:
 
 Usage examples:
   python build_recordings_per_day_hour.py \
-    --raw-dir "C:\\Users\\mikes\\OneDrive\\Documents\\GitHub\\TRBLSummarizer\\TRBLSummarizer\\Data" \
+    --raw-dir "C:\\Users\\mikes\\GitHub\\TRBLSummarizer\\TRBLSummarizer\\Data" \
     --out-parquet "recordings_per_day_hour.parquet"
 
   python build_recordings_per_day_hour.py --raw-dir "...\\Data" --out-parquet "recordings_per_day_hour.parquet"

@@ -14,7 +14,7 @@ FLEDGLING_OFFSET_DAYS = 11  #How many days after hatching we start looking for F
 FLEDGLING_LATEST_DAY_OFFSET = 15  #How many days after Fledging Earliest do we stop looking for calls
 
 BASE_DIR = Path(".")
-DATA_DIR = Path("C:\\Users\\mikes\\OneDrive\\Documents\\GitHub\\TRBLSummarizer\\TRBLSummarizer\\")
+DATA_DIR = Path("C:\\Users\\mikes\\GitHub\\TRBLSummarizer\\TRBLSummarizer\\")
 BREEDING_DATES_CSV = BASE_DIR / "breeding dates.csv"
 PMJ_DIR = DATA_DIR / "PMJ Data"
 SHARING_OUTPUT_DIR = "G:\\My Drive\\TRBL for Wendy GDrive\\"

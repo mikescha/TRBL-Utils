@@ -15,7 +15,7 @@ BREEDING_DATES_CSV = BASE_DIR / "breeding dates.csv"
 
 # Root of TRBLSummarizer repo (used for denominators + PMJ Data)
 # Use forward slashes to avoid escape issues on Windows.
-DATA_DIR = Path("C:/Users/mikes/OneDrive/Documents/GitHub/TRBLSummarizer/TRBLSummarizer")
+DATA_DIR = Path("C:/Users/Documents/GitHub/TRBLSummarizer/TRBLSummarizer")
 RAW_DATA_DIR = DATA_DIR / "Data"  # contains data 2017.csv ... data 2024.csv
 PMJ_DIR = DATA_DIR / "PMJ Data"
 
