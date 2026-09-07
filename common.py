@@ -1,5 +1,5 @@
 import shutil
-from datetime import date
+from datetime import date, datetime
 from pathlib import Path
 from typing import Any
 
@@ -34,9 +34,13 @@ OUTCOME_NO_COLONY = "No Colony"
 OUTCOME_NO_TRBL = "No TRBL"
 
 # File locations
+BASE_DIR = Path(".")
 INPUT_CSV = Path(
     r"C:\Users\mikes\GitHub\TRBLSummarizer\TRBLSummarizer\Data\TRBL Analysis tracking - All.csv"
 )
+OUT_FILENAME = "nestling_to_female_ratios.csv"
+OUT_FILE = BASE_DIR / OUT_FILENAME
+
 DATA_ROOT = Path(r"C:\Users\mikes\GitHub\TRBLSummarizer\TRBLSummarizer")
 DATA_DIR = DATA_ROOT / "Data"
 PMJ_DIR = DATA_DIR / "PMJ Data"
@@ -112,6 +116,19 @@ def save_csv_with_retry(df: pd.DataFrame, path: Path, share = False) -> None:
             break
         except PermissionError:
             input(f"\n[!] Output file is locked in Excel: {path.name}\nClose it and press Enter to retry...")
+
+    if path.name == OUT_FILENAME:
+        def add_timestamp(filename: str) -> str:
+            path = Path(filename)
+            timestamp = datetime.now().strftime("%Y-%m-%d %H-%M-%S")
+            return str(path.with_name(f"{path.stem} {timestamp}{path.suffix}"))
+
+        STREAMLIT_APP_DIR = Path(r"C:\Users\mikes\GitHub\TRBLSummarizer\TRBLSummarizer\Data")
+        OLD_OUT_FILE = STREAMLIT_APP_DIR / path.name
+        if OLD_OUT_FILE.exists():
+            BACKUP_FILE = add_timestamp(path.name)
+            shutil.copy2(OLD_OUT_FILE, OLD_OUT_FILE.parent / BACKUP_FILE)
+            shutil.copy2(path, STREAMLIT_APP_DIR / path.name)
 
     if share and SHARING_OUTPUT_DIR.exists():
         shutil.copy2(path, SHARING_OUTPUT_DIR / path.name)

@@ -2,12 +2,12 @@ from __future__ import annotations
 
 from datetime import date, timedelta
 from functools import lru_cache
-from pathlib import Path
 from typing import Any, cast
 
 import pandas as pd
 
 from common import (
+    BASE_DIR,
     COL_BREEDING_TYPE,
     COL_COLONY_SIZE,
     COL_COMMENT,
@@ -22,6 +22,7 @@ from common import (
     COL_SUBSTRATE,
     DATA_DIR,
     HOURLY_PARQUET_FILES,
+    OUT_FILE,
     OUTCOME_ABANDONED,
     OUTCOME_NO_COLONY,
     OUTCOME_NO_TRBL,
@@ -39,10 +40,7 @@ MIN_REQUIRED_DAYS = 4
 START_HOUR = 7
 END_HOUR = 20
 
-BASE_DIR = Path(".")
-
 BREEDING_DATES_CSV = BASE_DIR / "breeding_dates.csv"
-OUT_FILE = BASE_DIR / "nestling_to_female_ratios.csv"
 RESULTS_TXT = BASE_DIR / "ratios_results.txt"
 OUT_DIAGNOSTIC_FILE = BASE_DIR / "nestling_to_female_ratios_diagnostics.csv"
 OUT_DAILY_DIAGNOSTIC_FILE = BASE_DIR / "nestling_to_female_ratios_daily_diagnostics.csv"
