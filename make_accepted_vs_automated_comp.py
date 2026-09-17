@@ -7,6 +7,10 @@ import requests
 from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
 from openpyxl.utils import get_column_letter
 
+VAL_EQUAL = "equal"
+VAL_DIFFERENT = "different"
+VAL_BIG = "big"
+DIFF_VALS = [VAL_EQUAL, VAL_DIFFERENT, VAL_BIG]
 
 def date_difference(value1, value2) -> dt.timedelta | None:
     """Strips non-date characters from both values and returns the difference
@@ -124,14 +128,16 @@ def test_if_same(val1, val2):
     delta = date_difference(val1, val2) 
     if delta is not None:
         if abs(delta.days) > 3: 
-            return "big"
+            return VAL_BIG
+        elif abs(delta.days) > 0: 
+            return VAL_DIFFERENT
         else:
-            return "different"
+            return VAL_EQUAL
 
     if val1 == val2:
-        return "equal"
+        return VAL_EQUAL
     else:
-        return "different"
+        return VAL_DIFFERENT
     #strip "(C)"
     if isinstance(val1, str):
         val1 = val1.replace("(C)", "")
@@ -271,9 +277,9 @@ def export_full_data_styled_excel(
 
             #is_same = b_val == r_val
             is_same = test_if_same(b_val, r_val)
-            target_font = same_font if is_same == "equal" else diff_font
+            target_font = same_font if is_same == VAL_EQUAL else diff_font
             b_cell = ws.cell(row=row_idx, column=b_idx + 1, value=b_val)
-            b_cell.fill = big_diff_cell_fill if is_same == "big" else base_cell_fill
+            b_cell.fill = big_diff_cell_fill if is_same == VAL_BIG else base_cell_fill
             b_cell.font = target_font
             b_cell.alignment = Alignment(
                 horizontal="center", vertical="center"
@@ -281,7 +287,7 @@ def export_full_data_styled_excel(
             b_cell.border = cell_border
 
             r_cell = ws.cell(row=row_idx, column=r_idx + 1, value=r_val)
-            r_cell.fill = big_diff_cell_fill if is_same == "big" else res_cell_fill
+            r_cell.fill = big_diff_cell_fill if is_same == VAL_BIG else res_cell_fill
             r_cell.font = target_font
             r_cell.alignment = Alignment(
                 horizontal="center", vertical="center"
