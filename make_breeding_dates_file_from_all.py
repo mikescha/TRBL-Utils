@@ -48,7 +48,7 @@ SUMMARY_TXT = Path("breeding_date_extraction_results.txt")
 HEADER_ROWS_TO_SKIP = 2
 PULSES = ("p1", "p2", "p3", "p4")
 
-OUTPUT_DATE_FIELDS = ("mcstart", "incstart", "hatch", "fledgestart", "fledgedisp", "abandon")
+OUTPUT_DATE_FIELDS = ("mcstart", "mcend","incstart", "hatch", "fledgestart", "fledgedisp", "abandon")
 VALIDATE_DATE_FIELDS = ("mcstart", "mcend", "incstart", "hatch", "fledgestart", "fledgedisp", "abandon")
 NO_COLONY_PROHIBITED_DATE_FIELDS = ("incstart", "hatch", "fledgestart", "fledgedisp", "abandon")
 
@@ -76,7 +76,8 @@ OUTPUT_FIELDS = [
     COL_SITE_ID, COL_GROUP, COL_SITE_NAME, COL_PULSE_NAME, COL_DEPLOYMENT_START, 
     COL_DEPLOYMENT_END, COL_BREEDING_TYPE, COL_COMPLEX_TYPES, COL_OUTCOME, COL_SUBSTRATE, 
     COL_APPROX_COLONY_SIZE, COL_COLONY_SIZE,  
-    "mcstart", "incstart", COL_HATCH_DATE, "fledgestart", "fledgedisp", COL_ABANDON_DATE, COL_PARTIAL_ABANDON_DATE,
+    "mcstart", "mcend", "incstart", COL_HATCH_DATE, "fledgestart", "fledgedisp", 
+    COL_ABANDON_DATE, COL_PARTIAL_ABANDON_DATE,
     COL_COMMENT,
     "Source Row", "Review Status", "Review Notes", 
 ]
@@ -480,12 +481,18 @@ def make_breeding_dates_file() -> None:
             output_outcome = source_outcome if has_outcome else MISSING_OUTCOME_SENTINEL
             review_notes = sorted({issue["Message"] for issue in pulse_issues})
 
+            #2026-09-09 changes to better support the new date tracking sheet
+            if output_outcome == OUTCOME_NO_COLONY:
+                pulse_name = f"{clean(row.get('Name'))}"
+            else:
+                pulse_name = f"{clean(row.get('Name'))} {pulse.upper()}"
+
             # Map the flat row out to long form pulse output
             out_row = {
                 COL_SITE_ID: clean(row.get("Site ID")),
                 COL_GROUP: clean(row.get("Group")),
                 COL_SITE_NAME: clean(row.get("Name")),
-                COL_PULSE_NAME: f"{clean(row.get('Pretty Site Name'))} {pulse}",
+                COL_PULSE_NAME: pulse_name,
                 COL_DEPLOYMENT_START: normalize_one_date(clean(row.get("First Recording"))),
                 COL_DEPLOYMENT_END: normalize_one_date(clean(row.get("Last Recording"))),
                 COL_BREEDING_TYPE: clean(row.get("Breeding Type")),
