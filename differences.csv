@@ -1,0 +1,141 @@
+Name,Column,df1_value,df2_value
+2018 Markham Ravine westside,p1mcend,ND,inf
+2018 Markham Ravine westside,p1incstart,ND,inf
+2018 Markham Ravine westside,p1hatch,ND,inf
+2018 Markham Ravine westside,p1fledgestart,ND,7/6/2018
+2018 Markham Ravine westside,p1fledgedisp,ND,7/7/2018
+2018 SJWA WSS,p1incstart,~4/15/2018,~4/18/2018
+2018 SJWA WSS,p1hatch,~4/27/2018,~4/30/2018
+2019 Colusa NWR 27-1,p1incstart,~6/2/2019(C),missed
+2019 Colusa NWR 27-1,p1hatch,~6/14/2019(C),missed
+2019 Colusa NWR 27-1,p1fledgedisp,~7/7/2019,7/22/2019
+2019 Colusa NWR 27-1,p2mcend,6/19/2019,ND
+2019 Colusa NWR 27-1,p2incstart,~6/21/2019(C),ND
+2019 Colusa NWR 27-1,p2hatch,~7/3/2019(C),ND
+2019 Colusa NWR 27-1,p2fledgestart,~7/16/2019,ND
+2019 Colusa NWR 27-1,p2fledgedisp,~7/21/2019,ND
+2019 Colusa NWR 27-2,p1hatch,5/29/2019,~5/28/2019
+2019 Colusa NWR 27-2,p1fledgestart,ND,~6/14/2019
+2019 Colusa NWR 27-2,p1fledgedisp,ND,~6/15/2019
+2019 Creed Road,p2hatch,6/4/2019(E),~6/4/2019
+2019 Hay Landfill,p1hatch,4/28/2019,4/27/2019
+2019 Leisure Town,Site Results,"The ARU was placed distant from the colony, resulting in few recordings containing vocalizations. A manual analysis detected more vocoaliztions, however there were not enough detections to determine if the first bout of Male Chorus resulted in a breeding pulse, though a handful of Female Chatter and Fledgling Begging Calls hint at the possibility. For the second bout of Male Chorus was followed by more vocalization detections of both Female Chatter and Begging Calls breeding more vocalizations were detected, and breeding stage dates were assigned using this analysis. The presence of Fledgling Begging Calls indicate that this pulse was successful.","The ARU was placed distant from the colony, resulting in few recordings containing vocalizations. However, two periods of Male Chorus detections each followed by some Fledgling Begging Call detections indicate two successful breeding attempts. A manual analysis detected more vocoaliztions, however there were not enough detections to determine breeding stage dates for the first pulse. For the second bout of breeding more vocalizations were detected, and breeding stage dates were assigned using this analysis."
+2019 Leisure Town,p2fledgestart,~6/17/2019,6/17/2019
+2019 Markham Ravine 2,p1fledgestart,ND,~6/9/2019
+2019 Markham Ravine 2,p1fledgedisp,ND,~6/21/2019
+2019 Rush Ranch,p1hatch,5/21/2019(E),5/21/2019
+2020 Conaway Ranch,p1hatch,~6/4/2020,6/6/2020
+2020 Hay Landfill,p2hatch,~6/6/2020,6/8/2020
+2020 Markham Ravine,p1fledgedisp,~6/8/2020,6/8/2020
+2020 Ohlone - Santa Lucia Preserve,p1hatch,~5/1/2020,~5/2/2020
+2021 Conaway East,p1hatch,~6/8/2021,6/11/2021
+2021 Conaway South,p1hatch,6/9/2021,6/10/2021
+2021 Conaway West,p1hatch,~5/31/2021,6/2/2021
+2021 Hay Landfill,p1hatch,~4/23/2021,4/25/2021
+2021 Iron Point,p1hatch,5/4/2021(E),~5/4/2021
+2021 Kern 1,p1hatch,~5/30/2021,6/1/2021
+2021 Kern 4,p1fledgedisp,~6/5/2021,~6/12/2021
+2021 Kern 5,p2incstart,5/2/2021,ND
+2021 Kern 5,p2hatch,5/14/2021,ND
+2021 Kern 5,p2fledgestart,Continuous,ND
+2021 Orchard Creek,p1fledgedisp,5/31/2021,~5/31/2021
+2021 Orchard Creek,p2fledgestart,6/3/2021,~6/3/2021
+2021 Panoche Creek Preserve 1W,p1fledgestart,ND,~5/23/2021
+2021 Panoche Creek Preserve 1W,p1fledgedisp,ND,~5/25/2021
+2021 Willey Wetlands 1,p1fledgestart,ND,~7/2/2021
+2021 Willey Wetlands 1,p1fledgedisp,ND,~7/12/2021
+2021 Willey Wetlands 2,p1hatch,~6/12/2021,6/14/2021
+2021 Willey Wetlands 3,p1hatch,inf,"before start, HBC present"
+2022 Baja 1,p1hatch,~4/12/2022,4/14/2022
+2022 Baja 2,p1hatch,~4/13/2022,4/15/2022
+2022 Hay Landfill,p1hatch,~4/10/2022,4/12/2022
+2022 Laguna Seca,p1hatch,~4/15/2022,4/15/2022
+2022 Los Vaqueros Reservoir,p1incstart,inf,4/7/2022
+2022 Los Vaqueros Reservoir,p1hatch,inf,4/19/2022
+2022 Los Vaqueros Reservoir,p1fledgestart,~4/17/2022,5/1/2022
+2022 Los Vaqueros Reservoir,p1fledgedisp,ND,5/24/2022
+2022 Los Vaqueros Reservoir,p2mcstart,inf,ND
+2022 Los Vaqueros Reservoir,p2mcend,inf,ND
+2022 Los Vaqueros Reservoir,p2incstart,4/7/2022,ND
+2022 Los Vaqueros Reservoir,p2hatch,4/19/2022,ND
+2022 Los Vaqueros Reservoir,p2fledgestart,5/1/2022,ND
+2022 Los Vaqueros Reservoir,p2fledgedisp,5/24/2022,ND
+2022 Newberry Springs - Lake Wainani,p1mcstart,ND,inf
+2022 Newberry Springs - Lake Wainani,p1mcend,ND,inf
+2022 Newberry Springs - Lake Wainani,p1incstart,ND,inf
+2022 Newberry Springs - Lake Wainani,p1hatch,ND,inf
+2022 Ohlone - Santa Lucia Preserve,p1hatch,~5/2/2022,~4/27/2022
+2022 OR2,p1hatch,5/18/2022(E),~5/16/2022
+2022 OR2,p1fledgestart,5/30/2022,~5/28/2022
+2022 Plumas Arboga East,p1hatch,inf,"before start, HBC present"
+2022 Plumas Arboga East,p2fledgestart,6/4/2022,6/7/2022
+2022 Plumas Arboga West,p1fledgestart,6/8/2022,5/31/2022
+2022 Plumas Arboga West,p1fledgedisp,6/29/2022,ND
+2022 Private Site 1 - not real lat lon,p1hatch,~4/28/2022,4/30/2022
+2022 Private Site 2 - not real lat lon,p1hatch,inf,"before start, HBC present"
+2022 Private Site 3 - not real lat lon,p1hatch,inf,"before start, HBC present"
+2022 SJWA,p1hatch,~5/27/2022,5/29/2022
+2022 WA1,p1hatch,inf,"before start, HBC present"
+2023 Baja Rancho Cinega,p1mcend,5/11/2023,inf
+2023 Baja Rancho Cinega,p1incstart,missed,inf
+2023 Baja Rancho Cinega,p1hatch,missed,"before start, HBC absent"
+2023 Baja Rancho Cinega,p1fledgestart,~4/28/2023,~5/1/2023
+2023 Creed Rd,p1hatch,5/21/2023(E),5/21/2023
+2023 Hale Road,p1fledgestart,6/20/2023,6/12/2023
+2023 Hale Road Site 2,p1fledgestart,6/19/2023,6/11/2023
+2023 Iron Point,p1hatch,inf,"before start, HBC present"
+2023 Iron Point,p1fledgestart,ND,~5/31/2023
+2023 Iron Point,p1fledgedisp,ND,~6/9/2023
+2023 Laguna Fry Confluence - Site 1,p1fledgedisp,6/1/2023,~6/1/2023
+2023 Merced NWR - Cottonwood,p1hatch,inf,"before start, HBC absent"
+2023 Merced NWR - Cottonwood,p2hatch,~5/27/2023,~5/25/2023
+2023 North Regional Pond,p1hatch,~5/3/2023,5/5/2023
+2023 OR Dizney Rd,p1hatch,~5/17/2023,5/19/2023
+2023 OR Eureka Rd,p1hatch,~5/17/2023,~5/15/2023
+2023 OR Prineville North,p2hatch,~6/19/2023,6/21/2023
+2023 Panoche Creek Preserve - Corrals NW,p1hatch,inf,"before start, HBC present"
+2023 Panoche Creek Preserve - Corrals SE,p1hatch,inf,"before start, HBC present"
+2023 Plumas Arboga 8 - North Regional Pond,p1hatch,~5/4/2023,5/6/2023
+2023 Plumas Arboga 8 - North Regional Pond,p2fledgestart,~6/29/2023,6/22/2023
+2023 Rancho Jamul North Pond - fix lat lon,p1hatch,5/13/2023(E),5/16/2023
+2023 Rancho Jamul Site 1 fix lat lon,p1hatch,~4/23/2023,4/23/2023
+2023 Rancho Jamul Site 1 fix lat lon,p1fledgestart,ND,~5/13/2023
+2023 San Luis Bear Creek,p1hatch,7/5/2023,7/2/2023
+2023 San Luis NWR - West Bank Creek,p1fledgestart,ND,~6/24/2023
+2023 San Luis NWR - West Bank Creek,p1fledgedisp,ND,~7/5/2023
+2023 Sedgwick,p1hatch,~4/15/2023,4/17/2023
+2023 WA Harder Spring,p2fledgedisp,7/29/2023,~7/30/2023
+2023 WA McCain Wetlands,p1fledgestart,~5/24/2023,5/24/2023
+2023 WA McCain Wetlands,p1fledgedisp,5/28/2023(C),6/3/2023
+2023 Weagell Property 1,p1mcend,inf,4/27/2023
+2023 Weagell Property 1,p1incstart,ND,4/27/2023
+2023 Weagell Property 1,p1hatch,5/3/2023,5/9/2023
+2023 Weagell Property 1,p1fledgestart,~5/14/2023,5/22/2023
+2023 Weagell Property 1,p3hatch,~6/8/2023,~6/5/2023
+2023 Weagell Property 1,p3fledgestart,ND,Continuous
+2023 Weagell Property 2,p1hatch,~5/17/2023,5/19/2023
+2023 West of Davis,p1hatch,inf,"before start, HBC absent"
+2023 West of Davis,p2hatch,~5/20/2023,5/22/2023
+2023 Wind Wolves Preserve site 1,p1hatch,~5/3/2023,~5/2/2023
+2024 Baja Lago Mesa Redonda,p1hatch,inf,"before start, HBC present"
+2024 Baja Rancho Cinega Redonda 1,p1hatch,inf,"before start, HBC present"
+2024 Baja Rancho Cinega Redonda 1,p2hatch,~5/23/2024,5/25/2024
+2024 Los Vaqueros Reservoir,p1hatch,~5/3/2024,5/5/2024
+2024 Los Vaqueros Reservoir,p1fledgestart,ND,~5/19/2024
+2024 Los Vaqueros Reservoir,p2hatch,6/9/2024,~6/8/2024
+2024 Newberry Springs,p1hatch,inf,"before start, HBC absent"
+2024 Panoche Creek Preserve - Dollar Marsh East,p2hatch,~6/8/2024,~6/4/2024
+2024 Panoche Creek Preserve - Dollar Marsh East,p2fledgedisp,ND,~6/16/2024
+2024 Rancho Jamul - Main Pond 1,p1hatch,4/25/2024(E),4/25/2024
+2024 Rancho Jamul - Main Pond 1,p2hatch,5/28/2024(E),~5/26/2024
+2024 Rancho Jamul - Main Pond 2,p1hatch,4/25/2024(E),4/25/2024
+2024 Rancho Jamul - Main Pond 2,p2hatch,~5/24/2024,5/26/2024
+2024 Sedgwick,p1hatch,~4/18/2024,4/20/2024
+2024 Sedgwick,p1fledgestart,~5/3/2024,5/8/2024
+2024 SJWA Thistle NW of Bridge Street Pond,p1hatch,inf,"before start, HBC present"
+2024 WA Harder Spring,p2hatch,~7/16/2024,7/18/2024
+2024 Wind Wolves Preserve - Los Lobos,Longitude,-119.215,-119.24
+2024 Wind Wolves Preserve - Los Lobos,p1hatch,inf,"before start, HBC absent"
+2024 Wind Wolves Preserve - Los Lobos,p2hatch,~5/21/2024(E),~5/21/2024
+2024 Wind Wolves Preserve - Pleitito,p1hatch,4/16/2024(E),4/16/2024
+2024 Wind Wolves Preserve - Santiago,p1hatch,inf,"before start, HBC absent"

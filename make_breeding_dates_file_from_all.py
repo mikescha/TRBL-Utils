@@ -105,21 +105,8 @@ def clean(value: object) -> str:
     return "" if value is None else str(value).strip()
 
 
-def is_ai_placeholder(value: object) -> bool:
-    """Return True for AI/formula placeholders that should be cleaned to blank."""
-    text = clean(value)
-    if not text.startswith("="):
-        return False
-    lowered = text.casefold()
-    return (
-        lowered.startswith("=ai(")
-        or "fill an appropriate value" in lowered
-        or "based on the table context" in lowered
-    )
-
-
 def cleaned_output_value(value: object) -> str:
-    return "" if is_ai_placeholder(value) else clean(value)
+    return clean(value)
 
 
 def has_real_outcome(value: object) -> bool:
@@ -153,7 +140,7 @@ def make_issue(
         "Issue Type": issue_type,
         "Severity": severity,
         "Value": clean(value),
-        "Suggested Value": "" if is_ai_placeholder(value) else clean(value),
+        "Suggested Value": clean(value),
         "Message": message,
         "Skip Site": clean(row.get("Skip Site")),
         "Included In Main Output": "No",
@@ -165,8 +152,6 @@ def make_issue(
 def parse_date_token(value: object, field: str) -> tuple[str, date | None, bool]:
     text = clean(value)
 
-    if is_ai_placeholder(text):
-        return "invalid_formula_placeholder", None, False
     if text in MISSING_DATE_VALUES:
         return "missing", None, False
     if text.startswith("before"):
