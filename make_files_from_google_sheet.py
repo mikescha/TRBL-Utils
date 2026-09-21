@@ -432,8 +432,11 @@ def create_and_save_new_all_file_for_compatibility(
         f.write('\n\n')
         # save the data after
         all_df.to_csv(f, index=False)
-        print(f"Saved {filename}")
-    #all_df.to_csv(ALL_FILENAME, index=False)
+        print(f"Saved {filename} to project folder")
+
+    all_df.to_csv(INPUT_CSV, index=False)
+    print(f"Saved {INPUT_CSV}")
+
     return
 
 
