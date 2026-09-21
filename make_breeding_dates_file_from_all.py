@@ -1,3 +1,18 @@
+'''
+#TODO 
+This needs to be updated when we eventually move to fully deprecate the old All file, which I think
+happens after we fully migrate to Pretty Names, which I think happens after the round of data updates
+on 9/21/26 happens.
+
+The big change there will be supporting the date format of YYYY-MM-DD. Right now, it's half-assed...
+a date without decorations is YYYY-MM-DD, a date with decorations is MM/DD/YYYY.
+
+After that, the next step will be to deprecate this and move the bits that do error checking, 
+convert the colony sizes to numbers, and standardize the distance numbers out to a different script
+that adds these columns directly to the new-version All file. 
+'''
+
+
 from __future__ import annotations
 
 import csv

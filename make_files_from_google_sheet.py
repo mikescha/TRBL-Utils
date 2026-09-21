@@ -1,3 +1,9 @@
+'''
+#TODO
+When we migrate to Pretty Names, then I don't think anything needs to change here but probably 
+something will...
+'''
+
 import datetime
 import io
 import os
@@ -170,6 +176,66 @@ def transform_value(val, site: str, col: str, YYYYMMDD_format: bool = True) -> s
         f"Error: Site '{site}', Column '{col}' contains invalid value '{val_str}'"
     )
     return val_str
+
+
+def transform_date(val: str, YYYYMMDD_format: bool = True) -> str:
+    """Transforms a single date value:
+
+    - Formats dates to YYYY-MM-DD or M/D/YYYY depending on the YYYYMMDD_format flag.
+    - Handles ISO 8601 timestamps (e.g., '2023-07-05T07:00:00.000Z').
+    - Validates string tokens against the allowed list.
+    """
+    if pd.isna(val) or val is None:
+        return "ND"
+
+    # Handle native pandas/datetime objects or strings
+    if isinstance(val, (datetime.date, datetime.datetime, pd.Timestamp)):
+        val_str = val.strftime("%Y-%m-%d")
+    else:
+        val_str = str(val).strip()        
+        # If it exactly matches M/D/YYYY or MM/DD/YYYY
+        if re.match(r"^\d{1,2}/\d{1,2}/\d{4}$", val_str):
+            # Convert to intermediate YYYY-MM-DD so the downstream regex can read it easily
+            val_str = pd.to_datetime(val_str).strftime("%Y-%m-%d")
+
+    if not val_str:
+        return "ND"
+
+    # Regex matching: YYYY-MM-DD (with optional ~ prefix, optional ISO timestamp, and optional suffix)
+    date_match = re.match(
+        r"^(~?)(\d{4})[-/](\d{1,2})[-/](\d{1,2})(?:[T\s]\d{2}:\d{2}:\d{2}(?:\.\d+)?Z?)?(\(?[A-Za-z]{1,3}\)?)?$",
+        val_str,
+    )
+
+    if date_match:
+        tilde, year, month, day, suffix = date_match.groups()
+        
+        # Apply the chosen format
+        if YYYYMMDD_format:
+            # Ensure month and day are 2 digits (e.g., "05" instead of "5")
+            formatted_date = f"{year}-{month.zfill(2)}-{day.zfill(2)}"
+        else:
+            # Strip leading zeros using int() (e.g., "05" becomes "5")
+            formatted_date = f"{int(month)}/{int(day)}/{year}"
+
+        # keep the tilde and suffix if they exist
+        tilde_str = tilde if tilde else ""
+        suffix_str = suffix if suffix else ""
+        result = f"{tilde_str}{formatted_date}{suffix_str}"
+        return result
+
+    # Validate non-date allowed string values
+    allowed_values = {"ND", "Continuous", "missed", "inf"}
+    if val_str in allowed_values:
+        return val_str
+
+    # Log error if value is outside the allowed list
+    print(
+        f"Error:'{val_str}'"
+    )
+    return val_str
+
+
 
 
 def convert_data_to_all_format(df: pd.DataFrame, YYYYMMDD_format: bool = True) -> pd.DataFrame:
@@ -462,26 +528,149 @@ def update_and_save_old_all_sheet(
     return main_df
 
 
-def create_and_save_breeding_dates(site_info_df: pd.DataFrame):
+def clean(value: object) -> str:
+    """Return a stripped string, treating None as blank."""
+    return "" if value is None else str(value).strip()
+
+COLONY_SIZE_PASSTHROUGH = {"NEED", "ND", "No Colony", "Unknown"}
+INT_RE = re.compile(r"^\d+$")
+RANGE_RE = re.compile(r"^(\d+)\s*[-–—]\s*(\d+)$")  # Handles hyphen, en-dash, em-dash
+
+
+def parse_colony_size_metric(val: str) -> str:
+    """
+    Parses Approx Colony Size field into standard Colony Size metrics.
+    Strips out visual comma separators before validation logic executes.
+    Returns a tuple: (calculated_value_string, error_message_or_None)
+    """
+    cleaned = clean(val)
+    if cleaned in COLONY_SIZE_PASSTHROUGH:
+        return val
+    
+    # Strip thousands separators so numbers like 10,000 become 10000
+    stripped_val = cleaned.replace(",", "")
+    
+    if INT_RE.match(stripped_val):
+        return stripped_val
+        
+    if range_match := RANGE_RE.match(stripped_val):
+        low, high = int(range_match.group(1)), int(range_match.group(2))
+        midpoint = (low + high) // 2
+        return str(midpoint)
+        
+    return "error"
+
+
+def parse_distance_to_colony_metric(val: str) -> str:
+    """
+    Parses Distance to Colony field into standard Distance metrics.
+    Strips out visual comma separators before validation logic executes.
+    Returns a string representing the parsed distance in meters, or "error" if parsing fails.
+    """
+    cleaned = clean(val)
+    if cleaned in COLONY_SIZE_PASSTHROUGH:
+        return val
+    
+    # Strip thousands separators so numbers like 10,000 become 10000
+    stripped_val = cleaned.replace(",", "")
+    no_unit_val = stripped_val.replace(" m", "")
+    no_unit_val = no_unit_val.replace("m", "")
+    if INT_RE.match(no_unit_val):
+        return no_unit_val
+
+    #TODO any other distance processing?
+    # if range_match := RANGE_RE.match(stripped_val):
+    #     low, high = int(range_match.group(1)), int(range_match.group(2))
+    #     midpoint = (low + high) // 2
+    #     return str(midpoint)
+        
+    return "error"
+
+
+
+
+def create_and_save_breeding_dates(site_info_df: pd.DataFrame, data_df: pd.DataFrame):
     # Implementation for creating breeding_dates.csv
     # Keep only the columns we need
-    # columns_needed = [
-    #     "Site_ID", "Group", "Site_Name", "Pulse_Name", 
-    #     "Deployment_Start", "Deployment_End", 
-    #     "Breeding_Type", "Complex_Types", 
-    #     "Outcome", "Substrate", 
-    #     "Approx_Colony_Size", "Colony_Size", 
-    #     "mcstart", "mcend", "incstart", "Hatch_Date", "fledgestart", "fledgedisp", 
-    #     "Abandoned_Date", "Partial_Abandon_Date", "Comment", "Source Row", "Review Status", "Review Notes"]
-    # breeding_dates_df = site_info_df[columns_needed].copy()
+    site_info_cols_needed = [
+        "Pretty Site Name", 
+        "First Recording", "Last Recording", 
+        "Distance to Colony", "Approx Colony Size", 
+        "Substrate",
+    ]
+    data_cols_needed = [
+        "site", "old_site", 
+        "breeding_type", "outcome", 
+        "hatch_accpt", 
+        "abandon","partial_abandon"
+    ]
 
-    # # Save to CSV
-    # breeding_dates_df.to_csv(BREEDING_DATES_FILENAME, index=False)
+    # Subset dataframes to avoid mutating original data
+    site_info_subset = site_info_df[site_info_cols_needed].copy()
+    result = data_df[data_cols_needed].copy()
 
-    # #TODO: Save to the breeding dates directory
-    # #breeding_dates_df.to_csv(BREEDING_DATES_PATH, index=False)
-    pass
+    # 1. Create a temporary merge key by stripping the pulse suffix using regex
+    # r" p\d+$" looks for a space, a 'p', and digits at the very end of the string
+    # "2017 Rush Ranch p1" -> "2017 Rush Ranch"
+    # "2018 Iron Point" -> "2018 Iron Point" (unchanged because regex doesn't match)
+    result["_base_site_name"] = result["site"].str.replace(r" P\d+$", "", regex=True)
 
+    # 2. Merge the site info data into the results using that base name
+    merged_df = pd.merge(
+        result,
+        site_info_subset,
+        left_on="_base_site_name",
+        right_on="Pretty Site Name",
+        how="left"
+    )
+
+    # 3. Drop the temporary mapping columns
+    merged_df = merged_df.drop(columns=["_base_site_name", "Pretty Site Name"])
+
+    # 4. Enforce your exact final column order
+    final_columns = [
+        "site", "old_site", 
+        "breeding_type", "outcome", 
+        "hatch_accpt", 
+        "abandon", "partial_abandon",
+        "First Recording", "Last Recording", 
+        "Distance to Colony", "Approx Colony Size", 
+        "Substrate",
+    ]
+    merged_df = merged_df[final_columns]
+    col_map = {
+        "hatch_accpt": "hatch_date",
+        "abandon": "abandon_date",
+        "partial_abandon": "partial_abandon_date",
+        "First Recording": "first_recording_raw",
+        "Last Recording": "last_recording_raw",
+        "Distance to Colony": "distance_to_colony_raw",
+        "Approx Colony Size": "approx_colony_size_raw",
+        "Substrate": "substrate",
+    }
+    merged_df = merged_df.rename(columns=col_map)
+
+    #TODO: add the code that parses and cleans up distance and size
+
+    # Create a new column to hold the parsed results alongside the originals
+    merged_df["approx_colony_size"] = merged_df["approx_colony_size_raw"].apply(parse_colony_size_metric)
+    merged_df["distance_to_colony"] = merged_df["distance_to_colony_raw"].apply(parse_distance_to_colony_metric)
+    merged_df["first_recording"] = merged_df["first_recording_raw"].apply(transform_date)
+    merged_df["last_recording"] = merged_df["last_recording_raw"].apply(transform_date)
+
+    # Drop the raw value columns now that we've parsed them
+    merged_df = merged_df.drop(columns=[
+        "approx_colony_size_raw", 
+        "distance_to_colony_raw", 
+        "first_recording_raw", 
+        "last_recording_raw"
+    ])
+
+    # Save the cleaned and parsed breeding dates to a CSV file
+    breeding_dates_file = "new breeding dates.csv"
+    merged_df.to_csv(breeding_dates_file, index=False, encoding="utf-8-sig")
+    print(f"Saved {breeding_dates_file}")
+    return merged_df
 
 
 if __name__ == "__main__":
@@ -492,10 +681,10 @@ if __name__ == "__main__":
     # Create site_name_map.csv (ID, Name, Pretty Site Name, PMJ* Columns)
     create_and_save_site_name_map(site_info_df)
 
-    #TODO: Create TRBL reviewer metadata.csv (Name	First Recording	Last Recording)
+    # Create TRBL reviewer metadata.csv (Name	First Recording	Last Recording)
     create_and_save_trbl_reviewer_metadata(site_info_df)
 
-    #TODO: Create a version of the All file for compatibility
+    # Create a version of the All file for compatibility
     # I want to do two things here:
     # 1. Make a version of the all file using the latest data. That's what we need for
     # the summarizer and other tools that rely on the latest "All" file.
@@ -504,11 +693,6 @@ if __name__ == "__main__":
     # 2. Make a version of the data file in the format of the old "All" file for comparison.
     update_and_save_old_all_sheet(data_df)
     
-    #TODO: Create breeding_dates.csv ()
-    create_and_save_breeding_dates(site_info_df)
+    create_and_save_breeding_dates(site_info_df, data_df)
 
     #TODO: Any other files needed?
-    
-    # mapped_df = convert_data_to_all_format(data_df)
-
-    # final_df = update_and_save_main_sheet(mapped_df)

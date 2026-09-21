@@ -1,58 +1,60 @@
 Processing Complete
 ===================
-Rows processed: 216
+Rows processed: 219
 
 ARI_Status counts:
 ------------------
 ARI_Status
-OK                          85
-NHD                         69
-ND_INVALID_BREEDING_TYPE    54
-ND_NO_FEMALE_CALLS           7
+NHD                         82
+OK                          80
+ND_INVALID_BREEDING_TYPE    48
+ND_NO_FEMALE_CALLS           8
 ND_INSUFFICIENT_DAYS         1
 
 ARI_Class counts:
 -----------------
 ARI_Class
-Not ARI-scorable                           131
-High offspring acoustic activity            52
-Reduced offspring acoustic activity         27
-No detected offspring acoustic evidence      6
+Not ARI-scorable                           139
+High offspring acoustic activity            51
+Reduced offspring acoustic activity         25
+No detected offspring acoustic evidence      4
 
 ARI_Status by Outcome:
 ----------------------
-ARI_Status           ND_INSUFFICIENT_DAYS  ND_INVALID_BREEDING_TYPE  ND_NO_FEMALE_CALLS  NHD  OK  All
-Outcome                                                                                              
-Abandoned                               0                         6                   0    2   5   13
-No Colony                               0                         0                   0   23   0   23
-No TRBL                                 0                         0                   0   16   0   16
-Partially Abandoned                     0                         0                   0    1  20   21
-Successful                              0                        42                   7   25  59  133
-Unknown                                 1                         6                   0    2   1   10
-All                                     1                        54                   7   69  85  216
+ARI_Status              ND_INSUFFICIENT_DAYS  ND_INVALID_BREEDING_TYPE  ND_NO_FEMALE_CALLS  NHD  OK  All
+Outcome                                                                                                 
+Abandoned                                  0                         4                   0    6   3   13
+No Colony                                  0                         0                   0   23   0   23
+No TRBL                                    0                         0                   0   16   0   16
+Partially Abandoned                        0                         0                   0    1  20   21
+REVIEW_MISSING_OUTCOME                     0                         2                   0    1   0    3
+Successful                                 0                        37                   8   32  56  133
+Unknown                                    1                         5                   0    3   1   10
+All                                        1                        48                   8   82  80  219
 
 ARI_Status by Breeding Type:
 ----------------------------
 ARI_Status     ND_INSUFFICIENT_DAYS  ND_INVALID_BREEDING_TYPE  ND_NO_FEMALE_CALLS  NHD  OK  All
 Breeding_Type                                                                                  
 Additions                         0                         4                   0    0   0    4
-Asynchronous                      0                        16                   0    5   0   21
-Complex                           0                        22                   0    3   0   25
+Asynchronous                      0                        17                   0    5   0   22
+Complex                           0                        17                   0    8   0   25
 No Colony                         0                         0                   0   23   0   23
 No TRBL                           0                         0                   0   16   0   16
-Sequential                        1                         0                   3    7  30   41
-Simple                            0                         0                   4    6  55   65
-Unknown                           0                        12                   0    9   0   21
-All                               1                        54                   7   69  85  216
+Sequential                        1                         0                   3    8  29   41
+Simple                            0                         0                   5   10  51   66
+Unknown                           0                        10                   0   12   0   22
+All                               1                        48                   8   82  80  219
 
 ARI_Class by Outcome:
 ---------------------
-ARI_Class            High offspring acoustic activity  No detected offspring acoustic evidence  Not ARI-scorable  Reduced offspring acoustic activity  All
-Outcome                                                                                                                                                   
-Abandoned                                           0                                        5                 8                                    0   13
-No Colony                                           0                                        0                23                                    0   23
-No TRBL                                             0                                        0                16                                    0   16
-Partially Abandoned                                 0                                        1                 1                                   19   21
-Successful                                         51                                        0                74                                    8  133
-Unknown                                             1                                        0                 9                                    0   10
-All                                                52                                        6               131                                   27  216
+ARI_Class               High offspring acoustic activity  No detected offspring acoustic evidence  Not ARI-scorable  Reduced offspring acoustic activity  All
+Outcome                                                                                                                                                      
+Abandoned                                              0                                        3                10                                    0   13
+No Colony                                              0                                        0                23                                    0   23
+No TRBL                                                0                                        0                16                                    0   16
+Partially Abandoned                                    1                                        1                 1                                   18   21
+REVIEW_MISSING_OUTCOME                                 0                                        0                 3                                    0    3
+Successful                                            50                                        0                77                                    6  133
+Unknown                                                0                                        0                 9                                    1   10
+All                                                   51                                        4               139                                   25  219
