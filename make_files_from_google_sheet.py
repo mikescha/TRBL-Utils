@@ -2,6 +2,7 @@ import datetime
 import io
 import os
 import re
+import shutil
 import time
 
 import pandas as pd
@@ -83,6 +84,33 @@ def fetch_sheet_dataframe(
             time.sleep(retry_delay)
 
     return results_df
+
+
+def get_data_from_main_sheet(site_info_df: pd.DataFrame)->pd.DataFrame:
+    df = fetch_sheet_dataframe(sheet_name="main", header_row=2)
+
+    #Drop any rows with Skip Site = Y
+    valid_site_names = site_info_df["Pretty Site Name"][site_info_df["Skip"].str.upper() != "Y"].copy()
+
+    # Site names in the main sheet can end with " P1"-" P4" (case-insensitive), so we need to account for that
+    filtered_df = df[
+        df["site"].str.replace(r"\s+[Pp][1-4]$", "", regex=True).isin(valid_site_names)
+    ].copy()
+
+    return filtered_df
+
+
+def get_data_from_site_info_sheet()->pd.DataFrame:
+    '''
+    Fetches the site_info sheet from the Google Sheet and returns it as a DataFrame.
+    Filters out rows where "Skip Site" is "Y".
+    '''
+    df = fetch_sheet_dataframe(sheet_name="site_info", header_row=1)
+
+    #Drop any rows with Skip Site = Y
+    filtered_df = df[df["Skip"].str.upper() != "Y"].copy()
+    
+    return filtered_df
 
 
 def transform_value(val, site: str, col: str, YYYYMMDD_format: bool = True) -> str:
@@ -187,6 +215,9 @@ def convert_data_to_all_format(df: pd.DataFrame, YYYYMMDD_format: bool = True) -
             #leave outcome headings default to ""
             output_rows[site_name].update({col: "" for col in outcome_headings})
             output_rows[site_name]["Name"] = site_name
+            #set pulse outcome columns to "n/a"
+            for p in pulse_prefixes:
+                output_rows[site_name][f"{p}outcome"] = "n/a"
 
         row_dict = output_rows[site_name]
 
@@ -244,97 +275,7 @@ def convert_data_to_all_format(df: pd.DataFrame, YYYYMMDD_format: bool = True) -
     return out_df
 
 
-
-def update_and_save_old_all_sheet(
-    input_df: pd.DataFrame,
-    spreadsheet_id: str = "1NQVKtxVv7zmODNuvn45TOYf-j-nU_u3Q1W-6Y_nCh-Y",
-    gid: str = "0",
-) -> pd.DataFrame:
-    """
-    Downloads the original All tracking sheet
-    Updates rows matching 'Name' with input_df data,
-    Saves the combined result locally while preserving the top 2 header lines.
-    """
-    # 1. Direct CSV Download
-    csv_url = f"https://docs.google.com/spreadsheets/d/{spreadsheet_id}/export?format=csv&gid={gid}"
-    response = requests.get(csv_url)
-    response.encoding = 'utf-8' # Force utf-8
-    response.raise_for_status()
-
-    # Split lines to isolate top 2 rows from header/data rows. It's 22 due to merged
-    # cells with line breaks.
-    raw_lines = response.text.splitlines(keepends=True)
-    top_metadata_lines = raw_lines[:22]
-    table_data = "".join(raw_lines[22:])
-
-    # 2. Parse main sheet into DataFrame starting at Row 3 headers
-    main_df = pd.read_csv(io.StringIO(table_data), dtype=str, keep_default_na=False)
-
-    # Strip trailing spaces from strings
-    main_df = main_df.map(lambda x: x.strip() if isinstance(x, str) else x)
-
-    if "Pretty Site Name" not in main_df.columns:
-        raise KeyError(
-            "Column 'Pretty Site Name' was not found in Row 3 headers of the downloaded sheet."
-        )
-
-    col_map = {
-        "PMJ Name"   : "PMJ Male Song",
-        "PMJ Name.1" : "PMJ Male Chorus",
-        "PMJ Name.2" : "PMJ Female Chatter",
-        "PMJ Name.3" : "PMJ Hatchling",
-        "PMJ Name.4" : "PMJ Nestling",
-        "PMJ Name.5" : "PMJ Fledgling",
-    }
-    # Map old column names to new column names in main_df
-    main_df.rename(columns=col_map, inplace=True)
-
-    # 3. Update matching rows in main_df
-    input_by_site_df = convert_data_to_all_format(input_df)
-    col_map = {
-        "p1Outcome" : "p1outcome",
-        "p2Outcome" : "p2outcome",
-        "p3Outcome" : "p3outcome",
-        "p4Outcome" : "p4outcome",
-    }
-    input_by_site_df.rename(columns=col_map, inplace=True)
-
-    for _, input_row in input_by_site_df.iterrows():
-        site_name = input_row["Name"]
-        match_mask = main_df["Pretty Site Name"] == site_name
-
-        if match_mask.any():
-            # Overwrite values for matching columns
-            for col in input_by_site_df.columns:
-                if col in main_df.columns:
-                    main_df.loc[match_mask, col] = input_row[col]
-        else:
-            print(
-                f"Warning: Site '{site_name}' from input_df was not found in the main sheet."
-            )
-
-    # 4. Clean the First Recording, Last Recording columns using transform_value()
-    for col in ["First Recording", "Last Recording"]:
-        main_df[col] = [
-            transform_value(val, site, col) 
-            for val, site in zip(main_df[col], main_df["Pretty Site Name"],strict=True)
-        ]
-
-    # 5. Save modified main sheet locally (preserving original top 2 rows)
-    output_filename = "TRBL Analysis Tracking - All(old sheet updated to new vals).csv"
-    with open(output_filename, "w", encoding="utf-8", newline="") as f:
-        f.writelines(top_metadata_lines)
-        main_df.to_csv(f, index=False)
-    print(f"Successfully updated and saved to '{output_filename}'")
-
-    #TODO copy this to the real location
-    output_filename = INPUT_CSV
-
-    return main_df
-
-
 def save_csv_to_extractors(df: pd.DataFrame, csv_filename: str):
-    import shutil
     df.to_csv(csv_filename, index=False)
     print(f"Successfully created '{csv_filename}'")
 
@@ -382,7 +323,6 @@ def create_and_save_trbl_reviewer_metadata(site_info_df: pd.DataFrame):
     #trbl_reviewer_metadata_df.to_csv(TRBL_REVIEWER_METADATA_PATH, index=False)
 
 
-
 def create_and_save_new_all_file_for_compatibility(
         site_info_df: pd.DataFrame, 
         data_df: pd.DataFrame
@@ -421,7 +361,11 @@ def create_and_save_new_all_file_for_compatibility(
         "Id": "Site ID",
         "Name_x" : "Name",
         "Name_y" : "Pretty Site Name 2",
-        "Skip" : "Skip Site"
+        "Skip" : "Skip Site",
+        "p1outcome" : "p1Outcome",
+        "p2outcome" : "p2Outcome",
+        "p3outcome" : "p3Outcome",
+        "p4outcome" : "p4Outcome",
     }
     all_df.rename(columns=col_map, inplace=True)
 
@@ -434,11 +378,88 @@ def create_and_save_new_all_file_for_compatibility(
         all_df.to_csv(f, index=False)
         print(f"Saved {filename} to project folder")
 
-    all_df.to_csv(INPUT_CSV, index=False)
-    print(f"Saved {INPUT_CSV}")
+    # Save to the Summarizer data folder
+    shutil.copy(filename, INPUT_CSV)
+    print(f"Copied '{filename}' to '{INPUT_CSV}'")
 
     return
 
+
+def update_and_save_old_all_sheet(
+    input_df: pd.DataFrame,
+    spreadsheet_id: str = "1NQVKtxVv7zmODNuvn45TOYf-j-nU_u3Q1W-6Y_nCh-Y",
+    gid: str = "0",
+) -> pd.DataFrame:
+    """
+    Downloads the original All tracking sheet
+    Updates rows matching 'Name' with input_df data,
+    Saves the combined result locally while preserving the top 2 header lines.
+    """
+    # 1. Direct CSV Download
+    csv_url = f"https://docs.google.com/spreadsheets/d/{spreadsheet_id}/export?format=csv&gid={gid}"
+    response = requests.get(csv_url)
+    response.encoding = 'utf-8' # Force utf-8
+    response.raise_for_status()
+
+    # Split lines to isolate top 2 rows from header/data rows. It's 22 due to merged
+    # cells with line breaks.
+    raw_lines = response.text.splitlines(keepends=True)
+    top_metadata_lines = raw_lines[:22]
+    table_data = "".join(raw_lines[22:])
+
+    # 2. Parse main sheet into DataFrame starting at Row 3 headers
+    main_df = pd.read_csv(io.StringIO(table_data), dtype=str, keep_default_na=False)
+
+    # Strip trailing spaces from strings
+    main_df = main_df.map(lambda x: x.strip() if isinstance(x, str) else x)
+
+    if "Pretty Site Name" not in main_df.columns:
+        raise KeyError(
+            "Column 'Pretty Site Name' was not found in Row 3 headers of the downloaded sheet."
+        )
+
+    col_map = {
+        "PMJ Name"   : "PMJ Male Song",
+        "PMJ Name.1" : "PMJ Male Chorus",
+        "PMJ Name.2" : "PMJ Female Chatter",
+        "PMJ Name.3" : "PMJ Hatchling",
+        "PMJ Name.4" : "PMJ Nestling",
+        "PMJ Name.5" : "PMJ Fledgling",
+    }
+    # Map old column names to new column names in main_df
+    main_df.rename(columns=col_map, inplace=True)
+
+    # 3. Update matching rows in main_df
+    input_by_site_df = convert_data_to_all_format(input_df)
+    for _, input_row in input_by_site_df.iterrows():
+        site_name = input_row["Name"]
+        match_mask = main_df["Pretty Site Name"] == site_name
+
+        if match_mask.any():
+            # Overwrite values for matching columns
+            for col in input_by_site_df.columns:
+                if col in main_df.columns:
+                    main_df.loc[match_mask, col] = input_row[col]
+        else:
+            print(
+                f"Warning: Site '{site_name}' from input_df was not found in the main sheet."
+            )
+
+    # 4. Clean the First Recording, Last Recording columns using transform_value()
+    for col in ["First Recording", "Last Recording"]:
+        main_df[col] = [
+            transform_value(val, site, col) 
+            for val, site in zip(main_df[col], main_df["Pretty Site Name"],strict=True)
+        ]
+
+    # 5. Save modified main sheet locally (preserving original top 2 rows)
+    output_filename = "TRBL Analysis Tracking - All(old sheet updated to new vals).csv"
+    with open(output_filename, "w", encoding="utf-8", newline="") as f:
+        f.writelines(top_metadata_lines)
+        main_df.to_csv(f, index=False)
+    print(f"Successfully updated and saved to '{output_filename}'")
+
+    return main_df
 
 
 def create_and_save_breeding_dates(site_info_df: pd.DataFrame):
@@ -460,36 +481,6 @@ def create_and_save_breeding_dates(site_info_df: pd.DataFrame):
     # #TODO: Save to the breeding dates directory
     # #breeding_dates_df.to_csv(BREEDING_DATES_PATH, index=False)
     pass
-
-
-def get_data_from_main_sheet(site_info_df: pd.DataFrame)->pd.DataFrame:
-    df = fetch_sheet_dataframe(sheet_name="main", header_row=2)
-
-    #Drop any rows with Skip Site = Y
-    valid_site_names = site_info_df["Pretty Site Name"][site_info_df["Skip"].str.upper() != "Y"].copy()
-
-    # Site names in the main sheet can end with " P1"-" P4" (case-insensitive), so we need to account for that
-    filtered_df = df[
-        df["site"].str.replace(r"\s+[Pp][1-4]$", "", regex=True).isin(valid_site_names)
-    ].copy()
-
-    #TODO: Any other processing for data_df needed?
-    return filtered_df
-
-
-
-def get_data_from_site_info_sheet()->pd.DataFrame:
-    '''
-    Fetches the site_info sheet from the Google Sheet and returns it as a DataFrame.
-    Filters out rows where "Skip Site" is "Y".
-    '''
-    df = fetch_sheet_dataframe(sheet_name="site_info", header_row=1)
-
-    #Drop any rows with Skip Site = Y
-    filtered_df = df[df["Skip"].str.upper() != "Y"].copy()
-    
-    #TODO: Any other processing for data_df needed?
-    return filtered_df
 
 
 

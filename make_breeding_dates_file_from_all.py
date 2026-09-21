@@ -6,6 +6,8 @@ from collections import Counter
 from datetime import date, datetime
 from pathlib import Path
 
+import pandas as pd
+
 from common import (
     COL_ABANDON_DATE,
     COL_APPROX_COLONY_SIZE,
@@ -62,7 +64,7 @@ REVIEW_OK = "OK"
 REVIEW_NEEDED = "REVIEW"
 MISSING_OUTCOME_SENTINEL = "REVIEW_MISSING_OUTCOME"
 
-DATE_RE = re.compile(r"^(?P<approx>~?)(?P<date>\d{1,2}/\d{1,2}/\d{4})(?P<partial>[Pp]?)$")
+DATE_RE = re.compile(r"^(?P<approx>~?)(?P<date>\d{1,2}/\d{1,2}/\d{4})(?P<partial>[Pp]|\([A-Za-z]{1,3}\))?$")
 
 # Regex to detect Excel auto-converted date corruption (e.g. 2026-05-10 or 05-10-2026)
 EXCEL_DATE_CORRUPTION_RE = re.compile(r"\d{2,4}[-/]\d{1,2}[-/]\d{2,4}")
@@ -154,12 +156,10 @@ def parse_date_token(value: object, field: str) -> tuple[str, date | None, bool]
 
     if text in MISSING_DATE_VALUES:
         return "missing", None, False
-    if text.startswith("before"):
-        return ("valid", None, False) if field == "hatch" else ("invalid_before_non_hatch", None, False)
     if text in {"inf", "missed"}:
         return "valid", None, False
     if text == "Continuous":
-        if field in {"fledgestart", "fledgedisp"}:
+        if field in {"fledgestart", "fledgedisp", "mcstart", "mcend"}:
             return ("valid", None, False) 
         else:
             return ("invalid_continuous_field", None, False)
@@ -168,9 +168,12 @@ def parse_date_token(value: object, field: str) -> tuple[str, date | None, bool]
     if not match:
         return "invalid_characters", None, False
 
+    #TODO need to decide what kind of error checking to put in here. Right now, it fails on any date with
+    #a trailing bit like 4/27/2020(C) if that is outside the abandon column, which is wrong.
+
     has_partial_suffix = bool(match.group("partial"))
-    if has_partial_suffix and field != "abandon":
-        return "invalid_partial_suffix_non_abandon", None, has_partial_suffix
+    # if has_partial_suffix and field != "abandon":
+    #     return "invalid_partial_suffix_non_abandon", None, has_partial_suffix
 
     try:
         parsed_date = datetime.strptime(match.group("date"), "%m/%d/%Y").date()
@@ -398,18 +401,22 @@ def write_summary(output_rows: list[dict[str, str]], source_issues: list[dict[st
 
 def make_breeding_dates_file() -> None:
     # 1. Read input CSV tracking data
-    source_rows = []
-    with INPUT_CSV.open("r", encoding="utf-8-sig", newline="") as infile:
-        reader = csv.reader(infile)
-        for _ in range(HEADER_ROWS_TO_SKIP):
-            next(reader)
-        headers = next(reader)
-        
-        if missing_columns := sorted(REQUIRED_COLUMNS - set(headers)):
-            raise ValueError(f"Input file is missing required columns: {', '.join(missing_columns)}")
+    df = pd.read_csv(
+        INPUT_CSV, 
+        skiprows=HEADER_ROWS_TO_SKIP, 
+        encoding="utf-8-sig",
+        dtype=str,             # Read everything as text, just like csv.reader
+        keep_default_na=False  # Prevent 'n/a' or empty cells from turning into NaN
+    )
 
-        for r_num, values in enumerate(reader, start=HEADER_ROWS_TO_SKIP + 2):
-            source_rows.append((r_num, {h: v for h, v in zip(headers, values, strict=True)}))
+    if missing_cols := REQUIRED_COLUMNS - set(df.columns):
+        raise ValueError(f"Input file is missing required columns: {', '.join(sorted(missing_cols))}")
+
+    # Convert directly to a list of (row_number, dictionary) tuples
+    source_rows = [
+        (r_num, row) 
+        for r_num, row in enumerate(df.to_dict("records"), start=HEADER_ROWS_TO_SKIP + 2)
+    ]
 
     # 2. Extract, Validate, and Transform
     output_rows, source_issues = [], []

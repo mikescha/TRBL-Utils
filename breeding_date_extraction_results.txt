@@ -1,22 +1,23 @@
 Breeding Dates Extraction Summary
 =================================
 
-Output rows: 216
-Output rows needing review: 2
-Source issues: 2
+Output rows: 219
+Output rows needing review: 6
+Source issues: 6
 
 Output Review Status Counts
 ---------------------------
-OK: 214
-REVIEW: 2
+OK: 213
+REVIEW: 6
 
 Issue Severity Counts
 ---------------------
-REVIEW: 2
+REVIEW: 6
 
 Issue Type Counts
 -----------------
-outcome_without_dates: 2
+outcome_without_dates: 3
+missing_outcome_with_dates: 3
 
 Outcome Counts
 --------------
@@ -26,14 +27,15 @@ Partially Abandoned: 21
 No TRBL: 16
 Abandoned: 13
 Unknown: 10
+REVIEW_MISSING_OUTCOME: 3
 
 Breeding Type Counts
 --------------------
-Simple: 65
+Simple: 66
 Sequential: 41
 Complex: 25
 No Colony: 23
-Unknown: 21
-Asynchronous: 21
+Unknown: 22
+Asynchronous: 22
 No TRBL: 16
 Additions: 4
