@@ -593,7 +593,7 @@ def create_and_save_breeding_dates(site_info_df: pd.DataFrame, data_df: pd.DataF
     # Implementation for creating breeding_dates.csv
     # Keep only the columns we need
     site_info_cols_needed = [
-        "Pretty Site Name", 
+        "Id","Pretty Site Name", 
         "First Recording", "Last Recording", 
         "Distance to Colony", "Approx Colony Size", 
         "Substrate",
@@ -601,7 +601,7 @@ def create_and_save_breeding_dates(site_info_df: pd.DataFrame, data_df: pd.DataF
     data_cols_needed = [
         "site", "old_site", 
         "breeding_type", "outcome", 
-        "hatch_accpt", 
+        "ps_onset", "inc_onset", "brood_onset", "flgd_onset", "dispersal", 
         "abandon","partial_abandon"
     ]
 
@@ -627,19 +627,26 @@ def create_and_save_breeding_dates(site_info_df: pd.DataFrame, data_df: pd.DataF
     # 3. Drop the temporary mapping columns
     merged_df = merged_df.drop(columns=["_base_site_name", "Pretty Site Name"])
 
+
     # 4. Enforce your exact final column order
     final_columns = [
-        "site", "old_site", 
+        "Id", "site", "old_site", 
         "breeding_type", "outcome", 
-        "hatch_accpt", 
+        "ps_onset", "inc_onset", "brood_onset", "flgd_onset", "dispersal", 
         "abandon", "partial_abandon",
         "First Recording", "Last Recording", 
         "Distance to Colony", "Approx Colony Size", 
         "Substrate",
     ]
     merged_df = merged_df[final_columns]
+
     col_map = {
-        "hatch_accpt": "hatch_date",
+        "Id" : "id",
+        "ps_onset": "settlement_start",
+        "inc_onset": "incubation_onset",
+        "brood_onset": "brooding_onset",
+        "flgd_onset": "fledging_onset",
+        "dispersal": "fledgling_dispersal",
         "abandon": "abandon_date",
         "partial_abandon": "partial_abandon_date",
         "First Recording": "first_recording_raw",
@@ -666,10 +673,30 @@ def create_and_save_breeding_dates(site_info_df: pd.DataFrame, data_df: pd.DataF
         "last_recording_raw"
     ])
 
+
+    metadata_cols_needed = [
+        "id", "site", "old_site", "first_recording", "last_recording",
+        "distance_to_colony", "approx_colony_size", "substrate"
+    ]
+
+    accepted_chronology_cols_needed = [
+        "id", "site", "old_site", 
+        "breeding_type", "outcome", 
+        "settlement_start", "incubation_onset", "brooding_onset", "fledging_onset", "fledgling_dispersal", 
+        "abandon_date", "partial_abandon_date"
+    ]
+    metadata_df = merged_df[metadata_cols_needed].copy()
+    accepted_chronology_df = merged_df[accepted_chronology_cols_needed].copy()
+
     # Save the cleaned and parsed breeding dates to a CSV file
-    breeding_dates_file = "new breeding dates.csv"
-    merged_df.to_csv(breeding_dates_file, index=False, encoding="utf-8-sig")
-    print(f"Saved {breeding_dates_file}")
+    file_map = {
+        "chronology_and_metadata.csv": merged_df,
+        "trbl_site_metadata.csv": metadata_df,
+        "trbl_accepted_chronology.csv": accepted_chronology_df
+    }
+    for file_name, df in file_map.items():
+        df.to_csv(file_name, index=False, encoding="utf-8-sig")
+        print(f"Saved {file_name}")
     return merged_df
 
 
@@ -678,20 +705,20 @@ if __name__ == "__main__":
     data_df = get_data_from_main_sheet(site_info_df)
 
 
-    # Create site_name_map.csv (ID, Name, Pretty Site Name, PMJ* Columns)
-    create_and_save_site_name_map(site_info_df)
+    # # Create site_name_map.csv (ID, Name, Pretty Site Name, PMJ* Columns)
+    # create_and_save_site_name_map(site_info_df)
 
-    # Create TRBL reviewer metadata.csv (Name	First Recording	Last Recording)
-    create_and_save_trbl_reviewer_metadata(site_info_df)
+    # # Create TRBL reviewer metadata.csv (Name	First Recording	Last Recording)
+    # create_and_save_trbl_reviewer_metadata(site_info_df)
 
-    # Create a version of the All file for compatibility
-    # I want to do two things here:
-    # 1. Make a version of the all file using the latest data. That's what we need for
-    # the summarizer and other tools that rely on the latest "All" file.
-    create_and_save_new_all_file_for_compatibility(site_info_df, data_df)
+    # # Create a version of the All file for compatibility
+    # # I want to do two things here:
+    # # 1. Make a version of the all file using the latest data. That's what we need for
+    # # the summarizer and other tools that rely on the latest "All" file.
+    # create_and_save_new_all_file_for_compatibility(site_info_df, data_df)
 
-    # 2. Make a version of the data file in the format of the old "All" file for comparison.
-    update_and_save_old_all_sheet(data_df)
+    # # 2. Make a version of the data file in the format of the old "All" file for comparison.
+    # update_and_save_old_all_sheet(data_df)
     
     create_and_save_breeding_dates(site_info_df, data_df)
 

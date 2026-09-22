@@ -271,7 +271,7 @@ def load_automated_results_from_csv(dir:str = DEFAULT_AUTOMATED_RESULTS_DIR) -> 
         "settlement_start","settlement_end",
         "incubation_onset","brooding_onset","fledging_onset","fledgling_dispersal"
     ]
-    df_main_cols = df_all_data[cols_to_keep]
+    df_main_cols = df_all_data[cols_to_keep].copy()
 
     # 1. Convert columns to string series
     site_str = df_main_cols['site'].astype(str)
@@ -323,7 +323,9 @@ def load_manual_results_from_csv() -> pd.DataFrame:
     return df_manual
 
 def load_ARI_score_from_csv() -> pd.DataFrame:
-    file_path = "C:\\Users\\mikes\\GitHub\\TRBL-Utils\\nestling_to_female_ratios.csv"
+    file_path = (
+        "C:\\Users\\mikes\\GitHub\\TRBL-Breeding-Stages-Final\\outputs\\ari\\trbl_acoustic_reproductive_index.csv"
+    )
     df_ARI = pd.read_csv(file_path)
     
     return df_ARI
@@ -361,15 +363,16 @@ def sync_via_webhook(df: pd.DataFrame, webhook_url: str, sheet_name: str = ""):
 if __name__ == "__main__":
     WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbxtzRiML6eQQCyERCQSywEvLZYCFglybWn5CQ_WJuHC6Mw77SbTIvkjulu6F16Ob4EWMg/exec"
 
-    df_baseline = pd.read_csv("TRBL_dates - automated_results.csv")
+    #df_baseline = pd.read_csv("TRBL_dates - automated_results.csv")
 
-    latest_results_dir = "C:\\Users\\mikes\\GitHub\\TRBL-Breeding-Stages-Final\\outputs\\check09-17"
-    df_results = load_automated_results_from_csv(dir=latest_results_dir)
-    
-    sync_via_webhook(df_results, WEBHOOK_URL)
+    # latest_results_dir = "C:\\Users\\mikes\\GitHub\\TRBL-Breeding-Stages-Final\\outputs\\check09-17\\"
+    # df_results = load_automated_results_from_csv(dir=latest_results_dir)
+
+    # # with no sheet name parameter, the script will automatically use today's date as the sheet name
+    # sync_via_webhook(df_results, WEBHOOK_URL)
 
     #df_manual_results = load_manual_results_from_csv()
     #sync_via_webhook(df_manual_results, WEBHOOK_URL, sheet_name="manual_results")
 
-    # df_ARI = load_ARI_score_from_csv()
-    # sync_via_webhook(df_ARI, WEBHOOK_URL, sheet_name="ARI_scores")
+    df_ARI = load_ARI_score_from_csv()
+    sync_via_webhook(df_ARI, WEBHOOK_URL, sheet_name="ARI_scores")
