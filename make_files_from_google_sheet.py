@@ -594,7 +594,7 @@ def create_and_save_breeding_dates(site_info_df: pd.DataFrame, data_df: pd.DataF
     # Implementation for creating breeding_dates.csv
     # Keep only the columns we need
     site_info_cols_needed = [
-        "Id","Pretty Site Name", 
+        "Id", "Name", "Pretty Site Name", 
         "First Recording", "Last Recording", 
         "Distance to Colony", "Approx Colony Size", 
         "Substrate", "Altitude", "Latitude", "Longitude"
@@ -635,8 +635,14 @@ def create_and_save_breeding_dates(site_info_df: pd.DataFrame, data_df: pd.DataF
         "Longitude": "longitude",
     }
     metadata_df = metadata_df.rename(columns=metadata_col_map)
-    metadata_df["evidence_site"] = metadata_df["site"]
+    #TODO THIS NEEDS TO MATCH THE PARQUET, so for now it will be the old name minus the pulse suffix
+    #site=2017%20Rush%20Ranch
 
+    metadata_df["evidence_site"] = (
+        "site=" + metadata_df["Name"].str.replace(" ", "%20", regex=False)
+    )
+    metadata_df = metadata_df.drop(columns=["Name"])
+    
     result_col_map = {
         "site" : "pretty_site_name",
         "ps_onset": "settlement_start",
