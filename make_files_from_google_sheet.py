@@ -448,6 +448,7 @@ def create_and_save_new_all_file_for_compatibility(
     shutil.copy(filename, INPUT_CSV)
     print(f"Copied '{filename}' to '{INPUT_CSV}'")
 
+
     return
 
 
@@ -596,7 +597,7 @@ def create_and_save_breeding_dates(site_info_df: pd.DataFrame, data_df: pd.DataF
         "Id","Pretty Site Name", 
         "First Recording", "Last Recording", 
         "Distance to Colony", "Approx Colony Size", 
-        "Substrate",
+        "Substrate", "Altitude", "Latitude", "Longitude"
     ]
     data_cols_needed = [
         "site", "old_site", 
@@ -606,42 +607,38 @@ def create_and_save_breeding_dates(site_info_df: pd.DataFrame, data_df: pd.DataF
     ]
 
     # Subset dataframes to avoid mutating original data
-    site_info_subset = site_info_df[site_info_cols_needed].copy()
-    result = data_df[data_cols_needed].copy()
+    metadata_df = site_info_df[site_info_cols_needed].copy()
+    result_df = data_df[data_cols_needed].copy()
 
-    # 1. Create a temporary merge key by stripping the pulse suffix using regex
-    # r" p\d+$" looks for a space, a 'p', and digits at the very end of the string
-    # "2017 Rush Ranch p1" -> "2017 Rush Ranch"
-    # "2018 Iron Point" -> "2018 Iron Point" (unchanged because regex doesn't match)
-    result["_base_site_name"] = result["site"].str.replace(r" P\d+$", "", regex=True)
+    # Clean up the raw columns from the merged dataframe before parsing new metrics
+    # Create a new column to hold the parsed results alongside the originals
+    metadata_df["approx_colony_size"] = metadata_df["Approx Colony Size"].apply(parse_colony_size_metric)
+    metadata_df["distance_to_colony"] = metadata_df["Distance to Colony"].apply(parse_distance_to_colony_metric)
+    metadata_df["first_recording"] = metadata_df["First Recording"].apply(transform_date)
+    metadata_df["last_recording"] = metadata_df["Last Recording"].apply(transform_date)
 
-    # 2. Merge the site info data into the results using that base name
-    merged_df = pd.merge(
-        result,
-        site_info_subset,
-        left_on="_base_site_name",
-        right_on="Pretty Site Name",
-        how="left"
-    )
+    # Drop the raw value columns now that we've parsed them
+    metadata_df = metadata_df.drop(columns=[
+        "Approx Colony Size", 
+        "Distance to Colony", 
+        "First Recording", 
+        "Last Recording"
+    ])
 
-    # 3. Drop the temporary mapping columns
-    merged_df = merged_df.drop(columns=["_base_site_name", "Pretty Site Name"])
-
-
-    # 4. Enforce your exact final column order
-    final_columns = [
-        "Id", "site", "old_site", 
-        "breeding_type", "outcome", 
-        "ps_onset", "inc_onset", "brood_onset", "flgd_onset", "dispersal", 
-        "abandon", "partial_abandon",
-        "First Recording", "Last Recording", 
-        "Distance to Colony", "Approx Colony Size", 
-        "Substrate",
-    ]
-    merged_df = merged_df[final_columns]
-
-    col_map = {
+    # Clean up all column names to be lowercase and snake_case for consistency
+    metadata_col_map = {
         "Id" : "id",
+        "Pretty Site Name": "site",
+        "Substrate": "substrate",
+        "Altitude": "altitude",
+        "Latitude": "latitude",
+        "Longitude": "longitude",
+    }
+    metadata_df = metadata_df.rename(columns=metadata_col_map)
+    metadata_df["evidence_site"] = metadata_df["site"]
+
+    result_col_map = {
+        "site" : "pretty_site_name",
         "ps_onset": "settlement_start",
         "inc_onset": "incubation_onset",
         "brood_onset": "brooding_onset",
@@ -649,55 +646,92 @@ def create_and_save_breeding_dates(site_info_df: pd.DataFrame, data_df: pd.DataF
         "dispersal": "fledgling_dispersal",
         "abandon": "abandon_date",
         "partial_abandon": "partial_abandon_date",
-        "First Recording": "first_recording_raw",
-        "Last Recording": "last_recording_raw",
-        "Distance to Colony": "distance_to_colony_raw",
-        "Approx Colony Size": "approx_colony_size_raw",
-        "Substrate": "substrate",
     }
-    merged_df = merged_df.rename(columns=col_map)
+    result_df = result_df.rename(columns=result_col_map)
 
-    #TODO: add the code that parses and cleans up distance and size
+    # Add the id to the result_df column for mapping
+    site_id_cols_needed = ['id', 'site']
+    site_id_df = metadata_df[site_id_cols_needed].copy()
 
-    # Create a new column to hold the parsed results alongside the originals
-    merged_df["approx_colony_size"] = merged_df["approx_colony_size_raw"].apply(parse_colony_size_metric)
-    merged_df["distance_to_colony"] = merged_df["distance_to_colony_raw"].apply(parse_distance_to_colony_metric)
-    merged_df["first_recording"] = merged_df["first_recording_raw"].apply(transform_date)
-    merged_df["last_recording"] = merged_df["last_recording_raw"].apply(transform_date)
+    # 1. Create a temporary merge key by stripping the pulse suffix using regex
+    # r" p\d+$" looks for a space, a 'p', and digits at the very end of the string
+    # "2017 Rush Ranch p1" -> "2017 Rush Ranch"
+    # "2018 Iron Point" -> "2018 Iron Point" (unchanged because regex doesn't match)
+    result_df["base_site_name"] = result_df["pretty_site_name"].str.replace(r" P\d+$", "", regex=True)
 
-    # Drop the raw value columns now that we've parsed them
-    merged_df = merged_df.drop(columns=[
-        "approx_colony_size_raw", 
-        "distance_to_colony_raw", 
-        "first_recording_raw", 
-        "last_recording_raw"
-    ])
+    # Extract the 'P' and numbers at the end of the string, and fill misses with ""
+    result_df["pulse"] = (
+        result_df["pretty_site_name"]
+        .str.extract(r" ([Pp]\d+)$", expand=False)
+        .fillna("")
+    )
 
+    # 2. Merge the site info data into the results using that base name
+    accepted_chronology_df = pd.merge(
+        result_df,
+        site_id_df,
+        left_on="base_site_name",
+        right_on="site",
+        how="left"
+    )
+    # Also make the breeding dates, which I'm not sure we will need in the end but that has all the data in it
+    breeding_data_df = pd.merge(
+        result_df,
+        metadata_df,
+        left_on="base_site_name",
+        right_on="site",
+        how="left"
+    )
 
-    metadata_cols_needed = [
-        "id", "site", "old_site", "first_recording", "last_recording",
-        "distance_to_colony", "approx_colony_size", "substrate"
-    ]
+    # 3. Drop the temporary mapping columns
+    accepted_chronology_df = accepted_chronology_df.drop(columns=["base_site_name", "pretty_site_name"])
+    breeding_data_df = breeding_data_df.drop(columns=["site"])
 
-    accepted_chronology_cols_needed = [
-        "id", "site", "old_site", 
+    # 4. Finalize column order and ensure we only have what we need
+    breeding_data_col_map = {
+        "pretty_site_name": "site",
+    }
+    breeding_data_df = breeding_data_df.rename(columns=breeding_data_col_map)
+    breeding_data_cols = [
+        "id", "site", "base_site_name", "old_site", "pulse",
         "breeding_type", "outcome", 
         "settlement_start", "incubation_onset", "brooding_onset", "fledging_onset", "fledgling_dispersal", 
-        "abandon_date", "partial_abandon_date"
+        "abandon_date", "partial_abandon_date",
+        "first_recording", "last_recording", 
+        "distance_to_colony", "approx_colony_size", 
+        "altitude", "latitude", "longitude",
+        "substrate", 
     ]
-    metadata_df = merged_df[metadata_cols_needed].copy()
-    accepted_chronology_df = merged_df[accepted_chronology_cols_needed].copy()
+    breeding_data_df = breeding_data_df[breeding_data_cols].copy()
+
+    accepted_chronology_cols = [
+        "id", "site", "old_site", "pulse",
+        "breeding_type", "outcome", 
+        "settlement_start", "incubation_onset", "brooding_onset", "fledging_onset", "fledgling_dispersal", 
+        "abandon_date", "partial_abandon_date",
+    ]
+    accepted_chronology_df = accepted_chronology_df[accepted_chronology_cols].copy()
+
+    metadata_cols = [
+        "id", "site", "evidence_site",
+        "first_recording", "last_recording", 
+        "distance_to_colony", "approx_colony_size", 
+        "altitude", "latitude", "longitude",
+        "substrate",
+    ]
+    metadata_df = metadata_df[metadata_cols].copy()
 
     # Save the cleaned and parsed breeding dates to a CSV file
     file_map = {
-        "chronology_and_metadata.csv": merged_df,
+        "chronology_and_metadata.csv": breeding_data_df,
         "trbl_site_metadata.csv": metadata_df,
         "trbl_accepted_chronology.csv": accepted_chronology_df
     }
     for file_name, df in file_map.items():
         df.to_csv(file_name, index=False, encoding="utf-8-sig")
         print(f"Saved {file_name}")
-    return merged_df
+
+    return
 
 
 if __name__ == "__main__":
@@ -715,7 +749,7 @@ if __name__ == "__main__":
     # # I want to do two things here:
     # # 1. Make a version of the all file using the latest data. That's what we need for
     # # the summarizer and other tools that rely on the latest "All" file.
-    # create_and_save_new_all_file_for_compatibility(site_info_df, data_df)
+    #create_and_save_new_all_file_for_compatibility(site_info_df, data_df)
 
     # # 2. Make a version of the data file in the format of the old "All" file for comparison.
     # update_and_save_old_all_sheet(data_df)
