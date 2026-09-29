@@ -1,3 +1,11 @@
+'''
+This is the original script that generated acoustic ratios for nestlings relative to female calls, 
+based on the breeding dates and recordings data.
+
+As of 9/29 this functionality has been integrated with the main branch. So, this is archived for reference, or 
+in case I need the diagnostic files and summary results for further analysis.
+'''
+
 from __future__ import annotations
 
 from datetime import date, timedelta
@@ -7,6 +15,7 @@ from typing import Any, cast
 import pandas as pd
 
 from common import (
+    ARI_SCORE_PATH,
     BASE_DIR,
     COL_BREEDING_TYPE,
     COL_COLONY_SIZE,
@@ -22,7 +31,6 @@ from common import (
     COL_SUBSTRATE,
     DATA_DIR,
     HOURLY_PARQUET_FILES,
-    OUT_FILE,
     OUTCOME_ABANDONED,
     OUTCOME_NO_COLONY,
     OUTCOME_NO_TRBL,
@@ -1169,7 +1177,7 @@ def make_ratios() -> None:
     print("Saving files...")
     publication_cols = [c for c in PUBLICATION_COLUMNS if c in full_results_df.columns]
     publication_df = full_results_df[publication_cols].copy()
-    save_csv_with_retry(publication_df, OUT_FILE, share=True)
+    save_csv_with_retry(publication_df, ARI_SCORE_PATH, share=True)
  
     DIAGNOSTIC_COLUMNS = (
         PUBLICATION_COLUMNS

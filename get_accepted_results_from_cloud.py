@@ -7,6 +7,8 @@ import time
 import pandas as pd
 import requests
 
+from make_accepted_vs_automated_comp import OUTPUT_DIR
+
 WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbxtzRiML6eQQCyERCQSywEvLZYCFglybWn5CQ_WJuHC6Mw77SbTIvkjulu6F16Ob4EWMg/exec"
 
 
@@ -256,11 +258,12 @@ def update_and_save_main_sheet(
             )
 
     # 4. Save modified main sheet locally (preserving original top 2 rows)
-    with open(output_filename, "w", encoding="utf-8", newline="") as f:
+    output_path = OUTPUT_DIR / output_filename
+    with open(output_path, "w", encoding="utf-8", newline="") as f:
         f.writelines(top_metadata_lines)
         main_df.to_csv(f, index=False)
 
-    print(f"Successfully updated and saved to '{output_filename}'")
+    print(f"Successfully updated and saved to '{output_path}'")
     return main_df
 
 
@@ -275,24 +278,34 @@ def clean_data(input_df: pd.DataFrame) -> pd.DataFrame:
     # Implement your data cleaning logic here
     cleaned_df = input_df.copy()
     for col in cleaned_df.select_dtypes(include="object").columns:
-        if col != "site":
+        if col != "site" and col != "outcome":
             parsed_dates = pd.to_datetime(cleaned_df[col], errors="coerce").dt.strftime("%Y-%m-%d")
             cleaned_df[col] = parsed_dates.fillna(cleaned_df[col])
 
+    # # 1. Create a mask that finds the rows where outcome is "No Trbl"
+    # mask = cleaned_df["outcome"] == "No Trbl"
+
+    # # 2. Use .loc to apply the regex replacement only to those specific rows
+    # cleaned_df.loc[mask, "site"] = cleaned_df.loc[mask, "site"].str.replace(
+    #     r" [Pp]\d+$", "", regex=True
+    # )
+
     return cleaned_df
+
 
 if __name__ == "__main__":
 
     data_df = get_data_from_sheet()
 
     col_map = {
-        "site": "site",
+        "old_site": "site",
+        "outcome": "outcome",
         "ss_accpt" : "settlement_start",
         "se_accpt" : "settlement_end",
         "is_accpt": "incubation_onset",
         "hatch_accpt": "brooding_onset",
         "fo_accpt": "fledging_onset",
-        "fd_accpt": "fledgling_dispersal"
+        "fd_accpt": "fledgling_dispersal",
     }
     mapped_df = data_df[list(col_map.keys())]
     mapped_df = mapped_df.rename(columns=col_map) 

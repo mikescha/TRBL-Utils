@@ -1,11 +1,22 @@
+'''
+Compares accepted results with automated results and exports the differences to an Excel file. 
+   - Accepted results are downloaded fresh from the cloud, and these from from the Google Sheet named
+     TRBL_dates and from the "main" tab.
+   - Automated results are taken from a folder that needs to be specified below.
+    
+This is only for internal use and comparison purposes. 
+'''
 import datetime as dt
 import re
+from pathlib import Path
 
 import openpyxl
 import pandas as pd
 import requests
 from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
 from openpyxl.utils import get_column_letter
+
+OUTPUT_DIR = Path(".\\output")
 
 VAL_EQUAL = "equal"
 VAL_DIFFERENT = "different"
@@ -117,15 +128,25 @@ def export_comparison_to_csv(df_baseline: pd.DataFrame, df_results: pd.DataFrame
 # Function to lowercase all string values in a DataFrame
 def normalize_df(df):
     # 1. Replace "(H)" with "(C)" (escaped parens because regex=True)
-    df = df.replace(r"\(H\)", "(C)", regex=True)
+#    df = df.replace(r"\(.*?\)", "(C)", regex=True)
     # 2. Lowercase and strip whitespace from all string cells
+
+
     return df.map(lambda x: x.lower() if isinstance(x, str) else x)
 
+def strip_decoration(val):
+    """Strips common decorations like '(C)' and '~' from a string value."""
+    if isinstance(val, str):
+        val = re.sub(r"\(.*?\)", "", val)
+        val = val.replace("~", "")
+    return val
 
 def test_if_same(val1, val2):
     """Compares two values, treating dual NaNs as equal."""
+    clean1 = strip_decoration(val1)
+    clean2 = strip_decoration(val2)
 
-    delta = date_difference(val1, val2) 
+    delta = date_difference(clean1, clean2) 
     if delta is not None:
         if abs(delta.days) > 3: 
             return VAL_BIG
@@ -134,59 +155,59 @@ def test_if_same(val1, val2):
         else:
             return VAL_EQUAL
 
-    if val1 == val2:
+    if clean1 == clean2:
         return VAL_EQUAL
     else:
         return VAL_DIFFERENT
-    #strip "(C)"
-    if isinstance(val1, str):
-        val1 = val1.replace("(C)", "")
-    if isinstance(val2, str):
-        val2 = val2.replace("(C)", "")
-
-    #strip "~"
-    if isinstance(val1, str):
-        val1 = val1.replace("~", "")
-    if isinstance(val2, str):
-        val2 = val2.replace("~", "")
-
-    if pd.isna(val1) and pd.isna(val2):
-        return True
-    return val1 == val2
 
 
 def export_full_data_styled_excel(
-    df_baseline,
-    df_results,
+    df_accepted,
+    df_new_results,
+    df_old_results=None,
     key_col="site",
-    output_file="dataframe_diff.xlsx",
+    output_file=OUTPUT_DIR / "dataframe_diff.xlsx",
 ):
-    # Pre-process both DataFrames before running your diff export
-    df_baseline = normalize_df(df_baseline)
-    df_results = normalize_df(df_results)
+    # 1. Identify columns to prefix and interleave
+    value_cols = [c for c in df_accepted.columns if c not in [key_col, "outcome"]]
 
-    # 1. Outer merge baseline and results
-    merged = pd.merge(
-        df_baseline,
-        df_results,
-        on=key_col,
-        how="outer",
-        suffixes=("_W", "_A"),
-    )
+    # 2. Rename the value columns BEFORE merging
+    # This prevents pandas from generating messy _x and _y suffixes
+    df_accepted = df_accepted.rename(columns={c: f"W_{c}" for c in value_cols})
+    df_new_results = df_new_results.rename(columns={c: f"N_{c}" for c in value_cols})
+    if df_old_results is not None:
+        df_old_results = df_old_results.rename(columns={c: f"O_{c}" for c in value_cols})
 
-    value_cols = [c for c in df_baseline.columns if c != key_col]
+    # 3. Future-proofing: If the other DFs ever get an "outcome" column, 
+    # rename them so they survive the merge without colliding.
+    if "outcome" in df_new_results.columns:
+        df_new_results = df_new_results.rename(columns={"outcome": "N_outcome"})
+    
+    if df_old_results is not None and "outcome" in df_old_results.columns:
+        df_old_results = df_old_results.rename(columns={"outcome": "O_outcome"})
 
-    output_cols = [key_col]
+    # 4. Chain outer merges together
+    merged = pd.merge(df_accepted, df_new_results, on=key_col, how="outer")
+    if df_old_results is not None:
+        merged = pd.merge(merged, df_old_results, on=key_col, how="outer")
+
+    # 5. Build the final column order
+    output_cols = [key_col, "outcome"]
+    # If the renamed outcomes exist, slot them in right after the accepted outcome
+    if "N_outcome" in merged.columns:
+        output_cols.append("N_outcome")
+    if "O_outcome" in merged.columns:
+        output_cols.append("O_outcome")
+
     for col in value_cols:
-        b_col = f"W_{col}"
-        r_col = f"A_{col}"
-        merged.rename(
-            columns={f"{col}_W": b_col, f"{col}_A": r_col},
-            inplace=True,
-        )
-        output_cols.extend([b_col, r_col])
+        if df_old_results is not None:
+            output_cols.extend([f"W_{col}", f"N_{col}", f"O_{col}"])
+        else:
+            output_cols.extend([f"W_{col}", f"N_{col}"])
 
-    full_df = merged[output_cols].fillna("")
+    # 6. Reorder and fill
+    # This automatically puts 'outcome' in column index 1 (the 2nd column)
+    full_df = merged.reindex(columns=output_cols).fillna("")
 
     # 2. Build Excel Workbook
     wb = openpyxl.Workbook()
@@ -202,21 +223,27 @@ def export_full_data_styled_excel(
     key_hdr_fill = PatternFill(
         start_color="34495E", end_color="34495E", fill_type="solid"
     )
-    base_hdr_fill = PatternFill(
+    wendy_hdr_fill = PatternFill(
         start_color="ED4764", end_color="1F4E78", fill_type="solid"
     )
-    res_hdr_fill = PatternFill(
+    new_hdr_fill = PatternFill(
         start_color="1E6B52", end_color="1E6B52", fill_type="solid"
+    )
+    old_hdr_fill = PatternFill(
+        start_color="512FA7", end_color="512FA7", fill_type="solid"
     )
 
     key_cell_fill = PatternFill(
         start_color="F2F4F4", end_color="F2F4F4", fill_type="solid"
     )
-    base_cell_fill = PatternFill(
+    wendy_cell_fill = PatternFill(
         start_color="F9BEC8", end_color="EBF3F9", fill_type="solid"
     )
-    res_cell_fill = PatternFill(
+    new_cell_fill = PatternFill(
         start_color="E6F4EA", end_color="E6F4EA", fill_type="solid"
+    )
+    old_cell_fill = PatternFill(
+        start_color="CFC1F1", end_color="CFC1F1", fill_type="solid"
     )
     big_diff_cell_fill = PatternFill(
         start_color="F4FF78", end_color="FADBD8", fill_type="solid"
@@ -255,44 +282,98 @@ def export_full_data_styled_excel(
         if col_name == key_col:
             cell.fill = key_hdr_fill
         elif col_name.startswith("W_"):
-            cell.fill = base_hdr_fill
-        elif col_name.startswith("A_"):
-            cell.fill = res_hdr_fill
+            cell.fill = wendy_hdr_fill
+        elif col_name.startswith("N_"):
+            cell.fill = new_hdr_fill
+        elif col_name.startswith("O_"):
+            cell.fill = old_hdr_fill
 
+    center_center_alignment = Alignment(horizontal="center", vertical="center")
+
+    # Determine if we are moving in blocks of 3 (W, N, O) or 2 (W, N)
+    group_size = 3 if df_old_results is not None else 2
+
+    # Create the thick side style
+    thick_side = Side(style="thick")
+    no_side = Side(style=None) # Explicitly no border
+
+    # 1. W gets a heavy left border, no right border
+    left_heavy_border = Border(
+        left=thick_side, right=no_side, 
+        top=cell_border.top, bottom=cell_border.bottom
+    )
+
+    # 2. Middle columns get no left or right borders
+    mid_border = Border(
+        left=no_side, right=no_side, 
+        top=cell_border.top, bottom=cell_border.bottom
+    )
+
+    # 3. The last column gets a heavy right border, no left border
+    right_heavy_border = Border(
+        left=no_side, right=thick_side, 
+        top=cell_border.top, bottom=cell_border.bottom
+    )
+        
     # Write Data & Apply Formatting
     for row_idx, row_data in enumerate(full_df.values, 2):
-        key_val = row_data[0]
-        key_cell = ws.cell(row=row_idx, column=1, value=key_val)
-        key_cell.fill = key_cell_fill
-        key_cell.font = key_font
-        key_cell.alignment = Alignment(horizontal="left", vertical="center")
-        key_cell.border = cell_border
+        site_val = row_data[0]
+        #if site_val starts with "2022 Foley" then pass
+        if site_val.startswith("2022 Foley"):
+            pass
+        site_cell = ws.cell(row=row_idx, column=1, value=site_val)
+        site_cell.fill = key_cell_fill
+        site_cell.font = key_font
+        site_cell.alignment = Alignment(horizontal="left", vertical="center")
+        site_cell.border = cell_border
+
+        outcome_val = row_data[1]
+        outcome_cell = ws.cell(row=row_idx, column=2, value=outcome_val)
+        outcome_cell.fill = key_cell_fill
+        outcome_cell.font = key_font
+        outcome_cell.alignment = center_center_alignment
+        outcome_cell.border = cell_border
 
         for c_idx, _ in enumerate(value_cols):
-            b_idx = 1 + (c_idx * 2)
-            r_idx = 1 + (c_idx * 2) + 1
+            # Base index starts at 2 (skipping row_data[0]='site' and row_data[1]='outcome')
+            base_idx = 2 + (c_idx * group_size)
+            
+            w_idx = base_idx         # Index of the accepted/Wendy value
+            new_idx = base_idx + 1   # Index of the new/automated value
+            old_idx = None if df_old_results is None else base_idx + 2   # Index of the old/automated value
 
-            b_val = row_data[b_idx]
-            r_val = row_data[r_idx]
+            w_val = row_data[w_idx]
+            new_val = row_data[new_idx]
+            old_val = row_data[old_idx] if old_idx is not None else None
 
-            #is_same = b_val == r_val
-            is_same = test_if_same(b_val, r_val)
+            is_same = test_if_same(w_val, new_val)
+            is_same_automated = test_if_same(new_val, old_val)
+
             target_font = same_font if is_same == VAL_EQUAL else diff_font
-            b_cell = ws.cell(row=row_idx, column=b_idx + 1, value=b_val)
-            b_cell.fill = big_diff_cell_fill if is_same == VAL_BIG else base_cell_fill
-            b_cell.font = target_font
-            b_cell.alignment = Alignment(
-                horizontal="center", vertical="center"
-            )
-            b_cell.border = cell_border
+            target_font_automated = same_font if is_same_automated == VAL_EQUAL else diff_font
 
-            r_cell = ws.cell(row=row_idx, column=r_idx + 1, value=r_val)
-            r_cell.fill = big_diff_cell_fill if is_same == VAL_BIG else res_cell_fill
-            r_cell.font = target_font
-            r_cell.alignment = Alignment(
-                horizontal="center", vertical="center"
-            )
-            r_cell.border = cell_border
+            w_cell = ws.cell(row=row_idx, column=w_idx + 1, value=w_val)
+            w_cell.fill = big_diff_cell_fill if is_same == VAL_BIG else wendy_cell_fill
+            w_cell.font = target_font
+            w_cell.alignment = center_center_alignment
+            w_cell.border = left_heavy_border
+
+            new_cell = ws.cell(row=row_idx, column=new_idx + 1, value=new_val)
+            new_cell.fill = big_diff_cell_fill if is_same == VAL_BIG else new_cell_fill
+            new_cell.font = target_font
+            new_cell.alignment = center_center_alignment
+
+            if old_idx is not None:
+                # If there are 3 columns, 'new' is in the middle and 'old' is at the end
+                new_cell.border = mid_border
+
+                old_cell = ws.cell(row=row_idx, column=old_idx + 1, value=old_val)
+                old_cell.fill = big_diff_cell_fill if is_same_automated == VAL_BIG else old_cell_fill
+                old_cell.font = target_font_automated
+                old_cell.alignment = center_center_alignment
+                old_cell.border = right_heavy_border
+            else:
+                new_cell.border = right_heavy_border
 
     # Excel-Style AutoFit Column Widths (Adjusted for 8pt font padding)
     for col in ws.columns:
@@ -307,22 +388,24 @@ def export_full_data_styled_excel(
     print(f"Wrote results to '{output_file}'")
 
 
+
+
 DEFAULT_AUTOMATED_RESULTS_DIR = (
-    "C:\\Users\\mikes\\GitHub\\TRBL-Breeding-Stages-Final\\data\\accepted_publication_outputs\\"
+    Path("C:\\Users\\mikes\\GitHub\\TRBL-Breeding-Stages-Final\\outputs\\publication")
 )
 
-def load_automated_results_from_csv(dir:str = DEFAULT_AUTOMATED_RESULTS_DIR) -> pd.DataFrame:
+def load_automated_results_from_csv(dir:Path = DEFAULT_AUTOMATED_RESULTS_DIR) -> pd.DataFrame:
     """
     Load automated results from a CSV file into a pandas DataFrame.
     
     Args:
-        dir (str): Directory containing the CSV file. Defaults to DEFAULT_AUTOMATED_RESULTS_DIR.
+        dir (Path): Directory containing the CSV file. Defaults to DEFAULT_AUTOMATED_RESULTS_DIR.
 
     Returns:
         pd.DataFrame: DataFrame containing the loaded automated results.
     """
-    file_path = dir + "trbl_breeding_chronology_summary.csv"
-    df_all_data = pd.read_csv(file_path)
+    file_path = dir / "trbl_breeding_chronology_summary.csv"
+    df_all_data = pd.read_csv(str(file_path))
 
     #fix up the strings the way we like them
     df_all_data.replace(
@@ -422,15 +505,24 @@ def sync_via_webhook(df: pd.DataFrame, webhook_url: str, sheet_name: str = ""):
 
 # --- Usage Example ---
 if __name__ == "__main__":
-    WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbxtzRiML6eQQCyERCQSywEvLZYCFglybWn5CQ_WJuHC6Mw77SbTIvkjulu6F16Ob4EWMg/exec"
-
+    WEBHOOK_URL = (
+        "https://script.google.com/macros/s/AKfycbxtzRiML6eQQCyERCQSywEvLZYCFglybWn5CQ_WJuHC6Mw77SbTIvkjulu6F16Ob4EWMg/exec"
+    )
     df_baseline = pd.read_csv("TRBL_dates - accepted_results.csv")
 
-    latest_results_dir = "C:\\Users\\mikes\\GitHub\\TRBL-Breeding-Stages-Final\\outputs\\check09-17\\"
+    latest_results_dir = (
+        Path("C:\\Users\\mikes\\GitHub\\TRBL-Breeding-Stages-Final\\outputs\\chronology_report_restore\\publication\\")
+    )    
     df_results = load_automated_results_from_csv(dir=latest_results_dir)
 
+    old_results_dir = (
+        Path("C:\\Users\\mikes\\GitHub\\TRBL-Breeding-Stages-Final\\outputs\\check09-17\\")
+    )
+    df_old_results = load_automated_results_from_csv(dir=old_results_dir)
+
+    output_file = OUTPUT_DIR / "dataframe_diff.xlsx" 
     export_full_data_styled_excel(
-        df_baseline, df_results, key_col="site", output_file="dataframe_diff.xlsx"
+        df_baseline, df_results, df_old_results, key_col="site", output_file=output_file
     )
     
     #sync_via_webhook(df_results, WEBHOOK_URL)

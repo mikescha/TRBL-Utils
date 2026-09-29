@@ -35,16 +35,16 @@ OUTCOME_NO_TRBL = "No TRBL"
 
 # File locations
 BASE_DIR = Path(".")
-INPUT_CSV = Path(
+OLD_ALL_FILE_FOR_STREAMLIT_APP = Path(
     r"C:\Users\mikes\GitHub\TRBLSummarizer\TRBLSummarizer\Data\TRBL Analysis tracking - All.csv"
 )
-OUT_FILENAME = "nestling_to_female_ratios.csv"
-OUT_FILE = BASE_DIR / OUT_FILENAME
+#ARI_SCORE_FILENAME = "nestling_to_female_ratios.csv"
+#ARI_SCORE_PATH = BASE_DIR / ARI_SCORE_FILENAME
 
-DATA_ROOT = Path(r"C:\Users\mikes\GitHub\TRBLSummarizer\TRBLSummarizer")
-DATA_DIR = DATA_ROOT / "Data"
+DATA_ROOT = Path(r"C:\Users\mikes\GitHub\TRBL-Breeding-Stages-Final\reviewer_inputs")
+DATA_DIR = DATA_ROOT
 PMJ_DIR = DATA_DIR / "PMJ Data"
-HOURLY_PARQUET_FILES = DATA_DIR / Path("recordings_per_day_hour.parquet")
+#HOURLY_PARQUET_FILES = DATA_DIR / Path("recordings_per_day_hour.parquet")
 SHARING_OUTPUT_DIR = Path(r"G:\My Drive\TRBL for Wendy GDrive")
 
 
@@ -117,7 +117,7 @@ def save_csv_with_retry(df: pd.DataFrame, path: Path, share = False) -> None:
         except PermissionError:
             input(f"\n[!] Output file is locked in Excel: {path.name}\nClose it and press Enter to retry...")
 
-    if path.name == OUT_FILENAME:
+    if path.name == ARI_SCORE_FILENAME:
         def add_timestamp(filename: str) -> str:
             path = Path(filename)
             timestamp = datetime.now().strftime("%Y-%m-%d %H-%M-%S")

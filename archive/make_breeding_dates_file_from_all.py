@@ -1,5 +1,11 @@
 '''
-#TODO 
+This was the original code that generated the breeding_dates file, used by the ARI calculations.
+
+As of 9/29, I believe that the file we need is correctly created by make_files_from_google_sheet.py.
+So, I'm moving this to Archive to hide it.
+
+
+
 This needs to be updated when we eventually move to fully deprecate the old All file, which I think
 happens after we fully migrate to Pretty Names, which I think happens after the round of data updates
 on 9/21/26 happens.
@@ -40,7 +46,7 @@ from common import (
     COL_SITE_ID,
     COL_SITE_NAME,
     COL_SUBSTRATE,
-    INPUT_CSV,
+    OLD_ALL_FILE_FOR_STREAMLIT_APP,
     OUTCOME_ABANDONED,
     OUTCOME_NO_COLONY,
     OUTCOME_NO_TRBL,
@@ -417,7 +423,7 @@ def write_summary(output_rows: list[dict[str, str]], source_issues: list[dict[st
 def make_breeding_dates_file() -> None:
     # 1. Read input CSV tracking data
     df = pd.read_csv(
-        INPUT_CSV, 
+        OLD_ALL_FILE_FOR_STREAMLIT_APP, 
         skiprows=HEADER_ROWS_TO_SKIP, 
         encoding="utf-8-sig",
         dtype=str,             # Read everything as text, just like csv.reader

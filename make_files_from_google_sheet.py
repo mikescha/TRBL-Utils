@@ -3,7 +3,6 @@
 When we migrate to Pretty Names, then I don't think anything needs to change here but probably 
 something will...
 '''
-
 import datetime
 import io
 import os
@@ -15,9 +14,11 @@ import pandas as pd
 import requests
 
 from common import (
-    INPUT_CSV,
+    BASE_DIR,
+    OLD_ALL_FILE_FOR_STREAMLIT_APP,
 )
 
+OUTPUT_DIR = BASE_DIR / "output"
 WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbxtzRiML6eQQCyERCQSywEvLZYCFglybWn5CQ_WJuHC6Mw77SbTIvkjulu6F16Ob4EWMg/exec"
 
 #Map for the data extractors to use
@@ -115,6 +116,15 @@ def get_data_from_site_info_sheet()->pd.DataFrame:
 
     #Drop any rows with Skip Site = Y
     filtered_df = df[df["Skip"].str.upper() != "Y"].copy()
+
+    #Check that every row has an ID and a name
+    if df["Id"].isna().any() or df["Pretty Site Name"].isna().any() or df["Name"].isna().any():
+        raise ValueError("Every row in the site_info sheet must have an ID, a Pretty Site Name, and a Name.")
+
+    #Clean the ID and Pretty Site Name columns by stripping leading/trailing spaces
+    df["Id"] = df["Id"].astype(str).str.strip()
+    df["Pretty Site Name"] = df["Pretty Site Name"].astype(str).str.strip()
+    df["Name"] = df["Name"].astype(str).str.strip()
     
     return filtered_df
 
@@ -167,7 +177,7 @@ def transform_value(val, site: str, col: str, YYYYMMDD_format: bool = True) -> s
         return result
 
     # Validate non-date allowed string values
-    allowed_values = {"ND", "Continuous", "missed", "inf"}
+    allowed_values = {"ND", "continuous", "missed", "inf"}
     if val_str in allowed_values:
         return val_str
 
@@ -342,8 +352,10 @@ def convert_data_to_all_format(df: pd.DataFrame, YYYYMMDD_format: bool = True) -
 
 
 def save_csv_to_extractors(df: pd.DataFrame, csv_filename: str):
-    df.to_csv(csv_filename, index=False)
-    print(f"Successfully created '{csv_filename}'")
+    os.makedirs(OUTPUT_DIR, exist_ok=True)
+    csv_path = OUTPUT_DIR / csv_filename
+    df.to_csv(csv_path, index=False)
+    print(f"Successfully created '{csv_path}'")
 
     # Save to PMJ Extractor
     pmj_dest = os.path.join(PMJ_EXTRACTOR_PATH, os.path.basename(csv_filename))
@@ -370,7 +382,7 @@ def create_and_save_site_name_map(site_info_df: pd.DataFrame):
                    + [col for col in site_name_map.columns if col.startswith("PMJ")]]
 
     # Save to CSV and copy to the extractor paths
-    #save_csv_to_extractors(site_name_map, SITE_NAME_MAP_FILENAME)
+    save_csv_to_extractors(site_name_map, SITE_NAME_MAP_FILENAME)
 
 
 def create_and_save_trbl_reviewer_metadata(site_info_df: pd.DataFrame):
@@ -382,11 +394,13 @@ def create_and_save_trbl_reviewer_metadata(site_info_df: pd.DataFrame):
     trbl_reviewer_metadata_df.rename(columns={"Pretty Site Name": "Name"}, inplace=True)
 
     # Save to CSV locally for testing first
-    #TODO print the outcome
-    trbl_reviewer_metadata_df.to_csv(TRBL_REVIEWER_METADATA_FILENAME, index=False)
+    filename = OUTPUT_DIR / TRBL_REVIEWER_METADATA_FILENAME
+    trbl_reviewer_metadata_df.to_csv(filename, index=False)
+    print(f"Successfully created '{filename}'")
 
-    #TODO: Save to the TRBL reviewer directory
-    #trbl_reviewer_metadata_df.to_csv(TRBL_REVIEWER_METADATA_PATH, index=False)
+    # Save to the TRBL reviewer directory
+    trbl_reviewer_metadata_df.to_csv(TRBL_REVIEWER_METADATA_PATH, index=False)
+    print(f"Successfully copied to '{TRBL_REVIEWER_METADATA_PATH}'")
 
 
 def create_and_save_new_all_file_for_compatibility(
@@ -436,7 +450,7 @@ def create_and_save_new_all_file_for_compatibility(
     all_df.rename(columns=col_map, inplace=True)
 
     # Save to CSV locally for testing first
-    filename = "TRBL Analysis Tracking - All(new sheet converted to old format).csv"
+    filename = OUTPUT_DIR / "TRBL Analysis Tracking - All(new sheet converted to old format).csv"
     with open(filename, "w", newline="", encoding="utf-8") as f:   
         # Write two newline characters to create two empty lines
         f.write('\n\n')
@@ -445,8 +459,8 @@ def create_and_save_new_all_file_for_compatibility(
         print(f"Saved {filename} to project folder")
 
     # Save to the Summarizer data folder
-    shutil.copy(filename, INPUT_CSV)
-    print(f"Copied '{filename}' to '{INPUT_CSV}'")
+    shutil.copy(filename, OLD_ALL_FILE_FOR_STREAMLIT_APP)
+    print(f"Copied '{filename}' to '{OLD_ALL_FILE_FOR_STREAMLIT_APP}'")
 
 
     return
@@ -520,7 +534,7 @@ def update_and_save_old_all_sheet(
         ]
 
     # 5. Save modified main sheet locally (preserving original top 2 rows)
-    output_filename = "TRBL Analysis Tracking - All(old sheet updated to new vals).csv"
+    output_filename = OUTPUT_DIR / "TRBL Analysis Tracking - All(old sheet updated to new vals).csv"
     with open(output_filename, "w", encoding="utf-8", newline="") as f:
         f.writelines(top_metadata_lines)
         main_df.to_csv(f, index=False)
@@ -635,12 +649,12 @@ def create_and_save_breeding_dates(site_info_df: pd.DataFrame, data_df: pd.DataF
         "Longitude": "longitude",
     }
     metadata_df = metadata_df.rename(columns=metadata_col_map)
-    #TODO THIS NEEDS TO MATCH THE PARQUET, so for now it will be the old name minus the pulse suffix
-    #site=2017%20Rush%20Ranch
-
-    metadata_df["evidence_site"] = (
-        "site=" + metadata_df["Name"].str.replace(" ", "%20", regex=False)
-    )
+    #This should be the same string as is encoded in the parquet folder name
+    #     site=2017%20Rush%20Ranch
+    metadata_df["evidence_site"] = metadata_df["Name"]
+    # metadata_df["evidence_site"] = (
+    #     "site=" + metadata_df["Name"].str.replace(" ", "%20", regex=False)
+    # )
     metadata_df = metadata_df.drop(columns=["Name"])
     
     result_col_map = {
@@ -734,7 +748,9 @@ def create_and_save_breeding_dates(site_info_df: pd.DataFrame, data_df: pd.DataF
         "trbl_accepted_chronology.csv": accepted_chronology_df
     }
     for file_name, df in file_map.items():
-        df.to_csv(file_name, index=False, encoding="utf-8-sig")
+        #Make the path by combining destination folder with filename
+        file_path = OUTPUT_DIR / file_name
+        df.to_csv(file_path, index=False, encoding="utf-8-sig")
         print(f"Saved {file_name}")
 
     return
@@ -744,21 +760,25 @@ if __name__ == "__main__":
     site_info_df = get_data_from_site_info_sheet()
     data_df = get_data_from_main_sheet(site_info_df)
 
+    # Prep the output directory
+    os.makedirs(OUTPUT_DIR, exist_ok=True)
 
     # # Create site_name_map.csv (ID, Name, Pretty Site Name, PMJ* Columns)
-    # create_and_save_site_name_map(site_info_df)
+    # # This is used by the two Parquet Builders 
+    create_and_save_site_name_map(site_info_df)
 
     # # Create TRBL reviewer metadata.csv (Name	First Recording	Last Recording)
-    # create_and_save_trbl_reviewer_metadata(site_info_df)
+    # # This is used by the analysis tools. 
+    create_and_save_trbl_reviewer_metadata(site_info_df)
 
     # # Create a version of the All file for compatibility
     # # I want to do two things here:
     # # 1. Make a version of the all file using the latest data. That's what we need for
     # # the summarizer and other tools that rely on the latest "All" file.
-    #create_and_save_new_all_file_for_compatibility(site_info_df, data_df)
+    create_and_save_new_all_file_for_compatibility(site_info_df, data_df)
 
     # # 2. Make a version of the data file in the format of the old "All" file for comparison.
-    # update_and_save_old_all_sheet(data_df)
+    #update_and_save_old_all_sheet(data_df)
     
     create_and_save_breeding_dates(site_info_df, data_df)
 
