@@ -1,0 +1,68 @@
+site,column,value,issue
+2018 Markham Ravine P1,fcabe_accpt,inf,"Invalid format. Expected YYYY-MM-DD, ~YYYY-MM-DD, or 'ND'"
+2018 Markham Ravine P2,breeding_type,,"Value must be one of ['Additions', 'Asynchronous', 'Complex', 'No Colony', 'No TRBL', 'Sequential', 'Simple', 'Unknown']"
+2018 Markham Ravine P2,ss_auto,notcalcd,"Invalid format. Expected valid date, ~date, date(B/C/E), inf, missed, ND, or continuous"
+2018 Markham Ravine P2,se_auto,notcalcd,"Invalid format. Expected valid date, ~date, date(B/C/E), inf, missed, ND, or continuous"
+2018 Markham Ravine P2,fcabs_accpt,inf,"Invalid format. Expected YYYY-MM-DD, ~YYYY-MM-DD, or 'ND'"
+2018 Markham Ravine P2,is_auto,notcalcd,"Invalid format. Expected valid date, ~date, date(B/C/E), inf, missed, ND, or continuous"
+2018 Markham Ravine P2,hatch_auto,notcalcd,"Invalid format. Expected valid date, ~date, date(B/C/E), inf, missed, ND, or continuous"
+2018 Markham Ravine P2,fo_auto,notcalcd,"Invalid format. Expected valid date, ~date, date(B/C/E), inf, missed, ND, or continuous"
+2018 Markham Ravine P2,fd_auto,notcalcd,"Invalid format. Expected valid date, ~date, date(B/C/E), inf, missed, ND, or continuous"
+2019 Leisure Town Road P2,ss_auto,notcalcd,"Invalid format. Expected valid date, ~date, date(B/C/E), inf, missed, ND, or continuous"
+2019 Leisure Town Road P2,se_auto,notcalcd,"Invalid format. Expected valid date, ~date, date(B/C/E), inf, missed, ND, or continuous"
+2019 Leisure Town Road P2,is_auto,notcalcd,"Invalid format. Expected valid date, ~date, date(B/C/E), inf, missed, ND, or continuous"
+2019 Leisure Town Road P2,hatch_auto,notcalcd,"Invalid format. Expected valid date, ~date, date(B/C/E), inf, missed, ND, or continuous"
+2019 Leisure Town Road P2,fo_auto,notcalcd,"Invalid format. Expected valid date, ~date, date(B/C/E), inf, missed, ND, or continuous"
+2019 Leisure Town Road P2,fd_auto,notcalcd,"Invalid format. Expected valid date, ~date, date(B/C/E), inf, missed, ND, or continuous"
+2021 Kern 5 P1,fcabe_accpt,continuous,"Invalid format. Expected YYYY-MM-DD, ~YYYY-MM-DD, or 'ND'"
+2021 Kern 5 P2,breeding_type,,"Value must be one of ['Additions', 'Asynchronous', 'Complex', 'No Colony', 'No TRBL', 'Sequential', 'Simple', 'Unknown']"
+2021 Rancho Jamul P1,ss_auto,notcalcd,"Invalid format. Expected valid date, ~date, date(B/C/E), inf, missed, ND, or continuous"
+2021 Rancho Jamul P1,se_auto,notcalcd,"Invalid format. Expected valid date, ~date, date(B/C/E), inf, missed, ND, or continuous"
+2021 Rancho Jamul P1,is_auto,notcalcd,"Invalid format. Expected valid date, ~date, date(B/C/E), inf, missed, ND, or continuous"
+2021 Rancho Jamul P1,hatch_auto,notcalcd,"Invalid format. Expected valid date, ~date, date(B/C/E), inf, missed, ND, or continuous"
+2021 Rancho Jamul P1,fo_auto,notcalcd,"Invalid format. Expected valid date, ~date, date(B/C/E), inf, missed, ND, or continuous"
+2021 Rancho Jamul P1,fd_auto,notcalcd,"Invalid format. Expected valid date, ~date, date(B/C/E), inf, missed, ND, or continuous"
+2022 Los Vaqueros Playa P2,breeding_type,,"Value must be one of ['Additions', 'Asynchronous', 'Complex', 'No Colony', 'No TRBL', 'Sequential', 'Simple', 'Unknown']"
+2022 Newberry Springs - Lake Wainani,outcome,Successful,"Since site does not end in Pn, outcome must be 'No Colony' or 'No TRBL'"
+2022 Private Site 3 - approximate lat lon P2,breeding_type,,"Value must be one of ['Additions', 'Asynchronous', 'Complex', 'No Colony', 'No TRBL', 'Sequential', 'Simple', 'Unknown']"
+2022 Private Site 3 - approximate lat lon P2,outcome,,"Value must be one of ['Abandoned', 'No Colony', 'No TRBL', 'Partially Abandoned', 'Successful', 'Unknown']"
+2022 Private Site 3 - approximate lat lon P2,ss_accpt,,Value can not be empty
+2022 Private Site 3 - approximate lat lon P2,se_accpt,,Value can not be empty
+2022 Private Site 3 - approximate lat lon P2,is_accpt,,Value can not be empty
+2022 Private Site 3 - approximate lat lon P2,hatch_accpt,,Value can not be empty
+2022 Private Site 3 - approximate lat lon P2,fo_accpt,,Value can not be empty
+2022 Private Site 3 - approximate lat lon P2,fd_accpt,,Value can not be empty
+2022 Private Site 3 - approximate lat lon P2,abandon,,Value can not be empty
+2022 Private Site 3 - approximate lat lon P2,partial_abandon,,Value can not be empty
+2023 Baja Ciénega Redonda North P1,breeding_type,,"Value must be one of ['Additions', 'Asynchronous', 'Complex', 'No Colony', 'No TRBL', 'Sequential', 'Simple', 'Unknown']"
+2023 Baja Ciénega Redonda North P1,abandon,,Value can not be empty
+2023 Baja Ciénega Redonda North P1,partial_abandon,,Value can not be empty
+2023 Baja Ciénega Redonda North P3,breeding_type,,"Value must be one of ['Additions', 'Asynchronous', 'Complex', 'No Colony', 'No TRBL', 'Sequential', 'Simple', 'Unknown']"
+2023 Baja Ciénega Redonda North P3,ss_auto,notcalcd,"Invalid format. Expected valid date, ~date, date(B/C/E), inf, missed, ND, or continuous"
+2023 Baja Ciénega Redonda North P3,se_auto,notcalcd,"Invalid format. Expected valid date, ~date, date(B/C/E), inf, missed, ND, or continuous"
+2023 Baja Ciénega Redonda North P3,is_auto,notcalcd,"Invalid format. Expected valid date, ~date, date(B/C/E), inf, missed, ND, or continuous"
+2023 Baja Ciénega Redonda North P3,hatch_auto,notcalcd,"Invalid format. Expected valid date, ~date, date(B/C/E), inf, missed, ND, or continuous"
+2023 Baja Ciénega Redonda North P3,fo_auto,notcalcd,"Invalid format. Expected valid date, ~date, date(B/C/E), inf, missed, ND, or continuous"
+2023 Baja Ciénega Redonda North P3,fd_auto,notcalcd,"Invalid format. Expected valid date, ~date, date(B/C/E), inf, missed, ND, or continuous"
+2023 Baja Ciénega Redonda North P4,breeding_type,,"Value must be one of ['Additions', 'Asynchronous', 'Complex', 'No Colony', 'No TRBL', 'Sequential', 'Simple', 'Unknown']"
+2023 Baja Ciénega Redonda North P4,ss_auto,,Value can not be empty
+2023 Baja Ciénega Redonda North P4,se_auto,notcalcd,"Invalid format. Expected valid date, ~date, date(B/C/E), inf, missed, ND, or continuous"
+2023 Baja Ciénega Redonda North P4,is_auto,notcalcd,"Invalid format. Expected valid date, ~date, date(B/C/E), inf, missed, ND, or continuous"
+2023 Baja Ciénega Redonda North P4,hatch_auto,notcalcd,"Invalid format. Expected valid date, ~date, date(B/C/E), inf, missed, ND, or continuous"
+2023 Baja Ciénega Redonda North P4,fo_auto,notcalcd,"Invalid format. Expected valid date, ~date, date(B/C/E), inf, missed, ND, or continuous"
+2023 Baja Ciénega Redonda North P4,fd_auto,notcalcd,"Invalid format. Expected valid date, ~date, date(B/C/E), inf, missed, ND, or continuous"
+2023 Washington State - Harder Spring P2,ss_auto,notcalcd,"Invalid format. Expected valid date, ~date, date(B/C/E), inf, missed, ND, or continuous"
+2023 Washington State - Harder Spring P2,se_auto,notcalcd,"Invalid format. Expected valid date, ~date, date(B/C/E), inf, missed, ND, or continuous"
+2023 Washington State - Harder Spring P2,is_auto,notcalcd,"Invalid format. Expected valid date, ~date, date(B/C/E), inf, missed, ND, or continuous"
+2023 Washington State - Harder Spring P2,hatch_auto,notcalcd,"Invalid format. Expected valid date, ~date, date(B/C/E), inf, missed, ND, or continuous"
+2023 Washington State - Harder Spring P2,fo_auto,notcalcd,"Invalid format. Expected valid date, ~date, date(B/C/E), inf, missed, ND, or continuous"
+2023 Washington State - Harder Spring P2,fd_auto,notcalcd,"Invalid format. Expected valid date, ~date, date(B/C/E), inf, missed, ND, or continuous"
+2023 Washington State - McCain Wetlands P1,fd_accpt,2023-05-28(C),"Invalid format. Expected valid date, ~date, inf, missed, ND, or continuous"
+2023 Wind Wolves Preserve - Los Lobos P1,fcabe_accpt,ND 0r 5/06,"Invalid format. Expected YYYY-MM-DD, ~YYYY-MM-DD, or 'ND'"
+2023 Wind Wolves Preserve - Santiago Wetlands P1,fcabe_accpt,ND or 5/03,"Invalid format. Expected YYYY-MM-DD, ~YYYY-MM-DD, or 'ND'"
+2022 Conaway North P1,fd_auto,continuous,Site has only one pulse; value cannot be 'continuous'
+2022 Plumas Arboga 6 East P2,fo_auto,continuous,Value is 'continuous' but fd_auto in P1 is not.
+2022 Private Site 3 - approximate lat lon P2,hatch_auto,continuous,Value is 'continuous' but hatch_auto in P1 is not.
+2022 Washington State - Harder Spring P2,fo_auto,continuous,Value is 'continuous' but fd_auto in P1 is not.
+2024 Merced NWR - Duck Slough Farmfield P1,fd_auto,continuous,Site has only one pulse; value cannot be 'continuous'
+2024 Santa Lucia Preserve - Ohlone Pond P2,fo_auto,continuous,Value is 'continuous' but fd_auto in P1 is not.

@@ -3,11 +3,11 @@
 When we migrate to Pretty Names, then I don't think anything needs to change here but probably 
 something will...
 '''
-import datetime
 import io
 import os
 import re
 import shutil
+from datetime import date, datetime
 
 import pandas as pd
 import requests
@@ -23,6 +23,243 @@ from common import (
     save_csv_with_retry,
     transform_value,
 )
+
+
+def validate_breeding_data(df: pd.DataFrame):
+    """
+    Validates a breeding data pandas DataFrame against a set of business rules
+    and exports an error_log.csv with the findings.
+    """
+    errors = []
+
+    def report_error(site, col, val, issue):
+        errors.append({
+            "site": site,
+            "column": col,
+            "value": val if pd.notna(val) else "",
+            "issue": issue
+        })
+
+    valid_breeding_types = [
+        "Additions", "Asynchronous", "Complex", "No Colony",
+        "No TRBL", "Sequential", "Simple", "Unknown"
+    ]
+
+    valid_outcomes = [
+        "Abandoned", "No Colony", "No TRBL", 
+        "Partially Abandoned", "Successful", "Unknown"
+    ]
+
+    breeding_date_columns = [
+        "ss_auto", "ss_accpt", "se_auto", "se_accpt", "fcabs_auto", "fcabs_accpt",
+        "fcabe_auto", "fcabe_accpt", "is_auto", "is_accpt", "hatch_auto",
+        "hatch_accpt", "fo_auto", "fo_accpt", "fd_auto", "fd_accpt",
+        "abandon", "partial_abandon"
+    ]
+
+    def check_is_valid_date(d_str, expected_year):
+            if not expected_year: 
+                return False
+            try:
+                dt_obj = datetime.strptime(d_str, "%Y-%m-%d")
+                return str(dt_obj.year) == expected_year
+            except ValueError:
+                return False
+
+    # Dictionary to hold rows grouped by their physical site for pulse evaluation
+    sites_data = {}
+
+    # Phase 1: Row-by-Row validation
+    for _, row in df.iterrows():
+        site = row.get("site", "")
+        old_site = row.get("old_site", "")
+
+        site_str = str(site).strip() if pd.notna(site) else ""
+        old_site_str = str(old_site).strip() if pd.notna(old_site) else ""
+
+        year_str = None
+
+        # 1. Site and old_site checks
+        for col, s_val in [("site", site_str), ("old_site", old_site_str)]:
+            if not s_val:
+                report_error(site_str, col, s_val, "Value can not be empty")
+                continue
+
+            # Must start with a 4-digit number
+            match = re.match(r'^(\d{4})(?:\s|$)', s_val)
+            if not match:
+                report_error(site_str, col, s_val, "Must start with a 4-digit number")
+            else:
+                yr = int(match.group(1))
+                if col == "site":
+                    year_str = match.group(1) # save year for the date formatting check
+                if not (2017 <= yr <= 2024):
+                    report_error(site_str, col, s_val, f"Year {yr} out of range (2017-2024)")
+
+            # Check if it ends in " Pn"
+            pn_match = re.search(r' P(\d+)$', s_val)
+            if pn_match:
+                n = int(pn_match.group(1))
+                if n not in [1, 2, 3, 4]:
+                    report_error(site_str, col, s_val, f"Invalid pulse number P{n}. Must be P1, P2, P3, or P4")
+            else:
+                # If site does NOT end in " Pn", outcome must be "No Colony" or "No TRBL"
+                if col == "site":
+                    outcome_val = str(row.get("outcome", "")).strip()
+                    if pd.notna(row.get("outcome")) and outcome_val not in ["No Colony", "No colony", "No TRBL"]:
+                        report_error(site_str, "outcome", outcome_val, 
+                                     "Since site does not end in Pn, outcome must be 'No Colony' or 'No TRBL'")
+
+        # 2. Breeding type check
+        b_type = row.get("breeding_type")
+        if pd.isna(b_type) or str(b_type).strip() not in valid_breeding_types:
+            report_error(site_str, "breeding_type", b_type, f"Value must be one of {valid_breeding_types}")
+
+        # 3. Outcome check & dependent constraints
+        outcome_val = row.get("outcome")
+        if pd.isna(outcome_val) or str(outcome_val).strip() not in valid_outcomes:
+            report_error(site_str, "outcome", outcome_val, f"Value must be one of {valid_outcomes}")
+        else:
+            out_str = str(outcome_val).strip()
+            b_str = str(b_type).strip() if pd.notna(b_type) else ""
+            if out_str == "No Colony" and b_str != "No Colony":
+                report_error(site_str, "breeding_type", b_type, 
+                             "If outcome is 'No Colony', breeding_type must be 'No Colony'")
+            if out_str == "No TRBL" and b_str != "No TRBL":
+                report_error(site_str, "breeding_type", b_type, 
+                             "If outcome is 'No TRBL', breeding_type must be 'No TRBL'")
+
+        # 4. Breeding Date checks
+        for d_col in breeding_date_columns:
+            if d_col not in df.columns:
+                continue
+            
+            val = row.get(d_col)
+            if pd.isna(val) or str(val).strip() == "":
+                if d_col not in ["fcabs_auto", "fcabs_accpt", "fcabe_auto", "fcabe_accpt"]:
+                    report_error(site_str, d_col, val, "Value can not be empty")
+                continue
+
+            v_str = str(val).strip()
+
+            if d_col in ["fcabs_auto", "fcabs_accpt", "fcabe_auto", "fcabe_accpt"]:
+                if v_str == "ND" or v_str == "" or v_str == "notcalcd":
+                    continue
+                if v_str.startswith("~") and check_is_valid_date(v_str[1:], year_str): 
+                    continue
+                if not v_str.startswith("~") and check_is_valid_date(v_str, year_str): 
+                    continue
+                report_error(site_str, d_col, val, "Invalid format. Expected YYYY-MM-DD, ~YYYY-MM-DD, or 'ND'")
+
+            elif d_col.endswith("_auto"):
+                if v_str in ["inf", "missed", "ND", "continuous"]: 
+                    continue
+                if v_str.startswith("~") and check_is_valid_date(v_str[1:], year_str): 
+                    continue
+                # Allow date with precise (B), (C), or (E) suffix
+                match_suffix = re.search(r'^(.*)\(([BCE])\)$', v_str)
+                if match_suffix and check_is_valid_date(match_suffix.group(1), year_str): 
+                    continue
+                if not v_str.startswith("~") and not match_suffix and check_is_valid_date(v_str, year_str): 
+                    continue
+                report_error(site_str, d_col, val, 
+                             "Invalid format. Expected valid date, ~date, date(B/C/E), inf, missed, ND, or continuous")
+
+            elif d_col.endswith("_accpt"):
+                if v_str in ["inf", "missed", "ND", "continuous"]: 
+                    continue
+                if v_str.startswith("~") and check_is_valid_date(v_str[1:], year_str): 
+                    continue
+                if not v_str.startswith("~") and check_is_valid_date(v_str, year_str): 
+                    continue
+                report_error(site_str, d_col, val, 
+                             "Invalid format. Expected valid date, ~date, inf, missed, ND, or continuous")
+
+            else:
+                # Catch-all for abandon, partial_abandon
+                if v_str == "ND": 
+                    continue
+                if v_str.startswith("~") and check_is_valid_date(v_str[1:], year_str): 
+                    continue
+                if not v_str.startswith("~") and check_is_valid_date(v_str, year_str): 
+                    continue
+                report_error(site_str, d_col, val, 
+                             "Invalid format. Expected valid date, ~date, or 'ND'")
+
+        # 5. Populate sites_data grouped structure for Phase 2 pulse logic
+        if site_str:
+            pn_match = re.search(r' P(\d+)$', site_str)
+            if pn_match:
+                pulse_num = int(pn_match.group(1))
+                base_loc = site_str[:pn_match.start()].strip()
+            else:
+                pulse_num = 1
+                base_loc = site_str
+
+            if base_loc not in sites_data:
+                sites_data[base_loc] = {}
+            sites_data[base_loc][pulse_num] = row
+
+
+    # Phase 2: Inter-pulse (Continuous) Validation
+    for _, pulses in sites_data.items():
+        if len(pulses) == 1:
+            # Only one pulse in physical site: No column can be 'continuous'
+            pulse_num = list(pulses.keys())[0]
+            row = pulses[pulse_num]
+            s_name = str(row.get("site", "")).strip()
+            for d_col in breeding_date_columns:
+                if d_col in row.index:
+                    val = str(row.get(d_col, "")).strip()
+                    if val == "continuous":
+                        report_error(s_name, d_col, val, "Site has only one pulse; value cannot be 'continuous'")
+        else:
+            # Multiple pulses: check pairs P2:P1, P3:P2, P4:P3
+            for n in [2, 3, 4]:
+                if n in pulses and (n-1) in pulses:
+                    row_curr = pulses[n]
+                    row_prev = pulses[n-1]
+                    site_curr = str(row_curr.get("site", "")).strip()
+
+                    # Define dependent column prefixes mapping [Pn] : [P(n-1)]
+                    pairs = [
+                        ("ss", "se"),
+                        ("is", "is"),
+                        ("hatch", "hatch"),
+                        ("fo", "fd"),
+                    ]
+
+                    # Loop through both _accpt and _auto column groups
+                    for suffix in ["_accpt", "_auto"]:
+                        for curr_prefix, prev_prefix in pairs:
+                            curr_col = f"{curr_prefix}{suffix}"
+                            prev_col = f"{prev_prefix}{suffix}"
+
+                            if curr_col in row_curr.index and prev_col in row_prev.index:
+                                val_curr = str(row_curr.get(curr_col, "")).strip()
+                                val_prev = str(row_prev.get(prev_col, "")).strip()
+
+                                # Validate that both are continuous, or neither is continuous
+                                if (val_curr == "continuous") and (val_prev != "continuous"):
+                                    report_error(site_curr, curr_col, val_curr, 
+                                                 f"Value is 'continuous' but {prev_col} in P{n-1} is not.")
+                                elif (val_curr != "continuous") and (val_prev == "continuous"):
+                                    report_error(site_curr, curr_col, val_curr, 
+                                                 f"Value is not 'continuous' but {prev_col} in P{n-1} is.")
+
+
+    # Phase 3: File Output
+    err_df = pd.DataFrame(errors)
+    if not err_df.empty:
+        # Enforce column order and write 
+        err_df = err_df[["site", "column", "value", "issue"]]
+        err_df.to_csv(OUTPUT_DIR/"error_log.csv", index=False)
+        print(f"Errors found. See {OUTPUT_DIR/'error_log.csv'} for details. {len(err_df)} errors logged.")
+    else:
+        # Generate an empty CSV file with correct headers if no errors are found
+        pd.DataFrame(columns=["site", "column", "value", "issue"]).to_csv(OUTPUT_DIR/"error_log.csv", index=False)
+        print(f"No errors found. See {OUTPUT_DIR/'error_log.csv'} to confirm.")
+
 
 
 def get_data_from_main_sheet(site_info_df: pd.DataFrame)->pd.DataFrame:
@@ -72,7 +309,7 @@ def transform_date(val: str, YYYYMMDD_format: bool = True) -> str:
         return "ND"
 
     # Handle native pandas/datetime objects or strings
-    if isinstance(val, (datetime.date, datetime.datetime, pd.Timestamp)):
+    if isinstance(val, (date, datetime, pd.Timestamp)):
         val_str = val.strftime("%Y-%m-%d")
     else:
         val_str = str(val).strip()        
@@ -613,19 +850,20 @@ def create_and_save_breeding_dates(site_info_df: pd.DataFrame, data_df: pd.DataF
 if __name__ == "__main__":
     site_info_df = get_data_from_site_info_sheet()
     data_df = get_data_from_main_sheet(site_info_df)
+    validate_breeding_data(data_df)
 
     # Create site_name_map.csv (ID, Name, Pretty Site Name, PMJ* Columns)
     # This is used by the two Parquet Builders 
-    create_and_save_site_name_map(site_info_df)
+    #create_and_save_site_name_map(site_info_df)
 
     # This makes 3 files, one with just the metadata, one with just the accepted results, and one with both
-    create_and_save_breeding_dates(site_info_df, data_df)
+    #create_and_save_breeding_dates(site_info_df, data_df)
 
     # # Create a version of the All file for compatibility
     # # I want to do two things here:
     # # 1. Make a version of the all file using the latest data. That's what we need for
     # # the summarizer and other tools that rely on the latest "All" file.
-    create_and_save_new_all_file_for_compatibility(site_info_df, data_df)
+    #create_and_save_new_all_file_for_compatibility(site_info_df, data_df)
 
     # # 2. Make a version of the data file in the format of the old "All" file for comparison.
     #update_and_save_old_all_sheet(data_df)
