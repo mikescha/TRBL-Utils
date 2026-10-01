@@ -1,0 +1,173 @@
+import shutil
+from datetime import date, datetime
+from pathlib import Path
+from typing import Any
+
+import pandas as pd
+
+COL_SITE_ID = "Site_ID"
+COL_SITE_NAME = "Site_Name"
+COL_DEPLOYMENT_START = "Deployment_Start"
+COL_DEPLOYMENT_END = "Deployment_End"
+COL_BREEDING_TYPE = "Breeding_Type"
+COL_COMPLEX_TYPES = "Complex_Types"
+COL_APPROX_COLONY_SIZE = "Approx_Colony_Size"
+COL_COLONY_SIZE = "Colony_Size"
+COL_SUBSTRATE = "Substrate"
+COL_GROUP = "Group"
+COL_PRETTY_SITE_NAME = "Pretty_Site_Name"
+COL_SKIP_SITE = "Skip_Site"
+COL_COMMENT = "Comment"
+COL_PULSE_NAME = "Pulse_Name"
+COL_OUTCOME = "Outcome"
+COL_HATCH_DATE = "Hatch_Date"
+COL_ABANDON_DATE = "Abandoned_Date"
+COL_PARTIAL_ABANDON_DATE = "Partial_Abandon_Date"
+STATUS_ND = "ND"
+
+# Manual outcome labels
+OUTCOME_ABANDONED = "Abandoned"
+OUTCOME_PARTIALLY_ABANDONED = "Partially Abandoned"
+OUTCOME_SUCCESSFUL = "Successful"
+OUTCOME_UNKNOWN = "Unknown"
+OUTCOME_NO_COLONY = "No Colony"
+OUTCOME_NO_TRBL = "No TRBL"
+
+# File locations
+BASE_DIR = Path(".")
+OLD_ALL_FILE_FOR_STREAMLIT_APP = Path(
+    r"C:\Users\mikes\GitHub\TRBLSummarizer\TRBLSummarizer\Data\TRBL Analysis tracking - All.csv"
+)
+#ARI_SCORE_FILENAME = "nestling_to_female_ratios.csv"
+#ARI_SCORE_PATH = BASE_DIR / ARI_SCORE_FILENAME
+
+DATA_ROOT = Path(r"C:\Users\mikes\GitHub\TRBL-Breeding-Stages-Final\reviewer_inputs")
+DATA_DIR = DATA_ROOT
+PMJ_DIR = DATA_DIR / "PMJ Data"
+#HOURLY_PARQUET_FILES = DATA_DIR / Path("recordings_per_day_hour.parquet")
+SHARING_OUTPUT_DIR = Path(r"G:\My Drive\TRBL for Wendy GDrive")
+
+
+def format_date_for_output(value: date | None, missing: str = STATUS_ND) -> str:
+    """Formats date values consistently for CSV output."""
+    if isinstance(value, date):
+        return value.isoformat()
+    return missing
+
+
+def normalize_one_date(value: Any) -> Any:
+    preserve_values = {
+        "",
+        "ND",
+        "NHD",
+        "inf",
+        "missed",
+        "n/a",
+        "na",
+        "nan",
+        "None",
+        "Continuous",
+    }
+
+    if pd.isna(value):
+        return value
+
+    if isinstance(value, date):
+        return value.isoformat()
+
+    text = str(value).strip()
+    has_tilde = text.startswith("~")
+    cleaned = text.removeprefix("~").strip()
+
+    if cleaned.startswith("before"):
+        return cleaned
+    
+    if cleaned in preserve_values:
+        return f"~{cleaned}" if has_tilde else cleaned
+
+    parsed = pd.to_datetime(cleaned, errors="coerce")
+    if pd.isna(parsed):
+        return value
+
+    iso_date = parsed.date().isoformat()
+    return f"~{iso_date}" if has_tilde else iso_date
+
+
+def normalize_output_date_columns(df: pd.DataFrame, date_columns: list[str]) -> pd.DataFrame:
+    """Normalizes selected date-like output columns to YYYY-MM-DD.
+
+    Non-date status values such as NHD, ND, inf, missed, and blanks are preserved.
+    Leading ~ markers are preserved while the date itself is normalized.
+    """
+    normalized = df.copy()
+
+    for col in date_columns:
+        if col not in normalized.columns:
+            continue
+        normalized[col] = normalized[col].apply(normalize_one_date)
+
+    return normalized
+
+
+def save_csv_with_retry(df: pd.DataFrame, path: Path, share = False) -> None:
+    while True:
+        try:
+            df.to_csv(path, index=False)
+            break
+        except PermissionError:
+            input(f"\n[!] Output file is locked in Excel: {path.name}\nClose it and press Enter to retry...")
+
+    if path.name == "": #was ARI_SCORE_FILENAME:
+        def add_timestamp(filename: str) -> str:
+            path = Path(filename)
+            timestamp = datetime.now().strftime("%Y-%m-%d %H-%M-%S")
+            return str(path.with_name(f"{path.stem} {timestamp}{path.suffix}"))
+
+        STREAMLIT_APP_DIR = Path(r"C:\Users\mikes\GitHub\TRBLSummarizer\TRBLSummarizer\Data")
+        OLD_OUT_FILE = STREAMLIT_APP_DIR / path.name
+        if OLD_OUT_FILE.exists():
+            BACKUP_FILE = add_timestamp(path.name)
+            shutil.copy2(OLD_OUT_FILE, OLD_OUT_FILE.parent / BACKUP_FILE)
+            shutil.copy2(path, STREAMLIT_APP_DIR / path.name)
+
+    if share and SHARING_OUTPUT_DIR.exists():
+        shutil.copy2(path, SHARING_OUTPUT_DIR / path.name)
+
+
+def load_pmj_subset_from_parquet(
+    site: str,
+    call_type: str,
+    columns: list[str],
+) -> pd.DataFrame:
+    """Load one site/call-type subset from the partitioned PMJ Parquet dataset."""
+    if not PMJ_DIR.exists():
+        return pd.DataFrame(columns=columns)
+
+    # site and call_type are partition columns. They may be represented as
+    # partition metadata rather than physical columns, so do not request them
+    # as physical columns from the Parquet files.
+    physical_columns = [
+        col for col in columns
+        if col not in {"site", "call_type"}
+    ]
+
+    df = pd.read_parquet(
+        PMJ_DIR,
+        columns=physical_columns,
+        filters=[
+            ("site", "==", site),
+            ("call_type", "==", call_type),
+        ],
+    )
+
+    if "site" in columns:
+        df["site"] = site
+
+    if "call_type" in columns:
+        df["call_type"] = call_type
+
+    for col in columns:
+        if col not in df.columns:
+            df[col] = pd.NA
+
+    return df[columns]

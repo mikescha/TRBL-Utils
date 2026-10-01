@@ -3,7 +3,7 @@ Compares accepted results with automated results and exports the differences to 
    - Accepted results are downloaded fresh from the cloud, and these from from the Google Sheet named
      TRBL_dates and from the "main" tab.
    - Automated results are taken from a folder that needs to be specified below.
-    
+
 This is only for internal use and comparison purposes. 
 '''
 import datetime as dt
@@ -16,12 +16,17 @@ import requests
 from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
 from openpyxl.utils import get_column_letter
 
-OUTPUT_DIR = Path(".\\output")
+from common import (
+    ARI_SCORE_FILE,
+    DEFAULT_AUTOMATED_RESULTS_DIR,
+    OUTPUT_DIR,
+)
 
 VAL_EQUAL = "equal"
 VAL_DIFFERENT = "different"
 VAL_BIG = "big"
 DIFF_VALS = [VAL_EQUAL, VAL_DIFFERENT, VAL_BIG]
+
 
 def date_difference(value1, value2) -> dt.timedelta | None:
     """Strips non-date characters from both values and returns the difference
@@ -169,7 +174,7 @@ def export_full_data_styled_excel(
     output_file=OUTPUT_DIR / "dataframe_diff.xlsx",
 ):
     # 1. Identify columns to prefix and interleave
-    value_cols = [c for c in df_accepted.columns if c not in [key_col, "outcome"]]
+    value_cols = [c for c in df_accepted.columns if c not in [key_col, "outcome","breeding_type"]]
 
     # 2. Rename the value columns BEFORE merging
     # This prevents pandas from generating messy _x and _y suffixes
@@ -192,7 +197,8 @@ def export_full_data_styled_excel(
         merged = pd.merge(merged, df_old_results, on=key_col, how="outer")
 
     # 5. Build the final column order
-    output_cols = [key_col, "outcome"]
+    base_cols = [key_col, "outcome", "breeding_type"]
+    output_cols = base_cols.copy()
     # If the renamed outcomes exist, slot them in right after the accepted outcome
     if "N_outcome" in merged.columns:
         output_cols.append("N_outcome")
@@ -248,7 +254,6 @@ def export_full_data_styled_excel(
     big_diff_cell_fill = PatternFill(
         start_color="F4FF78", end_color="FADBD8", fill_type="solid"
     )
-
 
     # All Fonts set to size=8
     hdr_font = Font(name="Segoe UI", size=8, bold=True, color="FFFFFF")
@@ -318,7 +323,7 @@ def export_full_data_styled_excel(
     # Write Data & Apply Formatting
     for row_idx, row_data in enumerate(full_df.values, 2):
         site_val = row_data[0]
-        #if site_val starts with "2022 Foley" then pass
+        #if site_val starts with "2022 Foley" then pass -- use for debugging
         if site_val.startswith("2022 Foley"):
             pass
         site_cell = ws.cell(row=row_idx, column=1, value=site_val)
@@ -335,8 +340,9 @@ def export_full_data_styled_excel(
         outcome_cell.border = cell_border
 
         for c_idx, _ in enumerate(value_cols):
-            # Base index starts at 2 (skipping row_data[0]='site' and row_data[1]='outcome')
-            base_idx = 2 + (c_idx * group_size)
+            # Base index starts at 3 
+            # Skipping row_data[0]='site', row_data[1]='outcome', row_data[2]='breeding_type'
+            base_idx = len(base_cols) + (c_idx * group_size)
             
             w_idx = base_idx         # Index of the accepted/Wendy value
             new_idx = base_idx + 1   # Index of the new/automated value
@@ -389,11 +395,6 @@ def export_full_data_styled_excel(
 
 
 
-
-DEFAULT_AUTOMATED_RESULTS_DIR = (
-    Path("C:\\Users\\mikes\\GitHub\\TRBL-Breeding-Stages-Final\\outputs\\publication")
-)
-
 def load_automated_results_from_csv(dir:Path = DEFAULT_AUTOMATED_RESULTS_DIR) -> pd.DataFrame:
     """
     Load automated results from a CSV file into a pandas DataFrame.
@@ -438,39 +439,31 @@ def load_automated_results_from_csv(dir:Path = DEFAULT_AUTOMATED_RESULTS_DIR) ->
 
     return df_main_cols
 
-def load_manual_results_from_csv() -> pd.DataFrame:
-    file_path = "C:\\Users\\mikes\\GitHub\\TRBL-Utils\\breeding_dates.csv"
+
+def load_accepted_results_from_csv() -> pd.DataFrame:
+    file_path = OUTPUT_DIR / "trbl_accepted_chronology.csv"
     df_manual_all = pd.read_csv(file_path)
 
     cols_to_keep = [
-        "Pulse_Name", "Breeding_Type", "Complex_Types", "Outcome", 
-        "mcstart", "mcend", 
-        "incstart", "Hatch_Date", 
-        "fledgestart", "fledgedisp", 
-        "Abandoned_Date", "Partial_Abandon_Date"
+        "old_site", "breeding_type", "outcome", 
+        "settlement_start",  
+        "incubation_onset", "brooding_onset", 
+        "fledging_onset", "fledgling_dispersal", 
+        "abandon_date", "partial_abandon_date"
     ]
     df_main_cols = df_manual_all[cols_to_keep]
     name_map = {
-        "Pulse_Name": "site",
-        "Breeding_Type": "breeding_type",
-        "Complex_Types": "complex_types",
-        "Outcome": "outcome",
-        "mcstart": "settlement_start",
-        "mcend": "settlement_end",
-        "incstart": "incubation_onset",
-        "Hatch_Date": "hatch",
-        "fledgestart": "fledging_onset",
-        "fledgedisp": "fledgling_dispersal",
-        "Abandoned_Date": "abandon",
-        "Partial_Abandon_Date": "partial_abandon"
+        "old_site": "site",
+        "abandon_date": "abandon",
+        "partial_abandon_date": "partial_abandon"
     }
     df_manual = df_main_cols.rename(columns=name_map)
 
     return df_manual
 
+
 def load_ARI_score_from_csv() -> pd.DataFrame:
-    file_path = "C:\\Users\\mikes\\GitHub\\TRBL-Utils\\nestling_to_female_ratios.csv"
-    df_ARI = pd.read_csv(file_path)
+    df_ARI = pd.read_csv(ARI_SCORE_FILE)
     
     return df_ARI
 
@@ -503,15 +496,13 @@ def sync_via_webhook(df: pd.DataFrame, webhook_url: str, sheet_name: str = ""):
     else:
         print(f"❌ Apps Script Error: {result.get('message')}")
 
-# --- Usage Example ---
+
+
 if __name__ == "__main__":
-    WEBHOOK_URL = (
-        "https://script.google.com/macros/s/AKfycbxtzRiML6eQQCyERCQSywEvLZYCFglybWn5CQ_WJuHC6Mw77SbTIvkjulu6F16Ob4EWMg/exec"
-    )
-    df_baseline = pd.read_csv("TRBL_dates - accepted_results.csv")
+    df_accepted = load_accepted_results_from_csv()
 
     latest_results_dir = (
-        Path("C:\\Users\\mikes\\GitHub\\TRBL-Breeding-Stages-Final\\outputs\\chronology_report_restore\\publication\\")
+        Path("C:\\Users\\mikes\\GitHub\\TRBL-Breeding-Stages-Final\\outputs\\new_data_review_20260929\\publication\\")
     )    
     df_results = load_automated_results_from_csv(dir=latest_results_dir)
 
@@ -522,7 +513,7 @@ if __name__ == "__main__":
 
     output_file = OUTPUT_DIR / "dataframe_diff.xlsx" 
     export_full_data_styled_excel(
-        df_baseline, df_results, df_old_results, key_col="site", output_file=output_file
+        df_accepted, df_results, df_old_results, key_col="site", output_file=output_file
     )
     
     #sync_via_webhook(df_results, WEBHOOK_URL)

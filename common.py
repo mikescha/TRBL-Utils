@@ -1,173 +1,228 @@
+'''
+Common configuration and constants for TRBL Utils.
+'''
+
+import datetime
+import os
+import re
 import shutil
-from datetime import date, datetime
+import time
 from pathlib import Path
-from typing import Any
 
 import pandas as pd
+import requests
 
-COL_SITE_ID = "Site_ID"
-COL_SITE_NAME = "Site_Name"
-COL_DEPLOYMENT_START = "Deployment_Start"
-COL_DEPLOYMENT_END = "Deployment_End"
-COL_BREEDING_TYPE = "Breeding_Type"
-COL_COMPLEX_TYPES = "Complex_Types"
-COL_APPROX_COLONY_SIZE = "Approx_Colony_Size"
-COL_COLONY_SIZE = "Colony_Size"
-COL_SUBSTRATE = "Substrate"
-COL_GROUP = "Group"
-COL_PRETTY_SITE_NAME = "Pretty_Site_Name"
-COL_SKIP_SITE = "Skip_Site"
-COL_COMMENT = "Comment"
-COL_PULSE_NAME = "Pulse_Name"
-COL_OUTCOME = "Outcome"
-COL_HATCH_DATE = "Hatch_Date"
-COL_ABANDON_DATE = "Abandoned_Date"
-COL_PARTIAL_ABANDON_DATE = "Partial_Abandon_Date"
-STATUS_ND = "ND"
+WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbxtzRiML6eQQCyERCQSywEvLZYCFglybWn5CQ_WJuHC6Mw77SbTIvkjulu6F16Ob4EWMg/exec"
 
-# Manual outcome labels
-OUTCOME_ABANDONED = "Abandoned"
-OUTCOME_PARTIALLY_ABANDONED = "Partially Abandoned"
-OUTCOME_SUCCESSFUL = "Successful"
-OUTCOME_UNKNOWN = "Unknown"
-OUTCOME_NO_COLONY = "No Colony"
-OUTCOME_NO_TRBL = "No TRBL"
 
 # File locations
 BASE_DIR = Path(".")
+OUTPUT_DIR = BASE_DIR / "output"
+
+#Map for the data extractors to use
+SITE_NAME_MAP_FILENAME = "site_name_map.csv"
+PMJ_EXTRACTOR_PATH = r"C:\Users\mikes\GitHub\TRBL-Extractor-PMJ"
+HBC_EXTRACTOR_PATH = r"C:\Users\mikes\GitHub\TRBL-Extractor-Data"
+
+#Location in the main analysis project
+TRBL_REVIEWER_DIR = Path(r"C:\Users\mikes\GitHub\TRBL-Breeding-Stages-Final\reviewer_inputs")
+DEFAULT_AUTOMATED_RESULTS_DIR = (
+    Path("C:\\Users\\mikes\\GitHub\\TRBL-Breeding-Stages-Final\\outputs\\publication")
+)
+
+
 OLD_ALL_FILE_FOR_STREAMLIT_APP = Path(
     r"C:\Users\mikes\GitHub\TRBLSummarizer\TRBLSummarizer\Data\TRBL Analysis tracking - All.csv"
 )
-#ARI_SCORE_FILENAME = "nestling_to_female_ratios.csv"
-#ARI_SCORE_PATH = BASE_DIR / ARI_SCORE_FILENAME
 
-DATA_ROOT = Path(r"C:\Users\mikes\GitHub\TRBL-Breeding-Stages-Final\reviewer_inputs")
-DATA_DIR = DATA_ROOT
-PMJ_DIR = DATA_DIR / "PMJ Data"
-#HOURLY_PARQUET_FILES = DATA_DIR / Path("recordings_per_day_hour.parquet")
+ARI_SCORE_FILE = Path(
+    "C:\\Users\\mikes\\GitHub\\TRBL-Breeding-Stages-Final\\outputs\\ari\\trbl_acoustic_reproductive_index.csv"
+)
+
 SHARING_OUTPUT_DIR = Path(r"G:\My Drive\TRBL for Wendy GDrive")
 
+def fetch_sheet_dataframe(
+    web_app_url: str = WEBHOOK_URL,
+    sheet_name: str = "main",
+    header_row: int = 1,
+    max_retries: int = 3,
+    retry_delay: int = 2,
+) -> pd.DataFrame:
+    """Fetches data from Google Apps Script doGet and returns a Pandas DataFrame.
 
-def format_date_for_output(value: date | None, missing: str = STATUS_ND) -> str:
-    """Formats date values consistently for CSV output."""
-    if isinstance(value, date):
-        return value.isoformat()
-    return missing
-
-
-def normalize_one_date(value: Any) -> Any:
-    preserve_values = {
-        "",
-        "ND",
-        "NHD",
-        "inf",
-        "missed",
-        "n/a",
-        "na",
-        "nan",
-        "None",
-        "Continuous",
-    }
-
-    if pd.isna(value):
-        return value
-
-    if isinstance(value, date):
-        return value.isoformat()
-
-    text = str(value).strip()
-    has_tilde = text.startswith("~")
-    cleaned = text.removeprefix("~").strip()
-
-    if cleaned.startswith("before"):
-        return cleaned
-    
-    if cleaned in preserve_values:
-        return f"~{cleaned}" if has_tilde else cleaned
-
-    parsed = pd.to_datetime(cleaned, errors="coerce")
-    if pd.isna(parsed):
-        return value
-
-    iso_date = parsed.date().isoformat()
-    return f"~{iso_date}" if has_tilde else iso_date
-
-
-def normalize_output_date_columns(df: pd.DataFrame, date_columns: list[str]) -> pd.DataFrame:
-    """Normalizes selected date-like output columns to YYYY-MM-DD.
-
-    Non-date status values such as NHD, ND, inf, missed, and blanks are preserved.
-    Leading ~ markers are preserved while the date itself is normalized.
+    :param web_app_url: Google Apps Script Web App URL
+    :param sheet_name: Target sheet tab name
+    :param header_row: 1-based row number containing headers (default: 2)
+    :param max_retries: Number of retry attempts on failure
+    :param retry_delay: Delay in seconds between retries
+    :return: pd.DataFrame
     """
-    normalized = df.copy()
+    params = {"sheet": sheet_name, "start_row":header_row}
+    results_df = pd.DataFrame()
 
-    for col in date_columns:
-        if col not in normalized.columns:
-            continue
-        normalized[col] = normalized[col].apply(normalize_one_date)
+    for attempt in range(1, max_retries + 1):
+        try:
+            response = requests.get(web_app_url, params=params, timeout=10)
+            response.raise_for_status()
 
-    return normalized
+            data = response.json()
+
+            # Verify response is a 2D array and has enough rows for the header
+            if not isinstance(data, list):
+                raise ValueError(
+                    f"❌ Expected list payload, got {type(data).__name__}: {data}"
+                )
+
+            if len(data) <= header_row:
+                raise ValueError(
+                    f"❌ Sheet has {len(data)} rows, but header is configured at row {header_row}."
+                )
+
+            print(f"✅ Retrieved '{sheet_name}' with {len(data)} total rows (including headers).")
+            headers = data[0]
+            rows = data[1 :]
+
+            results_df = pd.DataFrame(rows, columns=headers)
+
+            # Strip trailing spaces from strings
+            results_df = results_df.map(lambda x: x.strip() if isinstance(x, str) else x)
+
+            break
+
+        except (requests.RequestException, ValueError) as err:
+            print(f"❌ [Attempt {attempt}/{max_retries}] Fetch failed: {err}")
+            if attempt == max_retries:
+                raise RuntimeError(
+                    f"❌ Failed to retrieve sheet data after {max_retries} attempts."
+                ) from err
+            time.sleep(retry_delay)
+
+    return results_df
 
 
 def save_csv_with_retry(df: pd.DataFrame, path: Path, share = False) -> None:
+    def add_timestamp(filename: str) -> str:
+        path = Path(filename)
+        timestamp = time.strftime("%Y-%m-%d %H-%M-%S", time.localtime())
+        return str(path.with_name(f"{path.stem} {timestamp}{path.suffix}"))
+
+    # Prep the output directory
+    os.makedirs(OUTPUT_DIR, exist_ok=True)
+
     while True:
         try:
-            df.to_csv(path, index=False)
+            df.to_csv(path, index=False, encoding="utf-8-sig")
+            print(f"✅ Saved CSV to '{path}'")
             break
         except PermissionError:
             input(f"\n[!] Output file is locked in Excel: {path.name}\nClose it and press Enter to retry...")
-
-    if path.name == ARI_SCORE_FILENAME:
-        def add_timestamp(filename: str) -> str:
-            path = Path(filename)
-            timestamp = datetime.now().strftime("%Y-%m-%d %H-%M-%S")
-            return str(path.with_name(f"{path.stem} {timestamp}{path.suffix}"))
-
-        STREAMLIT_APP_DIR = Path(r"C:\Users\mikes\GitHub\TRBLSummarizer\TRBLSummarizer\Data")
-        OLD_OUT_FILE = STREAMLIT_APP_DIR / path.name
-        if OLD_OUT_FILE.exists():
-            BACKUP_FILE = add_timestamp(path.name)
-            shutil.copy2(OLD_OUT_FILE, OLD_OUT_FILE.parent / BACKUP_FILE)
-            shutil.copy2(path, STREAMLIT_APP_DIR / path.name)
 
     if share and SHARING_OUTPUT_DIR.exists():
         shutil.copy2(path, SHARING_OUTPUT_DIR / path.name)
 
 
-def load_pmj_subset_from_parquet(
-    site: str,
-    call_type: str,
-    columns: list[str],
-) -> pd.DataFrame:
-    """Load one site/call-type subset from the partitioned PMJ Parquet dataset."""
-    if not PMJ_DIR.exists():
-        return pd.DataFrame(columns=columns)
+# OTHER VERSION SAVED UNTIL LATER
+# def transform_value(val, site: str, col: str) -> str:
+#     """Transforms a single cell value:
 
-    # site and call_type are partition columns. They may be represented as
-    # partition metadata rather than physical columns, so do not request them
-    # as physical columns from the Parquet files.
-    physical_columns = [
-        col for col in columns
-        if col not in {"site", "call_type"}
-    ]
+#     - Formats dates to M/D/YYYY (with ~ for estimates or suffixes like (C)).
+#     - Handles ISO 8601 timestamps (e.g., '2023-07-05T07:00:00.000Z').
+#     - Validates string tokens against the allowed list.
+#     - Prints an error for unallowed values.
+#     """
+#     if pd.isna(val) or val is None:
+#         return "ND"
 
-    df = pd.read_parquet(
-        PMJ_DIR,
-        columns=physical_columns,
-        filters=[
-            ("site", "==", site),
-            ("call_type", "==", call_type),
-        ],
+#     # Handle native pandas/datetime objects or strings
+#     if isinstance(val, (datetime.date, datetime.datetime, pd.Timestamp)):
+#         val_str = val.strftime("%Y-%m-%d")
+#     else:
+#         val_str = str(val).strip()
+
+#     if not val_str:
+#         return "ND"
+
+#     # Regex matching: YYYY-MM-DD (with optional ~ prefix, optional ISO timestamp, and optional suffix)
+#     date_match = re.match(
+#         r"^(~?)(\d{4})[-/](\d{1,2})[-/](\d{1,2})(?:[T\s]\d{2}:\d{2}:\d{2}(?:\.\d+)?Z?)?(?:\(?([A-Za-z]{1,3})\)?)?$",
+#         val_str,
+#     )
+
+#     if date_match:
+#         tilde, year, month, day, suffix = date_match.groups()
+#         formatted_date = f"{int(month)}/{int(day)}/{year}"
+
+#         # Prefix with ~ if tilde existed or a suffix was present
+#         if tilde or suffix:
+#             return f"~{formatted_date}"
+#         return formatted_date
+
+#     # Validate non-date allowed string values
+#     allowed_values = {"ND", "continuous", "missed", "inf"}
+#     if val_str in allowed_values:
+#         return val_str
+
+#     # Log error if value is outside the allowed list
+#     print(
+#         f"Error: Site '{site}', Column '{col}' contains invalid value '{val_str}'"
+#     )
+#     return val_str
+
+
+def transform_value(val, site: str, col: str, YYYYMMDD_format: bool = True) -> str:
+    """Transforms a single cell value:
+
+    - Formats dates to YYYY-MM-DD or M/D/YYYY depending on the YYYYMMDD_format flag.
+    - Handles ISO 8601 timestamps (e.g., '2023-07-05T07:00:00.000Z').
+    - Validates string tokens against the allowed list.
+    - Prints an error for unallowed values.
+    """
+    if pd.isna(val) or val is None:
+        return "ND"
+
+    # Handle native pandas/datetime objects or strings
+    if isinstance(val, (datetime.date, datetime.datetime, pd.Timestamp)):
+        val_str = val.strftime("%Y-%m-%d")
+    else:
+        val_str = str(val).strip()        
+        # If it exactly matches M/D/YYYY or MM/DD/YYYY
+        if re.match(r"^\d{1,2}/\d{1,2}/\d{4}$", val_str):
+            # Convert to intermediate YYYY-MM-DD so the downstream regex can read it easily
+            val_str = pd.to_datetime(val_str).strftime("%Y-%m-%d")
+
+    if not val_str:
+        return "ND"
+
+    # Regex matching: YYYY-MM-DD (with optional ~ prefix, optional ISO timestamp, and optional suffix)
+    date_match = re.match(
+        r"^(~?)(\d{4})[-/](\d{1,2})[-/](\d{1,2})(?:[T\s]\d{2}:\d{2}:\d{2}(?:\.\d+)?Z?)?(\(?[A-Za-z]{1,3}\)?)?$",
+        val_str,
     )
 
-    if "site" in columns:
-        df["site"] = site
+    if date_match:
+        tilde, year, month, day, suffix = date_match.groups()
+        
+        # Apply the chosen format
+        if YYYYMMDD_format:
+            # Ensure month and day are 2 digits (e.g., "05" instead of "5")
+            formatted_date = f"{year}-{month.zfill(2)}-{day.zfill(2)}"
+        else:
+            # Strip leading zeros using int() (e.g., "05" becomes "5")
+            formatted_date = f"{int(month)}/{int(day)}/{year}"
 
-    if "call_type" in columns:
-        df["call_type"] = call_type
+        # keep the tilde and suffix if they exist
+        tilde_str = tilde if tilde else ""
+        suffix_str = suffix if suffix else ""
+        result = f"{tilde_str}{formatted_date}{suffix_str}"
+        return result
 
-    for col in columns:
-        if col not in df.columns:
-            df[col] = pd.NA
+    # Validate non-date allowed string values
+    allowed_values = {"ND", "continuous", "missed", "inf"}
+    if val_str in allowed_values:
+        return val_str
 
-    return df[columns]
+    # Log error if value is outside the allowed list
+    print(
+        f"Error: Site '{site}', Column '{col}' contains invalid value '{val_str}'"
+    )
+    return val_str

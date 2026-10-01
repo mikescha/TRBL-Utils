@@ -1,7 +1,7 @@
 Id,Name,Pretty Site Name,PMJ Male Song,PMJ Male Chorus,PMJ Female Chatter,PMJ Hatchling,PMJ Nestling,PMJ Fledgling
 2059,2017 Rush Ranch,2017 Rush Ranch,2017 RR MStyp5,2017 RR MC01,2017 RR FS01,2017 RR Hatchling,2017 RR Nestling,2017 RR FC06
 3150,2018 Iron Point,2018 Iron Point,2018 Iron Point MStyp5,2018 IP MC01,2018 Iron Point FS01,2018 Iron Point Hatchling,2018 Iron Point Nestling,2018 Iron Point FC06
-3348,2018 Markham Ravine Main,2018 Markham Ravine,2018 Markham Ravine Main MStyp5,2018 MR MC01,2018 Markham Ravine Main FS01,2018 Markham Ravine Hatchling,2018 MR M PMJ local NBC04,2018 MR M PMJ local FBC03
+3348,2018 Markham Ravine Main,2018 Markham Ravine,2018 Markham Ravine Main MStyp5,2018 MR MC01,2018 Markham Ravine Main FS01,2018 Markham Ravine Hatchling,2018 MR M local NBC04,2018 MR M PMJ local FBC03
 3366,2018 Markham Ravine westside,2018 Markham Ravine - West,2018 Markham Ravine westside MStyp5,2018 MRW MC01,2018 Markham Ravine westside FS01,2018 Markham Ravine westside Hatchling,2018 MR W PMJ local NBC02,2018 MR W PMJ using MR M local FBC03
 3281,2018 Red Wing Ranch,2018 Yankee Slough Ranch Preserve,2018 RWR MStyp5,2018 RWR MC01,2018 RWR FS01,2018 RWR Hatchling,2018 RWR Nestling,2018 RWR FC06
 2719,2018 Rush Ranch,2018 Rush Ranch,2018 Rush Ranch MStyp5,2018 RR MC01,2018 Rush Ranch FS01,2018 Rush Ranch Hatchling,2018 Rush Ranch Nestling,2018 RR local FBC02
@@ -71,7 +71,7 @@ Id,Name,Pretty Site Name,PMJ Male Song,PMJ Male Chorus,PMJ Female Chatter,PMJ Ha
 34078,2022 Creed Road,2022 Denverton Creek,2022 CR MS typ5,2022 CR MC01,2022 CR FS01,2022 Creed Road Hatchling,2022 Creed Rd Nestling,2022 CR FC06
 34118,2022 Foley Ranch A,2022 Virginia at Ostrom A,2022 Foley Ranch FR MS01,2022 FRA MC01,2022 Foley Ranch A FS 01,2022 FR A Hatchling,2022 FR A Nestling,2022 Foley Ranch A FC06
 34119,2022 Foley Ranch B,2022 Virginia at Ostrom B,2022 FR - B MS,2022 FRB MC01,2022 FR B FS01,2022 FR B Hatchling,2022 FR B Nestling,2022 FR B FC06
-33966,2022 Hay Landfill,2022 Hay Landfill,2022 HL MStyp5,2022 HL MC01,2022 HL FS01,2022 Hay Landfill Hatchling,2022 Hay Landfill Nestling,2022 HL FC04
+33966,2022 Hay Landfill,2022 Hay Landfill,2022 HL MStyp5,2022 HL MC01,2022 HL FS01,2022 Hay Landfill Hatchling,2022 Hay Landfill Nestling,2022 HL FC06
 34077,2022 Laguna Seca,2022 Laguna Seca,2022 Leguna Seca LS MS03,2022 LS MC01,2022 Leguna Seca Female Song 01,2022 LS Hatchling,2022 LS Nestling,2022 LS FC06
 34117,2022 Los Vaqueros Reservoir,2022 Los Vaqueros Playa,2022 LV MS LV-MS01,2022 LVR MC01,2022 LV FS 01,2022 LVR Hatchling,2022 LVR Nestling,2022 LV FC06
 34076,2022 Marsh Creek Reservoir,2022 Marsh Creek Reservoir,2022 Marsh Creek Reservoir MS Type 5,2022 MCR MC01,2022 Marsh Creek FS01,2022 MCR Hatchling,2022 MCR Nestling,2022 Marsh Creek FC06
@@ -131,7 +131,7 @@ Id,Name,Pretty Site Name,PMJ Male Song,PMJ Male Chorus,PMJ Female Chatter,PMJ Ha
 48461,2023 Peterson Ranch Pond - West,2023 Petersen Ranch Pond - West,2023 PRP W MStyp5,2023 PRP W MC01,2023 PRP W FS01,2023 PRP-W Hatchling,2023 PRP-W Nestling,2023 PRP W FC06
 48475,2023 Plumas Arboga 2,2023 Plumas Arboga 2,2023 PA2 MStyp5,2023 PA2 MC01,2023 PA2 FS01,2023 PA2 Hatchling,2023 PA2 Nestling,2023 PA 6 FC06
 48437,2023 Plumas Arboga 8 - North Regional Pond,2023 Plumas Arboga 8,2023 PA8 MStyp5,2023 PA8 MC01,2023 PA8 FS01,2023 PA8 Hatchling,2023 PA8 Nestling,2023 PA 8 FC06
-48764,2023 Rancho Jamul North Pond - fix lat lon,2023 Rancho Jamul - North Pond,2023 Rancho Jamul NP MStyp5,2023 RJ NP MC01,2023 Rancho Jamul NP FS01,2023 RJ NP Hatchling,2023 RJ NP Nestling,2023 RJ NP local FBC02
+48764,2023 Rancho Jamul North Pond - fix lat lon,2023 Rancho Jamul - North Pond,2023 Rancho Jamul NP MStyp5,2023 RJ NP MC01,2023 Rancho Jamul NP FS01,2023 RJ NP Hatchling,2023 RJ NP Nestling,2023 RJ NP lower threshold FC06
 48765,2023 Rancho Jamul Site 1 fix lat lon,2023 Rancho Jamul - Site 1,2023 RJ S1 MS02,2023 RJ Site 1 MC01,2023 RJS1 Female Redo 2,2023 RJ S1 Hatchling,2023 RJS1 Nestling redo,2023 RJS1 FC06 Redo
 48447,2023 San Luis Bear Creek,2023 San Luis NWR - Tanager Slough,2023 SL BC MStyp5,2023 SLNWR BC MC01,2023 SL BC FS01,2023 SL BC Hatchling,2023 SL BC Nestling,2023 SL BC FC06
 48464,2023 San Luis NWR - West Bank Creek,2023 San Luis NWR - Fiddleneck Lake,2023 SL WBC MStyp5,2023 SLNWR WBC MC01,2023 SL WBC FS01,2023 SL WBC Hatchling,2023 SL WBC Nestling,2023 SL WBC FC06

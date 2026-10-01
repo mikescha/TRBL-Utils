@@ -1,117 +1,16 @@
 
-import datetime
 import io
 import re
-import time
 
 import pandas as pd
 import requests
 
-from make_accepted_vs_automated_comp import OUTPUT_DIR
-
-WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbxtzRiML6eQQCyERCQSywEvLZYCFglybWn5CQ_WJuHC6Mw77SbTIvkjulu6F16Ob4EWMg/exec"
-
-
-def fetch_sheet_dataframe(
-    web_app_url: str = WEBHOOK_URL,
-    sheet_name: str = "main",
-    header_row: int = 1,
-    max_retries: int = 3,
-    retry_delay: int = 2,
-) -> pd.DataFrame:
-    """Fetches data from Google Apps Script doGet and returns a Pandas DataFrame.
-
-    :param web_app_url: Google Apps Script Web App URL
-    :param sheet_name: Target sheet tab name
-    :param header_row: 1-based row number containing headers (default: 2)
-    :param max_retries: Number of retry attempts on failure
-    :param retry_delay: Delay in seconds between retries
-    :return: pd.DataFrame
-    """
-    params = {"sheet": sheet_name, "start_row":header_row}
-    results_df = pd.DataFrame()
-
-    for attempt in range(1, max_retries + 1):
-        try:
-            response = requests.get(web_app_url, params=params, timeout=10)
-            response.raise_for_status()
-
-            data = response.json()
-
-            # Verify response is a 2D array and has enough rows for the header
-            if not isinstance(data, list):
-                raise ValueError(
-                    f"❌ Expected list payload, got {type(data).__name__}: {data}"
-                )
-
-            if len(data) <= header_row:
-                raise ValueError(
-                    f"❌ Sheet has {len(data)} rows, but header is configured at row {header_row}."
-                )
-
-            print(f"✅ Retrieved '{sheet_name}' with {len(data)} total rows (including headers).")
-            headers = data[0]
-            rows = data[1 :]
-
-            results_df = pd.DataFrame(rows, columns=headers)
-            break
-
-        except (requests.RequestException, ValueError) as err:
-            print(f"❌ [Attempt {attempt}/{max_retries}] Fetch failed: {err}")
-            if attempt == max_retries:
-                raise RuntimeError(
-                    f"❌ Failed to retrieve sheet data after {max_retries} attempts."
-                ) from err
-            time.sleep(retry_delay)
-
-    return results_df
-
-
-def transform_value(val, site: str, col: str) -> str:
-    """Transforms a single cell value:
-
-    - Formats dates to M/D/YYYY (with ~ for estimates or suffixes like (C)).
-    - Handles ISO 8601 timestamps (e.g., '2023-07-05T07:00:00.000Z').
-    - Validates string tokens against the allowed list.
-    - Prints an error for unallowed values.
-    """
-    if pd.isna(val) or val is None:
-        return "ND"
-
-    # Handle native pandas/datetime objects or strings
-    if isinstance(val, (datetime.date, datetime.datetime, pd.Timestamp)):
-        val_str = val.strftime("%Y-%m-%d")
-    else:
-        val_str = str(val).strip()
-
-    if not val_str:
-        return "ND"
-
-    # Regex matching: YYYY-MM-DD (with optional ~ prefix, optional ISO timestamp, and optional suffix)
-    date_match = re.match(
-        r"^(~?)(\d{4})[-/](\d{1,2})[-/](\d{1,2})(?:[T\s]\d{2}:\d{2}:\d{2}(?:\.\d+)?Z?)?(?:\(?([A-Za-z]{1,3})\)?)?$",
-        val_str,
-    )
-
-    if date_match:
-        tilde, year, month, day, suffix = date_match.groups()
-        formatted_date = f"{int(month)}/{int(day)}/{year}"
-
-        # Prefix with ~ if tilde existed or a suffix was present
-        if tilde or suffix:
-            return f"~{formatted_date}"
-        return formatted_date
-
-    # Validate non-date allowed string values
-    allowed_values = {"ND", "Continuous", "missed", "inf"}
-    if val_str in allowed_values:
-        return val_str
-
-    # Log error if value is outside the allowed list
-    print(
-        f"Error: Site '{site}', Column '{col}' contains invalid value '{val_str}'"
-    )
-    return val_str
+from common import (
+    OUTPUT_DIR,
+    fetch_sheet_dataframe,
+    save_csv_with_retry,
+    transform_value,
+)
 
 
 def convert_data_to_all_format(df: pd.DataFrame) -> pd.DataFrame:
@@ -133,18 +32,6 @@ def convert_data_to_all_format(df: pd.DataFrame) -> pd.DataFrame:
     for p in pulse_prefixes:
         for sub in pulse_subheadings:
             output_cols.append(f"{p}{sub}")
-
-    # --> This is unneeded so long as we're writing back to the old All file. It's only needed if
-    #     if we were creating a new All file from scratch, then we would need these additional columns
-    # output_cols.extend(
-    #     [
-    #         "Pretty Site Name",
-    #         "Latitude",
-    #         "Longitude",
-    #         "Skip Site",
-    #         "Comment for Skip Site",
-    #     ]
-    # )
 
     output_rows = {}  # Preserves site order and accumulates pulse data
 
@@ -267,8 +154,6 @@ def update_and_save_main_sheet(
     return main_df
 
 
-
-
 def get_data_from_sheet()->pd.DataFrame:
     df = fetch_sheet_dataframe(sheet_name="main", header_row=2)
     return df   
@@ -310,4 +195,5 @@ if __name__ == "__main__":
     mapped_df = data_df[list(col_map.keys())]
     mapped_df = mapped_df.rename(columns=col_map) 
     cleaned_df = clean_data(mapped_df)
-    cleaned_df.to_csv("TRBL_dates - accepted_results.csv", index=False)
+
+    save_csv_with_retry(cleaned_df, OUTPUT_DIR / "TRBL_dates - accepted_results.csv")
