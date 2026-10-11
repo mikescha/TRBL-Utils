@@ -57,14 +57,36 @@ def validate_breeding_data(df: pd.DataFrame):
         "abandon", "partial_abandon"
     ]
 
+    # Chronological order of breeding stages
+    chronological_stages = ["ss", "is", "hatch", "fo", "fd"]
+
     def check_is_valid_date(d_str, expected_year):
-            if not expected_year: 
-                return False
+        if not expected_year: 
+            return False
+            
+        # Enforce exact YYYY-MM-DD structure (exactly 4 digits, 2 digits, 2 digits)
+        if not re.match(r'^\d{4}-\d{2}-\d{2}$', d_str):
+            return False
+            
+        try:
+            dt = datetime.strptime(d_str, "%Y-%m-%d")
+            return str(dt.year) == expected_year
+        except ValueError:
+            return False
+
+    def parse_comparable_date(val_str):
+            """Extracts a datetime object from valid date strings, ignoring ~, (B), etc. 
+            Returns None for inf/ND/missed/continuous."""
+            if pd.isna(val_str) or not str(val_str).strip(): 
+                return None
+                
+            v = str(val_str).strip().lstrip("~")
+            v = re.sub(r'\([BCE]\)$', '', v)
             try:
-                dt_obj = datetime.strptime(d_str, "%Y-%m-%d")
-                return str(dt_obj.year) == expected_year
+                return datetime.strptime(v, "%Y-%m-%d")
             except ValueError:
-                return False
+                return None
+
 
     # Dictionary to hold rows grouped by their physical site for pulse evaluation
     sites_data = {}
@@ -143,7 +165,7 @@ def validate_breeding_data(df: pd.DataFrame):
             v_str = str(val).strip()
 
             if d_col in ["fcabs_auto", "fcabs_accpt", "fcabe_auto", "fcabe_accpt"]:
-                if v_str == "ND" or v_str == "" or v_str == "notcalcd":
+                if v_str in ["inf", "missed", "ND", "continuous", "notcalcd", ""]:
                     continue
                 if v_str.startswith("~") and check_is_valid_date(v_str[1:], year_str): 
                     continue
@@ -152,7 +174,7 @@ def validate_breeding_data(df: pd.DataFrame):
                 report_error(site_str, d_col, val, "Invalid format. Expected YYYY-MM-DD, ~YYYY-MM-DD, or 'ND'")
 
             elif d_col.endswith("_auto"):
-                if v_str in ["inf", "missed", "ND", "continuous"]: 
+                if v_str in ["inf", "missed", "ND", "continuous", "notcalcd"]: 
                     continue
                 if v_str.startswith("~") and check_is_valid_date(v_str[1:], year_str): 
                     continue
@@ -186,7 +208,40 @@ def validate_breeding_data(df: pd.DataFrame):
                 report_error(site_str, d_col, val, 
                              "Invalid format. Expected valid date, ~date, or 'ND'")
 
-        # 5. Populate sites_data grouped structure for Phase 2 pulse logic
+
+        # 5. Chronological Sequence Checks (Increasing dates & 'inf' propagation)
+        for suffix in ["_auto", "_accpt"]:
+            seq_cols = [f"{prefix}{suffix}" for prefix in chronological_stages]
+            
+            # Fetch values in chronological order
+            vals = [str(row.get(col, "")).strip() for col in seq_cols if col in df.columns]
+            
+            # Rule 2: If a breeding date is "inf", everything prior must be "inf"
+            for i, val in enumerate(vals):
+                if val == "inf":
+                    # Check all earlier columns
+                    for j in range(i):
+                        if vals[j] != "inf":
+                            report_error(site_str, seq_cols[i], val, f"Value is 'inf' but prior stage {seq_cols[j]} is not 'inf'")  # noqa: E501
+                            break # Only report once per invalid column
+            
+            # Rule 1: Dates must always be increasing
+            parsed_dates = []
+            for i, val in enumerate(vals):
+                dt = parse_comparable_date(val)
+                if dt:
+                    parsed_dates.append((seq_cols[i], val, dt))
+                    
+            for i in range(1, len(parsed_dates)):
+                prev_col, prev_val, prev_dt = parsed_dates[i-1]
+                curr_col, curr_val, curr_dt = parsed_dates[i]
+                
+                # Compare the extracted datetime objects
+                if curr_dt < prev_dt:
+                    report_error(site_str, curr_col, curr_val, 
+                                 f"Date is earlier than preceding stage ({prev_col}={prev_val})")
+
+        # 6. Populate sites_data grouped structure for Phase 2 pulse logic
         if site_str:
             pn_match = re.search(r' P(\d+)$', site_str)
             if pn_match:
@@ -850,14 +905,14 @@ def create_and_save_breeding_dates(site_info_df: pd.DataFrame, data_df: pd.DataF
 if __name__ == "__main__":
     site_info_df = get_data_from_site_info_sheet()
     data_df = get_data_from_main_sheet(site_info_df)
-    validate_breeding_data(data_df)
+    # validate_breeding_data(data_df)
 
     # Create site_name_map.csv (ID, Name, Pretty Site Name, PMJ* Columns)
     # This is used by the two Parquet Builders 
     #create_and_save_site_name_map(site_info_df)
 
     # This makes 3 files, one with just the metadata, one with just the accepted results, and one with both
-    #create_and_save_breeding_dates(site_info_df, data_df)
+    create_and_save_breeding_dates(site_info_df, data_df)
 
     # # Create a version of the All file for compatibility
     # # I want to do two things here:

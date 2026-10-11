@@ -502,12 +502,12 @@ if __name__ == "__main__":
     df_accepted = load_accepted_results_from_csv()
 
     latest_results_dir = (
-        Path("C:\\Users\\mikes\\GitHub\\TRBL-Breeding-Stages-Final\\outputs\\new_data_review_20260929\\publication\\")
+        Path("C:\\Users\\mikes\\GitHub\\TRBL-Breeding-Stages-Final\\docs\\reviews\\20261001\\publication\\")
     )    
     df_results = load_automated_results_from_csv(dir=latest_results_dir)
 
     old_results_dir = (
-        Path("C:\\Users\\mikes\\GitHub\\TRBL-Breeding-Stages-Final\\outputs\\check09-17\\")
+        Path("C:\\Users\\mikes\\GitHub\\TRBL-Breeding-Stages-Final\\outputs\\new_data_review_20260929\\publication\\")
     )
     df_old_results = load_automated_results_from_csv(dir=old_results_dir)
 

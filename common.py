@@ -41,6 +41,22 @@ ARI_SCORE_FILE = Path(
 
 SHARING_OUTPUT_DIR = Path(r"G:\My Drive\TRBL for Wendy GDrive")
 
+FLEDGLING_BEGGING_CALL = "fbc"
+FEMALE_CHATTER = "fc"
+HATCHLING_BEGGING_CALL = "hbc"
+MALE_CHORUS = "mc"
+HATCHLING_BEGGING_CALL = "hbc"
+NESTLING_BEGGING_CALL = "nbc"
+
+AB_TYPES = [
+    FLEDGLING_BEGGING_CALL,
+    FEMALE_CHATTER,
+    HATCHLING_BEGGING_CALL,
+    MALE_CHORUS,
+    HATCHLING_BEGGING_CALL,
+    NESTLING_BEGGING_CALL,
+]
+
 def fetch_sheet_dataframe(
     web_app_url: str = WEBHOOK_URL,
     sheet_name: str = "main",
