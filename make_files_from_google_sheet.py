@@ -905,11 +905,11 @@ def create_and_save_breeding_dates(site_info_df: pd.DataFrame, data_df: pd.DataF
 if __name__ == "__main__":
     site_info_df = get_data_from_site_info_sheet()
     data_df = get_data_from_main_sheet(site_info_df)
-    # validate_breeding_data(data_df)
+    validate_breeding_data(data_df)
 
     # Create site_name_map.csv (ID, Name, Pretty Site Name, PMJ* Columns)
     # This is used by the two Parquet Builders 
-    #create_and_save_site_name_map(site_info_df)
+    create_and_save_site_name_map(site_info_df)
 
     # This makes 3 files, one with just the metadata, one with just the accepted results, and one with both
     create_and_save_breeding_dates(site_info_df, data_df)
@@ -918,9 +918,9 @@ if __name__ == "__main__":
     # # I want to do two things here:
     # # 1. Make a version of the all file using the latest data. That's what we need for
     # # the summarizer and other tools that rely on the latest "All" file.
-    #create_and_save_new_all_file_for_compatibility(site_info_df, data_df)
+    create_and_save_new_all_file_for_compatibility(site_info_df, data_df)
 
     # # 2. Make a version of the data file in the format of the old "All" file for comparison.
-    #update_and_save_old_all_sheet(data_df)
+    update_and_save_old_all_sheet(data_df)
     
 
